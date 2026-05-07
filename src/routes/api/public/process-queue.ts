@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { WorkerMailer } from "worker-mailer";
 import { renderEmail } from "@/lib/spintax";
+import { rewriteLinks } from "@/lib/links";
 
 export const Route = createFileRoute("/api/public/process-queue")({
   server: {
