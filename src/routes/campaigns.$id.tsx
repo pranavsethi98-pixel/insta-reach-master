@@ -14,8 +14,10 @@ import { Plus, Trash2, Play, Pause, ArrowLeft, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { renderEmail } from "@/lib/spintax";
+import { scoreSpam } from "@/lib/spam-words";
 import { TEMPLATES } from "@/lib/email-templates";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/campaigns/$id")({
   component: () => (
@@ -273,11 +275,38 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         </Popover>
       </div>
       <Textarea rows={6} placeholder="Body — supports {{first_name}} and {spintax|variations}" value={local.body ?? ""} onChange={(e) => save({ body: e.target.value })} />
-      <details className="text-xs">
-        <summary className="cursor-pointer text-muted-foreground">Preview (sample lead)</summary>
+      <SpamPreview subject={local.subject || ""} body={local.body || ""} sample={sample} />
+    </div>
+  );
+}
+
+function SpamPreview({ subject, body, sample }: { subject: string; body: string; sample: any }) {
+  const report = scoreSpam(subject, body);
+  const tone = report.score < 20 ? "default" : report.score < 50 ? "secondary" : "destructive";
+  const [seed, setSeed] = useState(0);
+  // Re-render preview with fresh spintax pick when seed changes
+  const previewSubject = (() => { void seed; return renderEmail(subject, sample); })();
+  const previewBody = (() => { void seed; return renderEmail(body, sample); })();
+  return (
+    <div className="border-t pt-3 space-y-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Badge variant={tone as any}>Spam score: {report.score}/100</Badge>
+        <span className="text-xs text-muted-foreground">{report.stats.words} words · {report.stats.links} links · {report.stats.exclamations} ! · {report.stats.allCapsWords} CAPS</span>
+        <Button size="sm" variant="ghost" type="button" onClick={() => setSeed(s => s + 1)}>↻ Re-roll spintax</Button>
+      </div>
+      {(report.hits.length > 0 || report.warnings.length > 0) && (
+        <div className="text-xs space-y-1">
+          {report.hits.length > 0 && (
+            <div><span className="text-destructive font-medium">Spam words:</span> {report.hits.join(", ")}</div>
+          )}
+          {report.warnings.map((w, i) => <div key={i} className="text-amber-600">⚠ {w}</div>)}
+        </div>
+      )}
+      <details className="text-xs" open>
+        <summary className="cursor-pointer text-muted-foreground">Live preview (sample lead)</summary>
         <div className="mt-2 bg-muted/50 rounded p-3 whitespace-pre-wrap">
-          <div className="font-semibold">{renderEmail(local.subject || "", sample)}</div>
-          <div className="mt-2">{renderEmail(local.body || "", sample)}</div>
+          <div className="font-semibold">{previewSubject}</div>
+          <div className="mt-2">{previewBody}</div>
         </div>
       </details>
     </div>

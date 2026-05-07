@@ -701,18 +701,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          calendar_link: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
         }
         Insert: {
+          calendar_link?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
         }
         Update: {
+          calendar_link?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -903,6 +906,75 @@ export type Database = {
           id?: string
           message_id?: string | null
           to_mailbox_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_deliveries: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          payload: Json | null
+          response: string | null
+          status: number | null
+          user_id: string
+          webhook_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          payload?: Json | null
+          response?: string | null
+          status?: number | null
+          user_id: string
+          webhook_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          payload?: Json | null
+          response?: string | null
+          status?: number | null
+          user_id?: string
+          webhook_id?: string
+        }
+        Relationships: []
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean
+          last_delivery_at: string | null
+          last_status: number | null
+          secret: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          last_delivery_at?: string | null
+          last_status?: number | null
+          secret?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          last_delivery_at?: string | null
+          last_status?: number | null
+          secret?: string
+          url?: string
           user_id?: string
         }
         Relationships: []

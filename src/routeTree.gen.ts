@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WarmupRouteImport } from './routes/warmup'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
@@ -23,15 +24,22 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
+import { Route as UnsubscribeLeadIdRouteImport } from './routes/unsubscribe.$leadId'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
 
+const WebhooksRoute = WebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WarmupRoute = WarmupRouteImport.update({
   id: '/warmup',
   path: '/warmup',
@@ -102,6 +110,11 @@ const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
   path: '/campaigns/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnsubscribeLeadIdRoute = UnsubscribeLeadIdRouteImport.update({
+  id: '/unsubscribe/$leadId',
+  path: '/unsubscribe/$leadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
@@ -127,6 +140,12 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicUnsubscribeLeadIdRoute =
+  ApiPublicUnsubscribeLeadIdRouteImport.update({
+    id: '/api/public/unsubscribe/$leadId',
+    path: '/api/public/unsubscribe/$leadId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicInboundSecretRoute = ApiPublicInboundSecretRouteImport.update({
   id: '/api/public/inbound/$secret',
   path: '/api/public/inbound/$secret',
@@ -159,13 +178,16 @@ export interface FileRoutesByFullPath {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -183,13 +205,16 @@ export interface FileRoutesByTo {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -208,13 +233,16 @@ export interface FileRoutesById {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -234,13 +262,16 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
+    | '/unsubscribe/$leadId'
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
@@ -258,13 +289,16 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
+    | '/unsubscribe/$leadId'
     | '/campaigns'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
@@ -282,13 +316,16 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
+    | '/unsubscribe/$leadId'
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
@@ -307,19 +344,29 @@ export interface RootRouteChildren {
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
   WarmupRoute: typeof WarmupRoute
+  WebhooksRoute: typeof WebhooksRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  UnsubscribeLeadIdRoute: typeof UnsubscribeLeadIdRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
+  ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
   ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
   ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/webhooks': {
+      id: '/webhooks'
+      path: '/webhooks'
+      fullPath: '/webhooks'
+      preLoaderRoute: typeof WebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/warmup': {
       id: '/warmup'
       path: '/warmup'
@@ -418,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unsubscribe/$leadId': {
+      id: '/unsubscribe/$leadId'
+      path: '/unsubscribe/$leadId'
+      fullPath: '/unsubscribe/$leadId'
+      preLoaderRoute: typeof UnsubscribeLeadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
@@ -451,6 +505,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/imap-sync'
       fullPath: '/api/public/imap-sync'
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/unsubscribe/$leadId': {
+      id: '/api/public/unsubscribe/$leadId'
+      path: '/api/public/unsubscribe/$leadId'
+      fullPath: '/api/public/unsubscribe/$leadId'
+      preLoaderRoute: typeof ApiPublicUnsubscribeLeadIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/inbound/$secret': {
@@ -491,13 +552,16 @@ const rootRouteChildren: RootRouteChildren = {
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
   WarmupRoute: WarmupRoute,
+  WebhooksRoute: WebhooksRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   InviteTokenRoute: InviteTokenRoute,
+  UnsubscribeLeadIdRoute: UnsubscribeLeadIdRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
+  ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
   ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
   ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
 }

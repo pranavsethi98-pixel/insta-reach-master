@@ -22,6 +22,10 @@ export function mergeTags(input: string, lead: Record<string, any>): string {
       email: lead.email,
       company: lead.company,
       title: lead.title,
+      calendar_link: lead.calendar_link,
+      icebreaker: lead.icebreaker,
+      unsubscribe: lead.unsubscribe_url,
+      unsubscribe_url: lead.unsubscribe_url,
     };
     if (map[k] != null && map[k] !== "") return String(map[k]);
     const cf = lead.custom_fields || {};

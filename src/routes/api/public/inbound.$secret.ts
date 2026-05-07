@@ -6,6 +6,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
+import { fireWebhook } from "@/lib/webhooks";
 import { z } from "zod";
 
 const InboundSchema = z.object({
@@ -74,6 +75,10 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
               user_id: userId, email: bouncedEmail, reason: "bounce",
             });
           }
+          await fireWebhook(supabase, userId, "bounce", {
+            to: sendLog?.to_email ?? fromLc, type: body.bounce_type ?? "hard",
+            reason: body.bounce_reason, campaign_id: sendLog?.campaign_id, lead_id: sendLog?.lead_id,
+          });
           return Response.json({ ok: true, kind: "bounce" });
         }
 
@@ -116,6 +121,12 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
             replied_at: new Date().toISOString(),
           }).eq("id", sendLog.id);
         }
+
+        await fireWebhook(supabase, userId, "reply", {
+          from: fromLc, to: toLc, subject: body.subject,
+          conversation_id: convId, lead_id: sendLog?.lead_id, campaign_id: sendLog?.campaign_id,
+          snippet: (body.text || body.html || "").slice(0, 500),
+        });
 
         // Fire-and-forget AI categorization (best-effort)
         const apiKey = process.env.LOVABLE_API_KEY;
