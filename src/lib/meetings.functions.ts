@@ -5,13 +5,18 @@ import { z } from "zod";
 export const listMeetings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("meetings")
-      .select("*, lead:leads(email, first_name, company)")
-      .order("scheduled_at", { ascending: false })
-      .limit(200);
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("meetings").select("*").order("scheduled_at", { ascending: false }).limit(200);
     if (error) throw error;
-    return { items: data ?? [] };
+    const ids = Array.from(new Set((data ?? []).map(m => m.lead_id).filter(Boolean))) as string[];
+    const leadMap: Record<string, any> = {};
+    if (ids.length) {
+      const { data: leads } = await supabase.from("leads").select("id, email, first_name, company").in("id", ids);
+      for (const l of leads ?? []) leadMap[l.id] = l;
+    }
+    const items = (data ?? []).map(m => ({ ...m, lead: m.lead_id ? leadMap[m.lead_id] : null }));
+    return { items };
   });
 
 export const markMeeting = createServerFn({ method: "POST" })
@@ -50,7 +55,7 @@ export const processNoShowQueue = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data: due } = await supabase
-      .from("meetings").select("*, lead:leads(email, first_name)")
+      .from("meetings").select("*")
       .eq("user_id", userId).eq("status", "no_show")
       .lte("next_followup_at", new Date().toISOString())
       .lt("no_show_followups_sent", 3);
@@ -58,6 +63,11 @@ export const processNoShowQueue = createServerFn({ method: "POST" })
     let sent = 0;
     for (const m of due ?? []) {
       // Enqueue a draft reply to the queue (uses existing Reply Agent flow)
+      let firstName = "there";
+      if (m.lead_id) {
+        const { data: lead } = await supabase.from("leads").select("first_name").eq("id", m.lead_id).single();
+        firstName = lead?.first_name ?? "there";
+      }
       if (m.conversation_id) {
         await supabase.from("reply_queue").insert({
           user_id: userId,
@@ -65,7 +75,7 @@ export const processNoShowQueue = createServerFn({ method: "POST" })
           lead_id: m.lead_id,
           classification: "no_show",
           draft_subject: "Sorry we missed you",
-          draft_body: `Hi ${m.lead?.first_name ?? "there"},\n\nLooks like we missed each other. Want to grab another time? Happy to work around your schedule.\n\nBest`,
+          draft_body: `Hi ${firstName},\n\nLooks like we missed each other. Want to grab another time? Happy to work around your schedule.\n\nBest`,
           status: "pending",
           source: "reply_agent",
         });
