@@ -14,6 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      abuse_flags: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          kind: string
+          mailbox_id: string | null
+          resolved: boolean
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind: string
+          mailbox_id?: string | null
+          resolved?: boolean
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind?: string
+          mailbox_id?: string | null
+          resolved?: boolean
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          ip: string | null
+          metadata: Json | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
+      admin_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          role: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Relationships: []
+      }
+      admin_notes: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_usage: {
         Row: {
           created_at: string
@@ -38,6 +161,45 @@ export type Database = {
           kind?: string
           metadata?: Json | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          audience: string
+          body: string
+          created_at: string
+          created_by: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          segment: Json | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          audience?: string
+          body: string
+          created_at?: string
+          created_by: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          segment?: Json | null
+          starts_at?: string
+          title: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          segment?: Json | null
+          starts_at?: string
+          title?: string
         }
         Relationships: []
       }
@@ -346,6 +508,93 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          bonus_credits: number | null
+          code: string
+          created_at: string
+          discount_cents: number | null
+          discount_pct: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          redemptions: number
+        }
+        Insert: {
+          bonus_credits?: number | null
+          code: string
+          created_at?: string
+          discount_cents?: number | null
+          discount_pct?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemptions?: number
+        }
+        Update: {
+          bonus_credits?: number | null
+          code?: string
+          created_at?: string
+          discount_cents?: number | null
+          discount_pct?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemptions?: number
+        }
+        Relationships: []
+      }
+      credit_costs: {
+        Row: {
+          action: string
+          cost: number
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          cost?: number
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          cost?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_ledger: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          delta: number
+          id: string
+          metadata: Json | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          delta: number
+          id?: string
+          metadata?: Json | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          delta?: number
+          id?: string
+          metadata?: Json | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_events: {
         Row: {
           campaign_id: string | null
@@ -424,6 +673,33 @@ export type Database = {
         }
         Relationships: []
       }
+      global_blacklist: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          reason: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          reason?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          reason?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string
@@ -469,6 +745,33 @@ export type Database = {
           created_at?: string
           secret?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      ip_reputation: {
+        Row: {
+          blacklists: Json | null
+          created_at: string
+          id: string
+          ip: string
+          last_checked_at: string | null
+          score: number
+        }
+        Insert: {
+          blacklists?: Json | null
+          created_at?: string
+          id?: string
+          ip: string
+          last_checked_at?: string | null
+          score?: number
+        }
+        Update: {
+          blacklists?: Json | null
+          created_at?: string
+          id?: string
+          ip?: string
+          last_checked_at?: string | null
+          score?: number
         }
         Relationships: []
       }
@@ -598,8 +901,63 @@ export type Database = {
         }
         Relationships: []
       }
+      llm_providers: {
+        Row: {
+          byok_allowed: boolean
+          created_at: string
+          default_model: string | null
+          id: string
+          is_enabled: boolean
+          monthly_token_cap: number | null
+          name: string
+        }
+        Insert: {
+          byok_allowed?: boolean
+          created_at?: string
+          default_model?: string | null
+          id?: string
+          is_enabled?: boolean
+          monthly_token_cap?: number | null
+          name: string
+        }
+        Update: {
+          byok_allowed?: boolean
+          created_at?: string
+          default_model?: string | null
+          id?: string
+          is_enabled?: boolean
+          monthly_token_cap?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      login_history: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mailboxes: {
         Row: {
+          admin_suspended: boolean
           created_at: string
           daily_limit: number
           deliverability_checked_at: string | null
@@ -643,6 +1001,7 @@ export type Database = {
           warmup_enabled: boolean | null
           warmup_increment: number | null
           warmup_open_rate: number | null
+          warmup_pool_id: string | null
           warmup_randomize: boolean | null
           warmup_read_emulation: boolean | null
           warmup_reply_rate: number | null
@@ -652,6 +1011,7 @@ export type Database = {
           warmup_started_at: string | null
         }
         Insert: {
+          admin_suspended?: boolean
           created_at?: string
           daily_limit?: number
           deliverability_checked_at?: string | null
@@ -695,6 +1055,7 @@ export type Database = {
           warmup_enabled?: boolean | null
           warmup_increment?: number | null
           warmup_open_rate?: number | null
+          warmup_pool_id?: string | null
           warmup_randomize?: boolean | null
           warmup_read_emulation?: boolean | null
           warmup_reply_rate?: number | null
@@ -704,6 +1065,7 @@ export type Database = {
           warmup_started_at?: string | null
         }
         Update: {
+          admin_suspended?: boolean
           created_at?: string
           daily_limit?: number
           deliverability_checked_at?: string | null
@@ -747,6 +1109,7 @@ export type Database = {
           warmup_enabled?: boolean | null
           warmup_increment?: number | null
           warmup_open_rate?: number | null
+          warmup_pool_id?: string | null
           warmup_randomize?: boolean | null
           warmup_read_emulation?: boolean | null
           warmup_reply_rate?: number | null
@@ -755,7 +1118,15 @@ export type Database = {
           warmup_spam_protection_level?: string | null
           warmup_started_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mailboxes_warmup_pool_id_fkey"
+            columns: ["warmup_pool_id"]
+            isOneToOne: false
+            referencedRelation: "warmup_pools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meetings: {
         Row: {
@@ -852,6 +1223,45 @@ export type Database = {
           },
         ]
       }
+      payments_history: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          refunded_cents: number | null
+          status: string
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          refunded_cents?: number | null
+          status: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          refunded_cents?: number | null
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pipeline_stages: {
         Row: {
           color: string | null
@@ -885,6 +1295,69 @@ export type Database = {
           label?: string
           sort_order?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      plans: {
+        Row: {
+          code: string
+          created_at: string
+          features: Json | null
+          id: string
+          interval: string
+          is_active: boolean
+          max_active_campaigns: number | null
+          max_mailboxes: number | null
+          monthly_credits: number
+          name: string
+          price_cents: number
+          stripe_price_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          max_active_campaigns?: number | null
+          max_mailboxes?: number | null
+          monthly_credits?: number
+          name: string
+          price_cents?: number
+          stripe_price_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          max_active_campaigns?: number | null
+          max_mailboxes?: number | null
+          monthly_credits?: number
+          name?: string
+          price_cents?: number
+          stripe_price_id?: string | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
@@ -1204,6 +1677,53 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan_id: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subsequence_enrollments: {
         Row: {
           created_at: string
@@ -1311,6 +1831,77 @@ export type Database = {
         }
         Relationships: []
       }
+      support_ticket_replies: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_admin_reply: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          body: string
+          created_at: string
+          id: string
+          priority: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          priority?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          priority?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressions: {
         Row: {
           created_at: string
@@ -1335,6 +1926,39 @@ export type Database = {
           id?: string
           reason?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      template_pushes: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string
+          id: string
+          pushed_by: string
+          subject: string | null
+          target_plan_codes: string[] | null
+          title: string
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          pushed_by: string
+          subject?: string | null
+          target_plan_codes?: string[] | null
+          title: string
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          pushed_by?: string
+          subject?: string | null
+          target_plan_codes?: string[] | null
+          title?: string
         }
         Relationships: []
       }
@@ -1365,6 +1989,78 @@ export type Database = {
           last_checked_at?: string | null
           user_id?: string
           verified?: boolean | null
+        }
+        Relationships: []
+      }
+      user_flags: {
+        Row: {
+          flagged_by: string | null
+          is_banned: boolean
+          is_suspended: boolean
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          flagged_by?: string | null
+          is_banned?: boolean
+          is_suspended?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          flagged_by?: string | null
+          is_banned?: boolean
+          is_suspended?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1464,6 +2160,33 @@ export type Database = {
           message_id?: string | null
           to_mailbox_id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      warmup_pools: {
+        Row: {
+          created_at: string
+          engagement_rate: number | null
+          id: string
+          name: string
+          size: number
+          tier: string
+        }
+        Insert: {
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          name: string
+          size?: number
+          tier: string
+        }
+        Update: {
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          name?: string
+          size?: number
+          tier?: string
         }
         Relationships: []
       }
@@ -1635,6 +2358,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_workspace_member: {
         Args: { _user: string; _ws: string }
         Returns: boolean
@@ -1645,6 +2376,11 @@ export type Database = {
       }
     }
     Enums: {
+      app_role:
+        | "super_admin"
+        | "billing_admin"
+        | "support_admin"
+        | "read_only_admin"
       workspace_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
@@ -1773,6 +2509,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "super_admin",
+        "billing_admin",
+        "support_admin",
+        "read_only_admin",
+      ],
       workspace_role: ["owner", "admin", "member"],
     },
   },

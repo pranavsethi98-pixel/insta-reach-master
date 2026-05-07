@@ -1,5 +1,8 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target, Bot, GitBranch, Calendar } from "lucide-react";
+import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target, Bot, GitBranch, Calendar, ShieldCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyAdminRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +33,9 @@ const nav = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { location } = useRouterState();
+  const fetchRoles = useServerFn(getMyAdminRoles);
+  const { data: roleData } = useQuery({ queryKey: ["my-admin-roles"], queryFn: () => fetchRoles() });
+  const isAdmin = (roleData?.roles?.length ?? 0) > 0;
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -65,6 +71,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        {isAdmin && (
+          <Link to="/admin" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-destructive/10 text-destructive hover:bg-destructive/20 mb-1">
+            <ShieldCheck className="w-4 h-4" /> Admin panel
+          </Link>
+        )}
         <Button
           variant="ghost"
           onClick={logout}

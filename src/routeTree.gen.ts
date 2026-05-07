@@ -32,13 +32,34 @@ import { Route as CopilotRouteImport } from './routes/copilot'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UnsubscribeLeadIdRouteImport } from './routes/unsubscribe.$leadId'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
+import { Route as AdminWorkspacesRouteImport } from './routes/admin.workspaces'
+import { Route as AdminVisitorsRouteImport } from './routes/admin.visitors'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
+import { Route as AdminRbacRouteImport } from './routes/admin.rbac'
+import { Route as AdminMailboxesRouteImport } from './routes/admin.mailboxes'
+import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
+import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
+import { Route as AdminDeliverabilityRouteImport } from './routes/admin.deliverability'
+import { Route as AdminCreditsRouteImport } from './routes/admin.credits'
+import { Route as AdminContentRouteImport } from './routes/admin.content'
+import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
+import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
+import { Route as AdminBillingRouteImport } from './routes/admin.billing'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-invite'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
+import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
 import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
@@ -160,6 +181,11 @@ const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
   path: '/campaigns/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnsubscribeLeadIdRoute = UnsubscribeLeadIdRouteImport.update({
   id: '/unsubscribe/$leadId',
   path: '/unsubscribe/$leadId',
@@ -173,6 +199,96 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
 const CampaignsIdRoute = CampaignsIdRouteImport.update({
   id: '/campaigns/$id',
   path: '/campaigns/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWorkspacesRoute = AdminWorkspacesRouteImport.update({
+  id: '/admin/workspaces',
+  path: '/admin/workspaces',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVisitorsRoute = AdminVisitorsRouteImport.update({
+  id: '/admin/visitors',
+  path: '/admin/visitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/admin/support',
+  path: '/admin/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRbacRoute = AdminRbacRouteImport.update({
+  id: '/admin/rbac',
+  path: '/admin/rbac',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMailboxesRoute = AdminMailboxesRouteImport.update({
+  id: '/admin/mailboxes',
+  path: '/admin/mailboxes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLeadsRoute = AdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIntegrationsRoute = AdminIntegrationsRouteImport.update({
+  id: '/admin/integrations',
+  path: '/admin/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDeliverabilityRoute = AdminDeliverabilityRouteImport.update({
+  id: '/admin/deliverability',
+  path: '/admin/deliverability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCreditsRoute = AdminCreditsRouteImport.update({
+  id: '/admin/credits',
+  path: '/admin/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/admin/content',
+  path: '/admin/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminComplianceRoute = AdminComplianceRouteImport.update({
+  id: '/admin/compliance',
+  path: '/admin/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
+  id: '/admin/campaigns',
+  path: '/admin/campaigns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminBillingRoute = AdminBillingRouteImport.update({
+  id: '/admin/billing',
+  path: '/admin/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/admin/analytics',
+  path: '/admin/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/admin/ai',
+  path: '/admin/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAcceptInviteRoute = AdminAcceptInviteRouteImport.update({
+  id: '/admin/accept-invite',
+  path: '/admin/accept-invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
@@ -194,6 +310,16 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   id: '/api/public/imap-sync',
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminViewAsUserIdRoute = AdminViewAsUserIdRouteImport.update({
+  id: '/admin/view-as/$userId',
+  path: '/admin/view-as/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
+  id: '/$userId',
+  path: '/$userId',
+  getParentRoute: () => AdminUsersRoute,
 } as any)
 const ApiPublicVisitorJsRoute = ApiPublicVisitorJsRouteImport.update({
   id: '/js',
@@ -247,10 +373,31 @@ export interface FileRoutesByFullPath {
   '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
+  '/admin/accept-invite': typeof AdminAcceptInviteRoute
+  '/admin/ai': typeof AdminAiRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/credits': typeof AdminCreditsRoute
+  '/admin/deliverability': typeof AdminDeliverabilityRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/leads': typeof AdminLeadsRoute
+  '/admin/mailboxes': typeof AdminMailboxesRoute
+  '/admin/rbac': typeof AdminRbacRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/visitors': typeof AdminVisitorsRoute
+  '/admin/workspaces': typeof AdminWorkspacesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
@@ -284,10 +431,31 @@ export interface FileRoutesByTo {
   '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
+  '/admin/accept-invite': typeof AdminAcceptInviteRoute
+  '/admin/ai': typeof AdminAiRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/credits': typeof AdminCreditsRoute
+  '/admin/deliverability': typeof AdminDeliverabilityRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/leads': typeof AdminLeadsRoute
+  '/admin/mailboxes': typeof AdminMailboxesRoute
+  '/admin/rbac': typeof AdminRbacRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/visitors': typeof AdminVisitorsRoute
+  '/admin/workspaces': typeof AdminWorkspacesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/admin': typeof AdminIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
@@ -322,10 +490,31 @@ export interface FileRoutesById {
   '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
+  '/admin/accept-invite': typeof AdminAcceptInviteRoute
+  '/admin/ai': typeof AdminAiRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/credits': typeof AdminCreditsRoute
+  '/admin/deliverability': typeof AdminDeliverabilityRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/leads': typeof AdminLeadsRoute
+  '/admin/mailboxes': typeof AdminMailboxesRoute
+  '/admin/rbac': typeof AdminRbacRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/visitors': typeof AdminVisitorsRoute
+  '/admin/workspaces': typeof AdminWorkspacesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
@@ -361,10 +550,31 @@ export interface FileRouteTypes {
     | '/visitors'
     | '/warmup'
     | '/webhooks'
+    | '/admin/accept-invite'
+    | '/admin/ai'
+    | '/admin/analytics'
+    | '/admin/audit'
+    | '/admin/billing'
+    | '/admin/campaigns'
+    | '/admin/compliance'
+    | '/admin/content'
+    | '/admin/credits'
+    | '/admin/deliverability'
+    | '/admin/integrations'
+    | '/admin/leads'
+    | '/admin/mailboxes'
+    | '/admin/rbac'
+    | '/admin/support'
+    | '/admin/users'
+    | '/admin/visitors'
+    | '/admin/workspaces'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/admin/'
     | '/campaigns/'
+    | '/admin/users/$userId'
+    | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -398,10 +608,31 @@ export interface FileRouteTypes {
     | '/visitors'
     | '/warmup'
     | '/webhooks'
+    | '/admin/accept-invite'
+    | '/admin/ai'
+    | '/admin/analytics'
+    | '/admin/audit'
+    | '/admin/billing'
+    | '/admin/campaigns'
+    | '/admin/compliance'
+    | '/admin/content'
+    | '/admin/credits'
+    | '/admin/deliverability'
+    | '/admin/integrations'
+    | '/admin/leads'
+    | '/admin/mailboxes'
+    | '/admin/rbac'
+    | '/admin/support'
+    | '/admin/users'
+    | '/admin/visitors'
+    | '/admin/workspaces'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/admin'
     | '/campaigns'
+    | '/admin/users/$userId'
+    | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -435,10 +666,31 @@ export interface FileRouteTypes {
     | '/visitors'
     | '/warmup'
     | '/webhooks'
+    | '/admin/accept-invite'
+    | '/admin/ai'
+    | '/admin/analytics'
+    | '/admin/audit'
+    | '/admin/billing'
+    | '/admin/campaigns'
+    | '/admin/compliance'
+    | '/admin/content'
+    | '/admin/credits'
+    | '/admin/deliverability'
+    | '/admin/integrations'
+    | '/admin/leads'
+    | '/admin/mailboxes'
+    | '/admin/rbac'
+    | '/admin/support'
+    | '/admin/users'
+    | '/admin/visitors'
+    | '/admin/workspaces'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/admin/'
     | '/campaigns/'
+    | '/admin/users/$userId'
+    | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -473,10 +725,30 @@ export interface RootRouteChildren {
   VisitorsRoute: typeof VisitorsRoute
   WarmupRoute: typeof WarmupRoute
   WebhooksRoute: typeof WebhooksRoute
+  AdminAcceptInviteRoute: typeof AdminAcceptInviteRoute
+  AdminAiRoute: typeof AdminAiRoute
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminBillingRoute: typeof AdminBillingRoute
+  AdminCampaignsRoute: typeof AdminCampaignsRoute
+  AdminComplianceRoute: typeof AdminComplianceRoute
+  AdminContentRoute: typeof AdminContentRoute
+  AdminCreditsRoute: typeof AdminCreditsRoute
+  AdminDeliverabilityRoute: typeof AdminDeliverabilityRoute
+  AdminIntegrationsRoute: typeof AdminIntegrationsRoute
+  AdminLeadsRoute: typeof AdminLeadsRoute
+  AdminMailboxesRoute: typeof AdminMailboxesRoute
+  AdminRbacRoute: typeof AdminRbacRoute
+  AdminSupportRoute: typeof AdminSupportRoute
+  AdminUsersRoute: typeof AdminUsersRouteWithChildren
+  AdminVisitorsRoute: typeof AdminVisitorsRoute
+  AdminWorkspacesRoute: typeof AdminWorkspacesRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
   UnsubscribeLeadIdRoute: typeof UnsubscribeLeadIdRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
+  AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
@@ -650,6 +922,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/unsubscribe/$leadId': {
       id: '/unsubscribe/$leadId'
       path: '/unsubscribe/$leadId'
@@ -669,6 +948,132 @@ declare module '@tanstack/react-router' {
       path: '/campaigns/$id'
       fullPath: '/campaigns/$id'
       preLoaderRoute: typeof CampaignsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/workspaces': {
+      id: '/admin/workspaces'
+      path: '/admin/workspaces'
+      fullPath: '/admin/workspaces'
+      preLoaderRoute: typeof AdminWorkspacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/visitors': {
+      id: '/admin/visitors'
+      path: '/admin/visitors'
+      fullPath: '/admin/visitors'
+      preLoaderRoute: typeof AdminVisitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/admin/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/rbac': {
+      id: '/admin/rbac'
+      path: '/admin/rbac'
+      fullPath: '/admin/rbac'
+      preLoaderRoute: typeof AdminRbacRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/mailboxes': {
+      id: '/admin/mailboxes'
+      path: '/admin/mailboxes'
+      fullPath: '/admin/mailboxes'
+      preLoaderRoute: typeof AdminMailboxesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/leads': {
+      id: '/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AdminLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/integrations': {
+      id: '/admin/integrations'
+      path: '/admin/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AdminIntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/deliverability': {
+      id: '/admin/deliverability'
+      path: '/admin/deliverability'
+      fullPath: '/admin/deliverability'
+      preLoaderRoute: typeof AdminDeliverabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/credits': {
+      id: '/admin/credits'
+      path: '/admin/credits'
+      fullPath: '/admin/credits'
+      preLoaderRoute: typeof AdminCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/admin/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/compliance': {
+      id: '/admin/compliance'
+      path: '/admin/compliance'
+      fullPath: '/admin/compliance'
+      preLoaderRoute: typeof AdminComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/campaigns': {
+      id: '/admin/campaigns'
+      path: '/admin/campaigns'
+      fullPath: '/admin/campaigns'
+      preLoaderRoute: typeof AdminCampaignsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/admin/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/admin/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/accept-invite': {
+      id: '/admin/accept-invite'
+      path: '/admin/accept-invite'
+      fullPath: '/admin/accept-invite'
+      preLoaderRoute: typeof AdminAcceptInviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/warmup-tick': {
@@ -698,6 +1103,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/imap-sync'
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/view-as/$userId': {
+      id: '/admin/view-as/$userId'
+      path: '/admin/view-as/$userId'
+      fullPath: '/admin/view-as/$userId'
+      preLoaderRoute: typeof AdminViewAsUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users/$userId': {
+      id: '/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminUsersUserIdRouteImport
+      parentRoute: typeof AdminUsersRoute
     }
     '/api/public/visitor/js': {
       id: '/api/public/visitor/js'
@@ -737,6 +1156,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminUsersRouteChildren {
+  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
+}
+
+const AdminUsersRouteChildren: AdminUsersRouteChildren = {
+  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
+}
+
+const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
+  AdminUsersRouteChildren,
+)
+
 interface ApiPublicVisitorRouteChildren {
   ApiPublicVisitorJsRoute: typeof ApiPublicVisitorJsRoute
 }
@@ -771,10 +1202,30 @@ const rootRouteChildren: RootRouteChildren = {
   VisitorsRoute: VisitorsRoute,
   WarmupRoute: WarmupRoute,
   WebhooksRoute: WebhooksRoute,
+  AdminAcceptInviteRoute: AdminAcceptInviteRoute,
+  AdminAiRoute: AdminAiRoute,
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminAuditRoute: AdminAuditRoute,
+  AdminBillingRoute: AdminBillingRoute,
+  AdminCampaignsRoute: AdminCampaignsRoute,
+  AdminComplianceRoute: AdminComplianceRoute,
+  AdminContentRoute: AdminContentRoute,
+  AdminCreditsRoute: AdminCreditsRoute,
+  AdminDeliverabilityRoute: AdminDeliverabilityRoute,
+  AdminIntegrationsRoute: AdminIntegrationsRoute,
+  AdminLeadsRoute: AdminLeadsRoute,
+  AdminMailboxesRoute: AdminMailboxesRoute,
+  AdminRbacRoute: AdminRbacRoute,
+  AdminSupportRoute: AdminSupportRoute,
+  AdminUsersRoute: AdminUsersRouteWithChildren,
+  AdminVisitorsRoute: AdminVisitorsRoute,
+  AdminWorkspacesRoute: AdminWorkspacesRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   InviteTokenRoute: InviteTokenRoute,
   UnsubscribeLeadIdRoute: UnsubscribeLeadIdRoute,
+  AdminIndexRoute: AdminIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
+  AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
