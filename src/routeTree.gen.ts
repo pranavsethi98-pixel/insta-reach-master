@@ -33,8 +33,10 @@ import { Route as UnsubscribeLeadIdRouteImport } from './routes/unsubscribe.$lea
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
+import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
@@ -160,6 +162,11 @@ const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
   path: '/api/public/warmup-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVisitorRoute = ApiPublicVisitorRouteImport.update({
+  id: '/api/public/visitor',
+  path: '/api/public/visitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   id: '/api/public/process-queue',
   path: '/api/public/process-queue',
@@ -169,6 +176,11 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   id: '/api/public/imap-sync',
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVisitorJsRoute = ApiPublicVisitorJsRouteImport.update({
+  id: '/js',
+  path: '/js',
+  getParentRoute: () => ApiPublicVisitorRoute,
 } as any)
 const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
@@ -220,9 +232,11 @@ export interface FileRoutesByFullPath {
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -252,9 +266,11 @@ export interface FileRoutesByTo {
   '/campaigns': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -285,9 +301,11 @@ export interface FileRoutesById {
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -319,9 +337,11 @@ export interface FileRouteTypes {
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
@@ -351,9 +371,11 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
@@ -383,9 +405,11 @@ export interface FileRouteTypes {
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
@@ -416,6 +440,7 @@ export interface RootRouteChildren {
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
+  ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
@@ -593,6 +618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWarmupTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/visitor': {
+      id: '/api/public/visitor'
+      path: '/api/public/visitor'
+      fullPath: '/api/public/visitor'
+      preLoaderRoute: typeof ApiPublicVisitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/process-queue': {
       id: '/api/public/process-queue'
       path: '/api/public/process-queue'
@@ -606,6 +638,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/imap-sync'
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/public/visitor/js': {
+      id: '/api/public/visitor/js'
+      path: '/js'
+      fullPath: '/api/public/visitor/js'
+      preLoaderRoute: typeof ApiPublicVisitorJsRouteImport
+      parentRoute: typeof ApiPublicVisitorRoute
     }
     '/api/public/unsubscribe/$leadId': {
       id: '/api/public/unsubscribe/$leadId'
@@ -638,6 +677,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiPublicVisitorRouteChildren {
+  ApiPublicVisitorJsRoute: typeof ApiPublicVisitorJsRoute
+}
+
+const ApiPublicVisitorRouteChildren: ApiPublicVisitorRouteChildren = {
+  ApiPublicVisitorJsRoute: ApiPublicVisitorJsRoute,
+}
+
+const ApiPublicVisitorRouteWithChildren =
+  ApiPublicVisitorRoute._addFileChildren(ApiPublicVisitorRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
@@ -664,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   CampaignsIndexRoute: CampaignsIndexRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
+  ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
