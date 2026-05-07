@@ -17,7 +17,10 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
+import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
+import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 
 const MailboxesRoute = MailboxesRouteImport.update({
   id: '/mailboxes',
@@ -59,11 +62,27 @@ const CampaignsIdRoute = CampaignsIdRouteImport.update({
   path: '/campaigns/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
+  id: '/api/public/warmup-tick',
+  path: '/api/public/warmup-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   id: '/api/public/process-queue',
   path: '/api/public/process-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
+  id: '/api/public/imap-sync',
+  path: '/api/public/imap-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackOpenTrackingIdRoute =
+  ApiPublicTrackOpenTrackingIdRouteImport.update({
+    id: '/api/public/track/open/$trackingId',
+    path: '/api/public/track/open/$trackingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,7 +93,10 @@ export interface FileRoutesByFullPath {
   '/mailboxes': typeof MailboxesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +107,10 @@ export interface FileRoutesByTo {
   '/mailboxes': typeof MailboxesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +122,10 @@ export interface FileRoutesById {
   '/mailboxes': typeof MailboxesRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +138,10 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/campaigns/$id'
     | '/campaigns/'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +152,10 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/campaigns/$id'
     | '/campaigns'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   id:
     | '__root__'
     | '/'
@@ -132,7 +166,10 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/campaigns/$id'
     | '/campaigns/'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +181,10 @@ export interface RootRouteChildren {
   MailboxesRoute: typeof MailboxesRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
+  ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
+  ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
+  ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,11 +245,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/warmup-tick': {
+      id: '/api/public/warmup-tick'
+      path: '/api/public/warmup-tick'
+      fullPath: '/api/public/warmup-tick'
+      preLoaderRoute: typeof ApiPublicWarmupTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/process-queue': {
       id: '/api/public/process-queue'
       path: '/api/public/process-queue'
       fullPath: '/api/public/process-queue'
       preLoaderRoute: typeof ApiPublicProcessQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/imap-sync': {
+      id: '/api/public/imap-sync'
+      path: '/api/public/imap-sync'
+      fullPath: '/api/public/imap-sync'
+      preLoaderRoute: typeof ApiPublicImapSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track/open/$trackingId': {
+      id: '/api/public/track/open/$trackingId'
+      path: '/api/public/track/open/$trackingId'
+      fullPath: '/api/public/track/open/$trackingId'
+      preLoaderRoute: typeof ApiPublicTrackOpenTrackingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -224,8 +285,21 @@ const rootRouteChildren: RootRouteChildren = {
   MailboxesRoute: MailboxesRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
+  ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
+  ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
+  ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
