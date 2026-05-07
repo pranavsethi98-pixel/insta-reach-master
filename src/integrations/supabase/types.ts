@@ -595,6 +595,24 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_topup_skus: {
+        Row: {
+          credits: number
+          label: string
+          price_id: string
+        }
+        Insert: {
+          credits: number
+          label: string
+          price_id: string
+        }
+        Update: {
+          credits?: number
+          label?: string
+          price_id?: string
+        }
+        Relationships: []
+      }
       email_events: {
         Row: {
           campaign_id: string | null
@@ -1358,6 +1376,30 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      processed_checkout_sessions: {
+        Row: {
+          credits_granted: number | null
+          price_id: string
+          processed_at: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          credits_granted?: number | null
+          price_id: string
+          processed_at?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          credits_granted?: number | null
+          price_id?: string
+          processed_at?: string | null
+          session_id?: string
+          user_id?: string
         }
         Relationships: []
       }

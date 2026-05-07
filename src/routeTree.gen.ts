@@ -29,6 +29,7 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CopilotRouteImport } from './routes/copilot'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -62,6 +63,7 @@ import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$u
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
 import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
@@ -164,6 +166,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CopilotRoute = CopilotRouteImport.update({
   id: '/copilot',
   path: '/copilot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -332,6 +339,12 @@ const ApiPublicUnsubscribeLeadIdRoute =
     path: '/api/public/unsubscribe/$leadId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicInboundSecretRoute = ApiPublicInboundSecretRouteImport.update({
   id: '/api/public/inbound/$secret',
   path: '/api/public/inbound/$secret',
@@ -353,6 +366,7 @@ const ApiPublicTrackClickTrackingIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -403,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -411,6 +426,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -461,6 +477,7 @@ export interface FileRoutesByTo {
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -470,6 +487,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -520,6 +538,7 @@ export interface FileRoutesById {
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -530,6 +549,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analytics'
+    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -580,6 +600,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -588,6 +609,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analytics'
+    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -638,6 +660,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -646,6 +669,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/analytics'
+    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -696,6 +720,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
+    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -705,6 +730,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  BillingRoute: typeof BillingRoute
   CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
   GoalsRoute: typeof GoalsRoute
@@ -754,6 +780,7 @@ export interface RootRouteChildren {
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
   ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
   ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
@@ -899,6 +926,13 @@ declare module '@tanstack/react-router' {
       path: '/copilot'
       fullPath: '/copilot'
       preLoaderRoute: typeof CopilotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -1132,6 +1166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicUnsubscribeLeadIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/inbound/$secret': {
       id: '/api/public/inbound/$secret'
       path: '/api/public/inbound/$secret'
@@ -1182,6 +1223,7 @@ const ApiPublicVisitorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
+  BillingRoute: BillingRoute,
   CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
   GoalsRoute: GoalsRoute,
@@ -1231,6 +1273,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
   ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
   ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
