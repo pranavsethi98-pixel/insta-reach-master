@@ -599,7 +599,7 @@ export const platformAnalytics = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await requireRole(context.userId, ALL);
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
-    const [sends, opens, replies, bounces, signups, subs, payments] = await Promise.all([
+    const [sends, opens, replies, bounces, signups, subs, payments, leads, enrich, verify, webhooks, calendly, slack, pixels, visits] = await Promise.all([
       supabaseAdmin.from("send_log").select("sent_at,status").gte("sent_at", since).limit(50000),
       supabaseAdmin.from("send_log").select("opened_at").not("opened_at", "is", null).gte("sent_at", since).limit(50000),
       supabaseAdmin.from("send_log").select("replied_at").not("replied_at", "is", null).gte("sent_at", since).limit(50000),
@@ -607,6 +607,14 @@ export const platformAnalytics = createServerFn({ method: "GET" })
       supabaseAdmin.from("profiles").select("created_at").gte("created_at", since),
       supabaseAdmin.from("subscriptions").select("plan_id,status,plans(price_cents)"),
       supabaseAdmin.from("payments_history").select("amount_cents,refunded_cents,created_at,status").gte("created_at", since),
+      supabaseAdmin.from("leads").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("credit_ledger").select("id", { count: "exact", head: true }).eq("reason", "lead_enrich").gte("created_at", since),
+      supabaseAdmin.from("credit_ledger").select("id", { count: "exact", head: true }).eq("reason", "email_verify").gte("created_at", since),
+      supabaseAdmin.from("webhooks").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("calendly_token", "is", null),
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("slack_webhook_url", "is", null),
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("visitor_pixel_secret", "is", null),
+      supabaseAdmin.from("visitor_events").select("id", { count: "exact", head: true }).gte("created_at", since),
     ]);
     const mrr = (subs.data ?? []).filter((s: any) => s.status === "active")
       .reduce((sum: number, s: any) => sum + (s.plans?.price_cents ?? 0), 0);
@@ -620,6 +628,15 @@ export const platformAnalytics = createServerFn({ method: "GET" })
       signups30d: signups.data?.length ?? 0,
       mrrCents: mrr,
       revenueCents30d: revenue30d,
+      totalLeads: leads.count ?? 0,
+      enrichments30d: enrich.count ?? 0,
+      verifications30d: verify.count ?? 0,
+      webhooks: webhooks.count ?? 0,
+      calendlyConnections: calendly.count ?? 0,
+      slackConnections: slack.count ?? 0,
+      visitorPixels: pixels.count ?? 0,
+      visits30d: visits.count ?? 0,
+      resolvedCompanies: 0,
     };
   });
 
