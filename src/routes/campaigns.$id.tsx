@@ -10,10 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Play, Pause, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, Play, Pause, ArrowLeft, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { renderEmail } from "@/lib/spintax";
+import { TEMPLATES } from "@/lib/email-templates";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/campaigns/$id")({
   component: () => (
