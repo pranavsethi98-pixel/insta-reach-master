@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { verifyCronSecret } from "@/lib/cron-auth";
 
 // IMAP polling from Cloudflare Workers is not reliable (raw TCP/TLS limitations
 // in the Worker runtime). This endpoint is a placeholder so the cron job
@@ -11,7 +12,11 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/public/imap-sync")({
   server: {
     handlers: {
-      POST: async () => Response.json({ ok: true, note: "IMAP sync placeholder" }),
+      POST: async ({ request }) => {
+        const unauthorized = verifyCronSecret(request);
+        if (unauthorized) return unauthorized;
+        return Response.json({ ok: true, note: "IMAP sync placeholder" });
+      },
     },
   },
 });

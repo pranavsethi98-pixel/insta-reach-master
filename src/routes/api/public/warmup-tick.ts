@@ -2,11 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 import { generateWarmupEmail, generateWarmupReply } from "@/lib/warmup-content";
+import { verifyCronSecret } from "@/lib/cron-auth";
 
 export const Route = createFileRoute("/api/public/warmup-tick")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = verifyCronSecret(request);
+        if (unauthorized) return unauthorized;
         const { WorkerMailer } = await import("worker-mailer");
         const supabase = createClient(
           process.env.SUPABASE_URL!,
