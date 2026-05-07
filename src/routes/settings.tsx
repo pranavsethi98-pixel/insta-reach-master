@@ -95,6 +95,40 @@ function SettingsPage() {
           )}
         </div>
       </Card>
+
+      <CalendarLinkCard />
     </div>
+  );
+}
+
+function CalendarLinkCard() {
+  const { data: profile } = useQuery({
+    queryKey: ["profile-cal"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      return (await supabase.from("profiles").select("calendar_link").eq("id", user.id).maybeSingle()).data;
+    },
+  });
+  const [link, setLink] = useState("");
+  const value = link || profile?.calendar_link || "";
+  const save = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { error } = await supabase.from("profiles").update({ calendar_link: link.trim() }).eq("id", user.id);
+    if (error) return toast.error(error.message);
+    toast.success("Saved — use {{calendar_link}} in your emails");
+  };
+  return (
+    <Card className="p-6">
+      <div className="font-semibold mb-2">Calendar booking link</div>
+      <p className="text-sm text-muted-foreground mb-4">
+        Paste your Cal.com / Calendly / SavvyCal URL. Insert it in any email or template with <code className="bg-muted px-1.5 py-0.5 rounded">{`{{calendar_link}}`}</code>.
+      </p>
+      <div className="flex gap-2">
+        <Input placeholder="https://cal.com/your-name/15min" defaultValue={value} onChange={e => setLink(e.target.value)} />
+        <Button onClick={save}>Save</Button>
+      </div>
+    </Card>
   );
 }

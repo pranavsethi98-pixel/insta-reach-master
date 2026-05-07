@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings } from "lucide-react";
+import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ const nav = [
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/suppressions", label: "Suppressions", icon: Ban },
   { to: "/team", label: "Team", icon: UsersRound },
+  { to: "/webhooks", label: "Webhooks", icon: Webhook },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
