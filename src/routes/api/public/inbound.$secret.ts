@@ -164,6 +164,57 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
           } catch { /* ignore */ }
         }
 
+        // Trigger AI Reply Agent (HITL by default)
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("ai_reply_mode, ai_reply_monthly_cap, ai_reply_used_this_month, ai_reply_trigger_labels, ai_reply_skip_labels, calendar_link, ai_reply_tone, business_context")
+            .eq("id", userId).single();
+
+          if (profile && profile.ai_reply_mode !== "off" && apiKey &&
+              (profile.ai_reply_used_this_month ?? 0) < (profile.ai_reply_monthly_cap ?? 500)) {
+            const { data: convo } = await supabase.from("conversations").select("ai_category").eq("id", convId).single();
+            const cat = convo?.ai_category ?? "other";
+            const triggers: string[] = profile.ai_reply_trigger_labels ?? [];
+            const skips: string[] = profile.ai_reply_skip_labels ?? [];
+            const shouldDraft = !skips.includes(cat) && (triggers.length === 0 || triggers.includes(cat));
+            if (shouldDraft) {
+              const tone = profile.ai_reply_tone || "friendly";
+              const calLink = profile.calendar_link || "";
+              const bizCtx = profile.business_context || "";
+              const draftRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash",
+                  response_format: { type: "json_object" },
+                  messages: [
+                    { role: "system", content: `You are a sales rep replying to a prospect. Tone: ${tone}. Business: ${bizCtx}. ${calLink ? `If they show interest, include this link naturally: ${calLink}` : ""} Handle objections directly. Under 100 words. Output JSON {subject, body}.` },
+                    { role: "user", content: `Reply intent: ${cat}\nTheir message:\n${(body.text || body.html).slice(0, 4000)}` },
+                  ],
+                }),
+              });
+              if (draftRes.ok) {
+                const dj: any = await draftRes.json();
+                const txt = dj?.choices?.[0]?.message?.content ?? "{}";
+                let subject = body.subject ? `Re: ${body.subject.replace(/^Re:\s*/i, "")}` : "";
+                let bodyText = "";
+                try { const p = JSON.parse(txt); subject = p.subject || subject; bodyText = p.body || ""; } catch { bodyText = txt; }
+                const status = profile.ai_reply_mode === "autopilot" ? "approved" : "pending";
+                await supabase.from("reply_queue").insert({
+                  user_id: userId, conversation_id: convId, lead_id: sendLog?.lead_id ?? null,
+                  mailbox_id: mailboxId, classification: cat, draft_subject: subject, draft_body: bodyText,
+                  status, context_summary: (body.text || body.html).slice(0, 200),
+                });
+                await supabase.from("ai_usage").insert({ user_id: userId, kind: "reply", credits: 5, metadata: { conversation_id: convId, classification: cat } });
+                await supabase.from("profiles")
+                  .update({ ai_reply_used_this_month: (profile.ai_reply_used_this_month ?? 0) + 1 })
+                  .eq("id", userId);
+              }
+            }
+          }
+        } catch { /* best-effort */ }
+
         return Response.json({ ok: true, kind: "reply", conversation_id: convId });
       },
     },
