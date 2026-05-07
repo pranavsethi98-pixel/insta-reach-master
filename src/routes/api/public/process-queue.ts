@@ -240,7 +240,72 @@ export const Route = createFileRoute("/api/public/process-queue")({
           }
         }
 
-        return Response.json({ ok: true, processed });
+        // Send approved AI Reply Agent drafts
+        let repliesSent = 0;
+        const { data: approved } = await supabase
+          .from("reply_queue").select("*").eq("status", "approved").limit(50);
+        for (const item of approved ?? []) {
+          try {
+            const { data: conv } = await supabase.from("conversations").select("*").eq("id", item.conversation_id).single();
+            if (!conv?.lead_id) { await supabase.from("reply_queue").update({ status: "rejected" }).eq("id", item.id); continue; }
+            const { data: lead } = await supabase.from("leads").select("email").eq("id", conv.lead_id).single();
+            const mb = item.mailbox_id
+              ? (await supabase.from("mailboxes").select("*").eq("id", item.mailbox_id).single()).data
+              : (await supabase.from("mailboxes").select("*").eq("user_id", item.user_id).eq("is_active", true).limit(1).single()).data;
+            if (!lead?.email || !mb) continue;
+            const mailer = await WorkerMailer.connect({
+              credentials: { username: mb.smtp_username, password: mb.smtp_password },
+              authType: "plain", host: mb.smtp_host, port: mb.smtp_port, secure: mb.smtp_secure,
+            });
+            await mailer.send({
+              from: { name: mb.from_name, email: mb.from_email },
+              to: lead.email,
+              subject: item.draft_subject ?? "Re:",
+              html: (item.draft_body ?? "").replace(/\n/g, "<br>"),
+              text: item.draft_body ?? "",
+            });
+            await mailer.close();
+            await supabase.from("messages").insert({
+              conversation_id: item.conversation_id, user_id: item.user_id, direction: "outbound",
+              from_email: mb.from_email, to_email: lead.email,
+              subject: item.draft_subject, body: item.draft_body,
+            });
+            await supabase.from("reply_queue").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", item.id);
+            repliesSent++;
+          } catch (e: any) {
+            console.error("reply_queue send failed", e?.message);
+          }
+        }
+
+        // Process no-show recovery (drafts already enqueue into reply_queue)
+        let noShowProcessed = 0;
+        const { data: dueNoShows } = await supabase
+          .from("meetings").select("*").eq("status", "no_show")
+          .lte("next_followup_at", new Date().toISOString())
+          .lt("no_show_followups_sent", 3);
+        for (const m of dueNoShows ?? []) {
+          let firstName = "there";
+          if (m.lead_id) {
+            const { data: l } = await supabase.from("leads").select("first_name").eq("id", m.lead_id).single();
+            firstName = l?.first_name ?? "there";
+          }
+          if (m.conversation_id) {
+            await supabase.from("reply_queue").insert({
+              user_id: m.user_id, conversation_id: m.conversation_id, lead_id: m.lead_id,
+              classification: "no_show", draft_subject: "Sorry we missed you",
+              draft_body: `Hi ${firstName},\n\nLooks like we missed each other. Want to grab another time? Happy to work around your schedule.\n\nBest`,
+              status: "pending", source: "reply_agent",
+            });
+          }
+          const next = m.no_show_followups_sent === 0 ? 24 : 48;
+          await supabase.from("meetings").update({
+            no_show_followups_sent: m.no_show_followups_sent + 1,
+            next_followup_at: new Date(Date.now() + next * 3600 * 1000).toISOString(),
+          }).eq("id", m.id);
+          noShowProcessed++;
+        }
+
+        return Response.json({ ok: true, processed, repliesSent, noShowProcessed });
       },
     },
   },
