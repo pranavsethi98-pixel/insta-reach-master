@@ -23,6 +23,7 @@ export type Database = {
           last_sent_at: string | null
           lead_id: string
           next_send_at: string | null
+          ooo_until: string | null
           status: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           last_sent_at?: string | null
           lead_id: string
           next_send_at?: string | null
+          ooo_until?: string | null
           status?: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           last_sent_at?: string | null
           lead_id?: string
           next_send_at?: string | null
+          ooo_until?: string | null
           status?: string
         }
         Relationships: [
@@ -283,6 +286,39 @@ export type Database = {
         }
         Relationships: []
       }
+      copilot_briefs: {
+        Row: {
+          business_context: string | null
+          campaign_id: string | null
+          created_at: string
+          icp: Json | null
+          id: string
+          prompt: string
+          result: Json | null
+          user_id: string
+        }
+        Insert: {
+          business_context?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          icp?: Json | null
+          id?: string
+          prompt: string
+          result?: Json | null
+          user_id: string
+        }
+        Update: {
+          business_context?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          icp?: Json | null
+          id?: string
+          prompt?: string
+          result?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_events: {
         Row: {
           campaign_id: string | null
@@ -361,6 +397,36 @@ export type Database = {
         }
         Relationships: []
       }
+      goals: {
+        Row: {
+          created_at: string
+          id: string
+          metric: string
+          period: string
+          starts_at: string
+          target: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric: string
+          period?: string
+          starts_at?: string
+          target: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric?: string
+          period?: string
+          starts_at?: string
+          target?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       inbound_secrets: {
         Row: {
           created_at: string
@@ -399,6 +465,36 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lead_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          due_at: string | null
+          id: string
+          lead_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          lead_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          lead_id?: string
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -701,25 +797,133 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_reply_enabled: boolean
+          ai_reply_tone: string | null
+          business_context: string | null
           calendar_link: string | null
+          company_name: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          website_url: string | null
         }
         Insert: {
+          ai_reply_enabled?: boolean
+          ai_reply_tone?: string | null
+          business_context?: string | null
           calendar_link?: string | null
+          company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          website_url?: string | null
         }
         Update: {
+          ai_reply_enabled?: boolean
+          ai_reply_tone?: string | null
+          business_context?: string | null
           calendar_link?: string | null
+          company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      resource_library: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string
+          id: string
+          is_favorite: boolean
+          kind: string
+          subject: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          kind: string
+          subject?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          kind?: string
+          subject?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      salesflow_matches: {
+        Row: {
+          id: string
+          lead_id: string
+          matched_at: string
+          salesflow_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          lead_id: string
+          matched_at?: string
+          salesflow_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          lead_id?: string
+          matched_at?: string
+          salesflow_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      salesflows: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          user_id: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          user_id: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -877,6 +1081,75 @@ export type Database = {
           last_checked_at?: string | null
           user_id?: string
           verified?: boolean | null
+        }
+        Relationships: []
+      }
+      visitor_events: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          pixel_id: string
+          referrer: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string
+          visitor_company: string | null
+          visitor_country: string | null
+          visitor_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          pixel_id: string
+          referrer?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id: string
+          visitor_company?: string | null
+          visitor_country?: string | null
+          visitor_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          pixel_id?: string
+          referrer?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string
+          visitor_company?: string | null
+          visitor_country?: string | null
+          visitor_email?: string | null
+        }
+        Relationships: []
+      }
+      visitor_pixels: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          pixel_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          pixel_key?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          pixel_key?: string
+          user_id?: string
         }
         Relationships: []
       }
