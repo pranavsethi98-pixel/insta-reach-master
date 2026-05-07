@@ -11,7 +11,7 @@ import { getMyAdminRoles, claimFirstSuperAdmin } from "@/lib/admin.functions";
 const sections = [
   { to: "/admin", label: "Overview", icon: ShieldCheck, exact: true },
   { to: "/admin/users", label: "Users", icon: Users },
-  { to: "/admin/billing", label: "Billing & Plans", icon: CreditCard },
+  
   { to: "/admin/credits", label: "Credits", icon: Coins },
   { to: "/admin/workspaces", label: "Workspaces", icon: Building2 },
   { to: "/admin/mailboxes", label: "Mailboxes", icon: Mail },
