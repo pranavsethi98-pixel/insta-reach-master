@@ -60,7 +60,10 @@ function Dashboard() {
 
       {(needsMailbox || needsLeads || needsCampaign) && (
         <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6">
-          <h2 className="font-semibold text-lg mb-4">Get sending in 3 steps</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-lg">Get sending in 3 steps</h2>
+            <Link to="/onboarding"><Button size="sm">Guided setup <ArrowRight className="w-3 h-3 ml-1" /></Button></Link>
+          </div>
           <div className="grid md:grid-cols-3 gap-3">
             <StepCard num={1} done={!needsMailbox} title="Connect a mailbox" desc="Add your SMTP credentials" to="/mailboxes" />
             <StepCard num={2} done={!needsMailbox && !needsLeads} title="Import your leads" desc="Upload a CSV with emails" to="/leads" disabled={needsMailbox} />
