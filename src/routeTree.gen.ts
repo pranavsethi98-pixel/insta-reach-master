@@ -14,6 +14,7 @@ import { Route as WarmupRouteImport } from './routes/warmup'
 import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
+import { Route as SubsequencesRouteImport } from './routes/subsequences'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
@@ -66,6 +67,11 @@ const TeamRoute = TeamRouteImport.update({
 const SuppressionsRoute = SuppressionsRouteImport.update({
   id: '/suppressions',
   path: '/suppressions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubsequencesRoute = SubsequencesRouteImport.update({
+  id: '/subsequences',
+  path: '/subsequences',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -442,6 +454,7 @@ export interface RootRouteChildren {
   ReplyAgentRoute: typeof ReplyAgentRoute
   SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
+  SubsequencesRoute: typeof SubsequencesRoute
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
   VisitorsRoute: typeof VisitorsRoute
@@ -496,6 +509,13 @@ declare module '@tanstack/react-router' {
       path: '/suppressions'
       fullPath: '/suppressions'
       preLoaderRoute: typeof SuppressionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subsequences': {
+      id: '/subsequences'
+      path: '/subsequences'
+      fullPath: '/subsequences'
+      preLoaderRoute: typeof SubsequencesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -724,6 +744,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReplyAgentRoute: ReplyAgentRoute,
   SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
+  SubsequencesRoute: SubsequencesRoute,
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
   VisitorsRoute: VisitorsRoute,
@@ -745,3 +766,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
