@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { WorkerMailer } from "worker-mailer";
 import { renderEmail } from "@/lib/spintax";
 import { rewriteLinks } from "@/lib/links";
+import { fireWebhook } from "@/lib/webhooks";
 
 export const Route = createFileRoute("/api/public/process-queue")({
   server: {
@@ -165,18 +166,21 @@ export const Route = createFileRoute("/api/public/process-queue")({
             const subjectTpl = subjVariants[variantIdx % subjVariants.length] ?? "";
             const bodyTpl = bodyVariants[variantIdx % bodyVariants.length] ?? "";
 
-            // Apply icebreaker merge tag
-            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "" };
+            // Apply merge tags incl. calendar_link from sender's profile + unsubscribe url
+            const { data: prof } = await supabase.from("profiles").select("calendar_link").eq("id", camp.user_id).maybeSingle();
+            const unsubscribeUrl = `${origin}/unsubscribe/${cl.lead_id}`;
+            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "", calendar_link: prof?.calendar_link || "", unsubscribe_url: unsubscribeUrl };
             const subject = renderEmail(subjectTpl, leadForRender);
             const body = renderEmail(bodyTpl, leadForRender);
 
             const trackingId = crypto.randomUUID();
             const messageId = `<${crypto.randomUUID()}@${(mb.from_email as string).split("@")[1]}>`;
             const sigHtml = mb.signature ? `<br><br>${mb.signature.replace(/\n/g, "<br>")}` : "";
+            const unsubHtml = `<br><br><div style="font-size:11px;color:#888">If you'd rather not hear from me, <a href="${unsubscribeUrl}">unsubscribe here</a>.</div>`;
             const trackingPixel = camp.track_opens
               ? `<img src="${origin}/api/public/track/open/${trackingId}" width="1" height="1" style="display:none" />`
               : "";
-            let html = body.replace(/\n/g, "<br>") + sigHtml + trackingPixel;
+            let html = body.replace(/\n/g, "<br>") + sigHtml + unsubHtml + trackingPixel;
             if (camp.track_clicks) html = rewriteLinks(html, origin, trackingId);
 
             try {
@@ -220,6 +224,10 @@ export const Route = createFileRoute("/api/public/process-queue")({
                 user_id: camp.user_id, campaign_id: camp.id, lead_id: cl.lead_id, mailbox_id: mb.id,
                 step_order: step.step_order, to_email: lead.email, subject, body, status: "sent",
                 tracking_id: trackingId, message_id: messageId, variant_index: variantIdx,
+              });
+              await fireWebhook(supabase, camp.user_id, "sent", {
+                campaign_id: camp.id, lead_id: cl.lead_id, mailbox_id: mb.id,
+                to: lead.email, subject, step: step.step_order,
               });
               processed++;
             } catch (e: any) {
