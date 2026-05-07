@@ -9,11 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WarmupRouteImport } from './routes/warmup'
+import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
@@ -22,6 +25,16 @@ import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/p
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 
+const WarmupRoute = WarmupRouteImport.update({
+  id: '/warmup',
+  path: '/warmup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppressionsRoute = SuppressionsRouteImport.update({
+  id: '/suppressions',
+  path: '/suppressions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MailboxesRoute = MailboxesRouteImport.update({
   id: '/mailboxes',
   path: '/mailboxes',
@@ -45,6 +58,11 @@ const InboxRoute = InboxRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -86,11 +104,14 @@ const ApiPublicTrackOpenTrackingIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
@@ -100,11 +121,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
@@ -115,11 +139,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
@@ -131,11 +158,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns/'
     | '/api/public/imap-sync'
@@ -145,11 +175,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns'
     | '/api/public/imap-sync'
@@ -159,11 +192,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns/'
     | '/api/public/imap-sync'
@@ -174,11 +210,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   DashboardRoute: typeof DashboardRoute
   InboxRoute: typeof InboxRoute
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  SuppressionsRoute: typeof SuppressionsRoute
+  WarmupRoute: typeof WarmupRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
@@ -189,6 +228,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/warmup': {
+      id: '/warmup'
+      path: '/warmup'
+      fullPath: '/warmup'
+      preLoaderRoute: typeof WarmupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppressions': {
+      id: '/suppressions'
+      path: '/suppressions'
+      fullPath: '/suppressions'
+      preLoaderRoute: typeof SuppressionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mailboxes': {
       id: '/mailboxes'
       path: '/mailboxes'
@@ -222,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -278,11 +338,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   DashboardRoute: DashboardRoute,
   InboxRoute: InboxRoute,
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  SuppressionsRoute: SuppressionsRoute,
+  WarmupRoute: WarmupRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
@@ -293,3 +356,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
