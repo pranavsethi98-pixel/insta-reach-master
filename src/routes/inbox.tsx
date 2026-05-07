@@ -5,7 +5,7 @@ import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Inbox, CheckCircle2, XCircle, Eye, MailReply } from "lucide-react";
+import { Inbox, CheckCircle2, XCircle, Eye, Reply } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/inbox")({
@@ -66,10 +66,10 @@ function InboxPage() {
                 <div className="text-sm text-muted-foreground">To: {l.to_email} · Step {l.step_order}</div>
                 <div className="flex gap-2 mt-2 items-center">
                   {l.opened_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-600"><Eye className="w-3 h-3" /> Opened</span>}
-                  {l.replied_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success"><MailReply className="w-3 h-3" /> Replied</span>}
+                  {l.replied_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success"><Reply className="w-3 h-3" /> Replied</span>}
                   {l.status === "sent" && !l.replied_at && (
                     <Button size="sm" variant="outline" onClick={() => markReplied(l.id)}>
-                      <MailReply className="w-3 h-3 mr-1" /> Mark replied
+                      <Reply className="w-3 h-3 mr-1" /> Mark replied
                     </Button>
                   )}
                 </div>
