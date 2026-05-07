@@ -11,16 +11,21 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WarmupRouteImport } from './routes/warmup'
+import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CopilotRouteImport } from './routes/copilot'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -45,6 +50,11 @@ const WarmupRoute = WarmupRouteImport.update({
   path: '/warmup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisitorsRoute = VisitorsRouteImport.update({
+  id: '/visitors',
+  path: '/visitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -58,6 +68,11 @@ const SuppressionsRoute = SuppressionsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SalesflowsRoute = SalesflowsRouteImport.update({
+  id: '/salesflows',
+  path: '/salesflows',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -80,6 +95,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeadsRoute = LeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -90,9 +110,19 @@ const InboxRoute = InboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoalsRoute = GoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopilotRoute = CopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -167,16 +197,21 @@ const ApiPublicTrackClickTrackingIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -194,16 +229,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -222,16 +262,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -251,16 +296,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -278,16 +328,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -305,16 +360,21 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -333,16 +393,21 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
+  GoalsRoute: typeof GoalsRoute
   InboxRoute: typeof InboxRoute
   LeadsRoute: typeof LeadsRoute
+  LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
+  SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
+  VisitorsRoute: typeof VisitorsRoute
   WarmupRoute: typeof WarmupRoute
   WebhooksRoute: typeof WebhooksRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
@@ -374,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WarmupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visitors': {
+      id: '/visitors'
+      path: '/visitors'
+      fullPath: '/visitors'
+      preLoaderRoute: typeof VisitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/team': {
       id: '/team'
       path: '/team'
@@ -393,6 +465,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/salesflows': {
+      id: '/salesflows'
+      path: '/salesflows'
+      fullPath: '/salesflows'
+      preLoaderRoute: typeof SalesflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -423,6 +502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leads': {
       id: '/leads'
       path: '/leads'
@@ -437,11 +523,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/goals': {
+      id: '/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof GoalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copilot': {
+      id: '/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof CopilotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -541,16 +641,21 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
+  CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
+  GoalsRoute: GoalsRoute,
   InboxRoute: InboxRoute,
   LeadsRoute: LeadsRoute,
+  LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
+  SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
+  VisitorsRoute: VisitorsRoute,
   WarmupRoute: WarmupRoute,
   WebhooksRoute: WebhooksRoute,
   CampaignsIdRoute: CampaignsIdRoute,
@@ -568,3 +673,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
