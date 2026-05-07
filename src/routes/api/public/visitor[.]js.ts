@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 // Serves a tiny tracking script: <script src=".../api/public/visitor.js?k=KEY"></script>
-export const Route = createFileRoute("/api/public/visitor/js")({
+export const Route = createFileRoute("/api/public/visitor.js")({
   server: {
     handlers: {
       GET: async ({ request }) => {

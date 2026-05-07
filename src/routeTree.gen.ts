@@ -54,12 +54,12 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-invite'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
+import { Route as ApiPublicVisitorDotjsRouteImport } from './routes/api/public/visitor[.]js'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
 import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
-import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
@@ -290,6 +290,11 @@ const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
   path: '/api/public/warmup-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVisitorDotjsRoute = ApiPublicVisitorDotjsRouteImport.update({
+  id: '/api/public/visitor.js',
+  path: '/api/public/visitor.js',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicVisitorRoute = ApiPublicVisitorRouteImport.update({
   id: '/api/public/visitor',
   path: '/api/public/visitor',
@@ -314,11 +319,6 @@ const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
   getParentRoute: () => AdminUsersRoute,
-} as any)
-const ApiPublicVisitorJsRoute = ApiPublicVisitorJsRouteImport.update({
-  id: '/js',
-  path: '/js',
-  getParentRoute: () => ApiPublicVisitorRoute,
 } as any)
 const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
@@ -393,11 +393,11 @@ export interface FileRoutesByFullPath {
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
-  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
+  '/api/public/visitor': typeof ApiPublicVisitorRoute
+  '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
-  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -450,11 +450,11 @@ export interface FileRoutesByTo {
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
-  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
+  '/api/public/visitor': typeof ApiPublicVisitorRoute
+  '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
-  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -508,11 +508,11 @@ export interface FileRoutesById {
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
-  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
+  '/api/public/visitor': typeof ApiPublicVisitorRoute
+  '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
-  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -568,10 +568,10 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
+    | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
-    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
@@ -625,10 +625,10 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
+    | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
-    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
@@ -682,10 +682,10 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
+    | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
-    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
@@ -738,7 +738,8 @@ export interface RootRouteChildren {
   AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
-  ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
+  ApiPublicVisitorRoute: typeof ApiPublicVisitorRoute
+  ApiPublicVisitorDotjsRoute: typeof ApiPublicVisitorDotjsRoute
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
@@ -1063,6 +1064,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWarmupTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/visitor.js': {
+      id: '/api/public/visitor.js'
+      path: '/api/public/visitor.js'
+      fullPath: '/api/public/visitor.js'
+      preLoaderRoute: typeof ApiPublicVisitorDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/visitor': {
       id: '/api/public/visitor'
       path: '/api/public/visitor'
@@ -1097,13 +1105,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AdminUsersUserIdRouteImport
       parentRoute: typeof AdminUsersRoute
-    }
-    '/api/public/visitor/js': {
-      id: '/api/public/visitor/js'
-      path: '/js'
-      fullPath: '/api/public/visitor/js'
-      preLoaderRoute: typeof ApiPublicVisitorJsRouteImport
-      parentRoute: typeof ApiPublicVisitorRoute
     }
     '/api/public/unsubscribe/$leadId': {
       id: '/api/public/unsubscribe/$leadId'
@@ -1147,17 +1148,6 @@ const AdminUsersRouteChildren: AdminUsersRouteChildren = {
 const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
   AdminUsersRouteChildren,
 )
-
-interface ApiPublicVisitorRouteChildren {
-  ApiPublicVisitorJsRoute: typeof ApiPublicVisitorJsRoute
-}
-
-const ApiPublicVisitorRouteChildren: ApiPublicVisitorRouteChildren = {
-  ApiPublicVisitorJsRoute: ApiPublicVisitorJsRoute,
-}
-
-const ApiPublicVisitorRouteWithChildren =
-  ApiPublicVisitorRoute._addFileChildren(ApiPublicVisitorRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1207,7 +1197,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
-  ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
+  ApiPublicVisitorRoute: ApiPublicVisitorRoute,
+  ApiPublicVisitorDotjsRoute: ApiPublicVisitorDotjsRoute,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
