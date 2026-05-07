@@ -1,17 +1,22 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook } from "lucide-react";
+import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/copilot", label: "AI Copilot", icon: Sparkles },
   { to: "/campaigns", label: "Campaigns", icon: Send },
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
+  { to: "/salesflows", label: "Salesflows", icon: Workflow },
   { to: "/mailboxes", label: "Mailboxes", icon: Mail },
   { to: "/warmup", label: "Warmup", icon: Flame },
   { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/visitors", label: "Visitors", icon: Globe },
+  { to: "/library", label: "Library", icon: BookOpen },
+  { to: "/goals", label: "Goals", icon: Target },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/suppressions", label: "Suppressions", icon: Ban },
   { to: "/team", label: "Team", icon: UsersRound },

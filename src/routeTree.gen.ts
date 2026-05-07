@@ -11,16 +11,21 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WarmupRouteImport } from './routes/warmup'
+import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CopilotRouteImport } from './routes/copilot'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -28,8 +33,10 @@ import { Route as UnsubscribeLeadIdRouteImport } from './routes/unsubscribe.$lea
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
+import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
@@ -45,6 +52,11 @@ const WarmupRoute = WarmupRouteImport.update({
   path: '/warmup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisitorsRoute = VisitorsRouteImport.update({
+  id: '/visitors',
+  path: '/visitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -58,6 +70,11 @@ const SuppressionsRoute = SuppressionsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SalesflowsRoute = SalesflowsRouteImport.update({
+  id: '/salesflows',
+  path: '/salesflows',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -80,6 +97,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeadsRoute = LeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -90,9 +112,19 @@ const InboxRoute = InboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoalsRoute = GoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopilotRoute = CopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -130,6 +162,11 @@ const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
   path: '/api/public/warmup-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVisitorRoute = ApiPublicVisitorRouteImport.update({
+  id: '/api/public/visitor',
+  path: '/api/public/visitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   id: '/api/public/process-queue',
   path: '/api/public/process-queue',
@@ -139,6 +176,11 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   id: '/api/public/imap-sync',
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVisitorJsRoute = ApiPublicVisitorJsRouteImport.update({
+  id: '/js',
+  path: '/js',
+  getParentRoute: () => ApiPublicVisitorRoute,
 } as any)
 const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
@@ -167,16 +209,21 @@ const ApiPublicTrackClickTrackingIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -185,25 +232,32 @@ export interface FileRoutesByFullPath {
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -212,9 +266,11 @@ export interface FileRoutesByTo {
   '/campaigns': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -222,16 +278,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
+  '/visitors': typeof VisitorsRoute
   '/warmup': typeof WarmupRoute
   '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
@@ -240,9 +301,11 @@ export interface FileRoutesById {
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -251,16 +314,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -269,25 +337,32 @@ export interface FileRouteTypes {
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -296,25 +371,32 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
     | '__root__'
     | '/'
     | '/analytics'
+    | '/copilot'
     | '/dashboard'
+    | '/goals'
     | '/inbox'
     | '/leads'
+    | '/library'
     | '/login'
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/salesflows'
     | '/settings'
     | '/suppressions'
     | '/team'
+    | '/visitors'
     | '/warmup'
     | '/webhooks'
     | '/campaigns/$id'
@@ -323,9 +405,11 @@ export interface FileRouteTypes {
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
@@ -333,16 +417,21 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
+  GoalsRoute: typeof GoalsRoute
   InboxRoute: typeof InboxRoute
   LeadsRoute: typeof LeadsRoute
+  LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
+  SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
+  VisitorsRoute: typeof VisitorsRoute
   WarmupRoute: typeof WarmupRoute
   WebhooksRoute: typeof WebhooksRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
@@ -351,6 +440,7 @@ export interface RootRouteChildren {
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
+  ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
@@ -374,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WarmupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visitors': {
+      id: '/visitors'
+      path: '/visitors'
+      fullPath: '/visitors'
+      preLoaderRoute: typeof VisitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/team': {
       id: '/team'
       path: '/team'
@@ -393,6 +490,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/salesflows': {
+      id: '/salesflows'
+      path: '/salesflows'
+      fullPath: '/salesflows'
+      preLoaderRoute: typeof SalesflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -423,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leads': {
       id: '/leads'
       path: '/leads'
@@ -437,11 +548,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/goals': {
+      id: '/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof GoalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copilot': {
+      id: '/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof CopilotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -493,6 +618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWarmupTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/visitor': {
+      id: '/api/public/visitor'
+      path: '/api/public/visitor'
+      fullPath: '/api/public/visitor'
+      preLoaderRoute: typeof ApiPublicVisitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/process-queue': {
       id: '/api/public/process-queue'
       path: '/api/public/process-queue'
@@ -506,6 +638,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/imap-sync'
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/public/visitor/js': {
+      id: '/api/public/visitor/js'
+      path: '/js'
+      fullPath: '/api/public/visitor/js'
+      preLoaderRoute: typeof ApiPublicVisitorJsRouteImport
+      parentRoute: typeof ApiPublicVisitorRoute
     }
     '/api/public/unsubscribe/$leadId': {
       id: '/api/public/unsubscribe/$leadId'
@@ -538,19 +677,35 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiPublicVisitorRouteChildren {
+  ApiPublicVisitorJsRoute: typeof ApiPublicVisitorJsRoute
+}
+
+const ApiPublicVisitorRouteChildren: ApiPublicVisitorRouteChildren = {
+  ApiPublicVisitorJsRoute: ApiPublicVisitorJsRoute,
+}
+
+const ApiPublicVisitorRouteWithChildren =
+  ApiPublicVisitorRoute._addFileChildren(ApiPublicVisitorRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
+  CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
+  GoalsRoute: GoalsRoute,
   InboxRoute: InboxRoute,
   LeadsRoute: LeadsRoute,
+  LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
+  SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
+  VisitorsRoute: VisitorsRoute,
   WarmupRoute: WarmupRoute,
   WebhooksRoute: WebhooksRoute,
   CampaignsIdRoute: CampaignsIdRoute,
@@ -559,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   CampaignsIndexRoute: CampaignsIndexRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
+  ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
