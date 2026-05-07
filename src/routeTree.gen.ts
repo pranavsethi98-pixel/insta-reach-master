@@ -14,6 +14,7 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PipelineRouteImport } from './routes/pipeline'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeadsRouteImport } from './routes/leads'
@@ -54,6 +55,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const PipelineRoute = PipelineRouteImport.update({
   id: '/pipeline',
   path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MailboxesRoute = MailboxesRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/onboarding'
     | '/pipeline'
     | '/settings'
     | '/suppressions'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/onboarding'
     | '/pipeline'
     | '/settings'
     | '/suppressions'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/onboarding'
     | '/pipeline'
     | '/settings'
     | '/suppressions'
@@ -289,6 +301,7 @@ export interface RootRouteChildren {
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
   SettingsRoute: typeof SettingsRoute
   SuppressionsRoute: typeof SuppressionsRoute
@@ -340,6 +353,13 @@ declare module '@tanstack/react-router' {
       path: '/pipeline'
       fullPath: '/pipeline'
       preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mailboxes': {
@@ -465,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
   SettingsRoute: SettingsRoute,
   SuppressionsRoute: SuppressionsRoute,
