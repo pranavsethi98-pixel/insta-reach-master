@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { WorkerMailer } from "worker-mailer";
+
 import { generateWarmupEmail, generateWarmupReply } from "@/lib/warmup-content";
 
 export const Route = createFileRoute("/api/public/warmup-tick")({

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { WorkerMailer } from "worker-mailer";
+
 import { renderEmail } from "@/lib/spintax";
 import { rewriteLinks } from "@/lib/links";
 import { fireWebhook } from "@/lib/webhooks";
