@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target, Bot, GitBranch, Calendar, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban, KanbanSquare, UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target, Bot, GitBranch, Calendar, ShieldCheck, CreditCard } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyAdminRoles } from "@/lib/admin.functions";
@@ -27,6 +27,7 @@ const nav = [
   { to: "/suppressions", label: "Suppressions", icon: Ban },
   { to: "/team", label: "Team", icon: UsersRound },
   { to: "/webhooks", label: "Webhooks", icon: Webhook },
+  { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
