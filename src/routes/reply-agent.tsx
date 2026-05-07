@@ -61,7 +61,7 @@ function ReplyAgentPage() {
           <ReplyCard
             key={item.id}
             item={item}
-            onApprove={(subject, body) => approveMut.mutate({ id: item.id, subject, body })}
+            onApprove={(subject: string, body: string) => approveMut.mutate({ id: item.id, subject, body })}
             onReject={() => rejectMut.mutate(item.id)}
           />
         ))}
@@ -73,7 +73,7 @@ function ReplyAgentPage() {
 function ReplyCard({ item, onApprove, onReject }: any) {
   const [subject, setSubject] = useState(item.draft_subject || "");
   const [body, setBody] = useState(item.draft_body || "");
-  const lead = item.conversation?.lead;
+  const lead = item.lead;
 
   return (
     <Card className="p-5 space-y-3">

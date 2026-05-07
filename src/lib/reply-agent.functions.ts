@@ -82,9 +82,11 @@ export const processInboundReply = createServerFn({ method: "POST" })
     if (classification === "out_of_office") {
       const m = latest.body?.match(/back\s+(?:on\s+)?([A-Za-z]+\s+\d{1,2}|\d{4}-\d{2}-\d{2})/i);
       const oooUntil = new Date(Date.now() + 7 * 86400000).toISOString();
-      await supabase.from("campaign_leads")
-        .update({ ooo_until: oooUntil, status: "ooo" })
-        .eq("lead_id", conv?.lead_id);
+      if (conv?.lead_id) {
+        await supabase.from("campaign_leads")
+          .update({ ooo_until: oooUntil, status: "ooo" })
+          .eq("lead_id", conv.lead_id);
+      }
       return { classification, action: "scheduled_for_return" };
     }
 
@@ -162,7 +164,7 @@ export const listReplyQueue = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data, error } = await supabase
       .from("reply_queue")
-      .select("*, conversation:conversations(subject, lead:leads(email, first_name, company))")
+      .select("*, conversation:conversations(subject), lead:leads(email, first_name, company)")
       .eq("status", "pending")
       .order("created_at", { ascending: false })
       .limit(100);

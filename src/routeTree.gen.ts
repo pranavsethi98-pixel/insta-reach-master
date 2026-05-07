@@ -16,6 +16,7 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
+import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
@@ -75,6 +76,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SalesflowsRoute = SalesflowsRouteImport.update({
   id: '/salesflows',
   path: '/salesflows',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReplyAgentRoute = ReplyAgentRouteImport.update({
+  id: '/reply-agent',
+  path: '/reply-agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/mailboxes': typeof MailboxesRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
     | '/suppressions'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
     | '/suppressions'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/mailboxes'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
     | '/suppressions'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   MailboxesRoute: typeof MailboxesRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
+  ReplyAgentRoute: typeof ReplyAgentRoute
   SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
   SuppressionsRoute: typeof SuppressionsRoute
@@ -497,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/salesflows'
       fullPath: '/salesflows'
       preLoaderRoute: typeof SalesflowsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reply-agent': {
+      id: '/reply-agent'
+      path: '/reply-agent'
+      fullPath: '/reply-agent'
+      preLoaderRoute: typeof ReplyAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -701,6 +721,7 @@ const rootRouteChildren: RootRouteChildren = {
   MailboxesRoute: MailboxesRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
+  ReplyAgentRoute: ReplyAgentRoute,
   SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
   SuppressionsRoute: SuppressionsRoute,
