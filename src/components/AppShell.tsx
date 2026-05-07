@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap } from "lucide-react";
+import { LayoutDashboard, Mail, Users, Send, Inbox, LogOut, Zap, Flame, BarChart3, Ban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,10 @@ const nav = [
   { to: "/campaigns", label: "Campaigns", icon: Send },
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/mailboxes", label: "Mailboxes", icon: Mail },
-  { to: "/inbox", label: "Activity", icon: Inbox },
+  { to: "/warmup", label: "Warmup", icon: Flame },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/suppressions", label: "Suppressions", icon: Ban },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
