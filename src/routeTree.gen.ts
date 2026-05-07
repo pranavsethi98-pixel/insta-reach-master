@@ -9,13 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 
+const MailboxesRoute = MailboxesRouteImport.update({
+  id: '/mailboxes',
+  path: '/mailboxes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -28,44 +41,88 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
+  id: '/campaigns/',
+  path: '/campaigns/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
+  '/mailboxes': typeof MailboxesRoute
+  '/campaigns/': typeof CampaignsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
+  '/mailboxes': typeof MailboxesRoute
+  '/campaigns': typeof CampaignsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
+  '/mailboxes': typeof MailboxesRoute
+  '/campaigns/': typeof CampaignsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/leads'
+    | '/login'
+    | '/mailboxes'
+    | '/campaigns/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login'
-  id: '__root__' | '/' | '/dashboard' | '/login'
+  to: '/' | '/dashboard' | '/leads' | '/login' | '/mailboxes' | '/campaigns'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/leads'
+    | '/login'
+    | '/mailboxes'
+    | '/campaigns/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
+  MailboxesRoute: typeof MailboxesRoute
+  CampaignsIndexRoute: typeof CampaignsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mailboxes': {
+      id: '/mailboxes'
+      path: '/mailboxes'
+      fullPath: '/mailboxes'
+      preLoaderRoute: typeof MailboxesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -82,13 +139,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campaigns/': {
+      id: '/campaigns/'
+      path: '/campaigns'
+      fullPath: '/campaigns/'
+      preLoaderRoute: typeof CampaignsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
+  MailboxesRoute: MailboxesRoute,
+  CampaignsIndexRoute: CampaignsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
