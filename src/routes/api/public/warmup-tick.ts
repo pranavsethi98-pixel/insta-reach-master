@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { WorkerMailer } from "worker-mailer";
+
 import { generateWarmupEmail, generateWarmupReply } from "@/lib/warmup-content";
 
 export const Route = createFileRoute("/api/public/warmup-tick")({
   server: {
     handlers: {
       POST: async () => {
+        const { WorkerMailer } = await import("worker-mailer");
         const supabase = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,

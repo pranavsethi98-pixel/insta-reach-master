@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { WorkerMailer } from "worker-mailer";
+
 import { renderEmail } from "@/lib/spintax";
 import { rewriteLinks } from "@/lib/links";
 import { fireWebhook } from "@/lib/webhooks";
@@ -9,6 +9,7 @@ export const Route = createFileRoute("/api/public/process-queue")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { WorkerMailer } = await import("worker-mailer");
         const supabase = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,

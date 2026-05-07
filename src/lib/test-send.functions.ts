@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { WorkerMailer } from "worker-mailer";
 import { renderEmail } from "@/lib/spintax";
 
 export const sendTestEmail = createServerFn({ method: "POST" })
@@ -26,6 +25,7 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     const sigHtml = mb.signature ? `<br><br>${mb.signature.replace(/\n/g, "<br>")}` : "";
 
     try {
+      const { WorkerMailer } = await import("worker-mailer");
       const mailer = await WorkerMailer.connect({
         credentials: { username: mb.smtp_username, password: mb.smtp_password },
         authType: "plain",
