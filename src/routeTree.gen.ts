@@ -63,7 +63,7 @@ import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$u
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
 import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments.webhook'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
