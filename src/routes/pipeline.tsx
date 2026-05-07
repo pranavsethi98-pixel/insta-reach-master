@@ -57,7 +57,7 @@ function PipelinePage() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: stage.color ?? "#6366f1" }} />
                   <span className="font-semibold">{stage.label}</span>
                   <Badge variant="secondary">{items.length}</Badge>
                 </div>
