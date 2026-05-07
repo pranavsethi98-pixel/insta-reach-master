@@ -286,14 +286,27 @@ export const acceptAdminInvite = createServerFn({ method: "POST" })
 // ---------- billing & credits ----------
 export const listPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await requireRole(context.userId, ALL);
     const { data } = await supabaseAdmin.from("plans").select("*").order("price_cents");
     return data ?? [];
   });
 
 export const upsertPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => d)
+  .inputValidator((d) => z.object({
+    id: z.string().uuid().optional(),
+    code: z.string().min(1).max(50),
+    name: z.string().min(1).max(120),
+    price_cents: z.number().int().nonnegative(),
+    interval: z.enum(["month", "year"]).optional(),
+    monthly_credits: z.number().int().nonnegative().optional(),
+    max_mailboxes: z.number().int().nonnegative().nullable().optional(),
+    max_active_campaigns: z.number().int().nonnegative().nullable().optional(),
+    features: z.record(z.string(), z.any()).optional(),
+    is_active: z.boolean().optional(),
+    stripe_price_id: z.string().max(120).nullable().optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     const { error } = await supabaseAdmin.from("plans").upsert(data);
@@ -303,7 +316,7 @@ export const upsertPlan = createServerFn({ method: "POST" })
 
 export const assignPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { userId: string; planId: string }) => d)
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), planId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, WRITE_BILLING);
     await supabaseAdmin.from("subscriptions").upsert({
@@ -329,7 +342,7 @@ export const adjustCredits = createServerFn({ method: "POST" })
 
 export const refundPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { paymentId: string; amountCents: number }) => d)
+  .inputValidator((d) => z.object({ paymentId: z.string().uuid(), amountCents: z.number().int().positive().max(10_000_000) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, WRITE_BILLING);
     const { error } = await supabaseAdmin
@@ -351,7 +364,16 @@ export const listCoupons = createServerFn({ method: "GET" })
 
 export const upsertCoupon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => d)
+  .inputValidator((d) => z.object({
+    id: z.string().uuid().optional(),
+    code: z.string().min(1).max(50),
+    discount_pct: z.number().int().min(0).max(100).nullable().optional(),
+    discount_cents: z.number().int().nonnegative().nullable().optional(),
+    bonus_credits: z.number().int().nonnegative().nullable().optional(),
+    max_redemptions: z.number().int().positive().nullable().optional(),
+    expires_at: z.string().datetime().nullable().optional(),
+    is_active: z.boolean().optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, WRITE_BILLING);
     const { error } = await supabaseAdmin.from("coupons").upsert(data);
@@ -361,7 +383,7 @@ export const upsertCoupon = createServerFn({ method: "POST" })
 
 export const setCreditCost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { action: string; cost: number }) => d)
+  .inputValidator((d) => z.object({ action: z.string().min(1).max(80).regex(/^[a-zA-Z0-9_.-]+$/), cost: z.number().nonnegative().max(1_000_000) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     await supabaseAdmin.from("credit_costs").upsert({ action: data.action, cost: data.cost, updated_at: new Date().toISOString() });
@@ -370,7 +392,8 @@ export const setCreditCost = createServerFn({ method: "POST" })
 
 export const listCreditCosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await requireRole(context.userId, ALL);
     const { data } = await supabaseAdmin.from("credit_costs").select("*").order("action");
     return data ?? [];
   });
@@ -391,7 +414,7 @@ export const listAllMailboxes = createServerFn({ method: "GET" })
 
 export const setMailboxAdminSuspended = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { mailboxId: string; suspend: boolean }) => d)
+  .inputValidator((d) => z.object({ mailboxId: z.string().uuid(), suspend: z.boolean() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, [...SUPER, "support_admin"]);
     await supabaseAdmin.from("mailboxes").update({ admin_suspended: data.suspend, is_active: !data.suspend }).eq("id", data.mailboxId);
@@ -401,7 +424,7 @@ export const setMailboxAdminSuspended = createServerFn({ method: "POST" })
 
 export const moveMailboxToPool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { mailboxId: string; poolId: string }) => d)
+  .inputValidator((d) => z.object({ mailboxId: z.string().uuid(), poolId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     await supabaseAdmin.from("mailboxes").update({ warmup_pool_id: data.poolId }).eq("id", data.mailboxId);
@@ -434,7 +457,10 @@ export const listAllCampaigns = createServerFn({ method: "GET" })
 
 export const setCampaignStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { campaignId: string; status: string }) => d)
+  .inputValidator((d) => z.object({
+    campaignId: z.string().uuid(),
+    status: z.enum(["draft", "active", "paused", "completed", "archived"]),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, [...SUPER, "support_admin"]);
     await supabaseAdmin.from("campaigns").update({ status: data.status }).eq("id", data.campaignId);
@@ -465,7 +491,7 @@ export const addBlacklist = createServerFn({ method: "POST" })
 
 export const removeBlacklist = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     await supabaseAdmin.from("global_blacklist").delete().eq("id", data.id);
@@ -483,7 +509,10 @@ export const listAbuseFlags = createServerFn({ method: "GET" })
 
 export const setPlatformSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { key: string; value: any }) => d)
+  .inputValidator((d) => z.object({
+    key: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.-]+$/),
+    value: z.any(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     await supabaseAdmin.from("platform_settings").upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() });
@@ -509,7 +538,16 @@ export const listAnnouncements = createServerFn({ method: "GET" })
 
 export const upsertAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => d)
+  .inputValidator((d) => z.object({
+    id: z.string().uuid().optional(),
+    title: z.string().min(1).max(200),
+    body: z.string().min(1).max(5000),
+    audience: z.enum(["all", "free", "paid", "trial"]).optional(),
+    segment: z.record(z.string(), z.any()).optional(),
+    starts_at: z.string().datetime().optional(),
+    ends_at: z.string().datetime().nullable().optional(),
+    is_active: z.boolean().optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     const payload = { ...data, created_by: context.userId };
@@ -529,7 +567,11 @@ export const listAllTickets = createServerFn({ method: "GET" })
 
 export const replyTicket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { ticketId: string; body: string; status?: string }) => d)
+  .inputValidator((d) => z.object({
+    ticketId: z.string().uuid(),
+    body: z.string().min(1).max(10_000),
+    status: z.enum(["open", "pending", "resolved", "closed"]).optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, [...SUPER, "support_admin"]);
     await supabaseAdmin.from("support_ticket_replies").insert({
@@ -550,7 +592,14 @@ export const listLlmProviders = createServerFn({ method: "GET" })
 
 export const upsertLlmProvider = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => d)
+  .inputValidator((d) => z.object({
+    id: z.string().uuid().optional(),
+    name: z.string().min(1).max(80),
+    default_model: z.string().max(120).nullable().optional(),
+    is_enabled: z.boolean().optional(),
+    byok_allowed: z.boolean().optional(),
+    monthly_token_cap: z.number().int().nonnegative().nullable().optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     const { error } = await supabaseAdmin.from("llm_providers").upsert(data);
@@ -561,7 +610,13 @@ export const upsertLlmProvider = createServerFn({ method: "POST" })
 // ---------- template pushes ----------
 export const pushTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { title: string; subject?: string; body: string; category?: string; planCodes?: string[] }) => d)
+  .inputValidator((d) => z.object({
+    title: z.string().min(1).max(200),
+    subject: z.string().max(300).optional(),
+    body: z.string().min(1).max(20_000),
+    category: z.string().max(80).optional(),
+    planCodes: z.array(z.string().min(1).max(50)).max(20).optional(),
+  }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
     // log the push
