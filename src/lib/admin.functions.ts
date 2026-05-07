@@ -23,14 +23,14 @@ async function audit(
   action: string,
   target_type?: string,
   target_id?: string,
-  metadata: Record<string, unknown> = {},
+    metadata: Record<string, unknown> = {},
 ) {
   await supabaseAdmin.from("admin_audit_log").insert({
     actor_id: actor,
     action,
     target_type,
     target_id,
-    metadata,
+    metadata: metadata as any,
   });
 }
 
