@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { scoreMailbox } from "@/lib/deliverability";
 import { sendTestEmail } from "@/lib/test-send.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { BulkImportMailboxes } from "@/components/BulkImportMailboxes";
 
 const PRESETS: Record<string, { smtp_host: string; smtp_port: number; smtp_secure: boolean; imap_host: string; imap_port: number; imap_secure: boolean }> = {
   Gmail: { smtp_host: "smtp.gmail.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.gmail.com", imap_port: 993, imap_secure: true },
@@ -55,7 +56,10 @@ function MailboxesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Mailboxes</h1>
           <p className="text-muted-foreground mt-1">SMTP accounts used to send your campaigns. Add multiple to rotate sends.</p>
         </div>
-        <AddMailboxDialog onCreated={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
+        <div className="flex gap-2">
+          <BulkImportMailboxes onImported={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
+          <AddMailboxDialog onCreated={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
+        </div>
       </div>
 
       {mailboxes?.length === 0 && (
