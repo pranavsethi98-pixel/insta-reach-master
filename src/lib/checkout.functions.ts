@@ -24,7 +24,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: price.id, quantity: 1 }],
       mode: isRecurring ? "subscription" : "payment",
-      ui_mode: "embedded",
+      ui_mode: "embedded" as any,
       return_url: `${data.returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
       metadata: { userId, lovable_price_id: data.priceId },
       ...(isRecurring && { subscription_data: { metadata: { userId, lovable_price_id: data.priceId } } }),
