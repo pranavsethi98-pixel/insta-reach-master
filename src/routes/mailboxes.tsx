@@ -11,8 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Trash2, Mail, Settings } from "lucide-react";
+import { Plus, Trash2, Mail, Settings, ShieldCheck, Send } from "lucide-react";
 import { toast } from "sonner";
+import { scoreMailbox } from "@/lib/deliverability";
+import { sendTestEmail } from "@/lib/test-send.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 const PRESETS: Record<string, { smtp_host: string; smtp_port: number; smtp_secure: boolean; imap_host: string; imap_port: number; imap_secure: boolean }> = {
   Gmail: { smtp_host: "smtp.gmail.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.gmail.com", imap_port: 993, imap_secure: true },
