@@ -18,6 +18,7 @@ import { Route as SubsequencesRouteImport } from './routes/subsequences'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MeetingsRouteImport } from './routes/meetings'
@@ -27,9 +28,12 @@ import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GoalsRouteImport } from './routes/goals'
+import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CopilotRouteImport } from './routes/copilot'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -110,6 +114,11 @@ const ReplyAgentRoute = ReplyAgentRouteImport.update({
   path: '/reply-agent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PipelineRoute = PipelineRouteImport.update({
   id: '/pipeline',
   path: '/pipeline',
@@ -155,6 +164,11 @@ const GoalsRoute = GoalsRouteImport.update({
   path: '/goals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -165,9 +179,19 @@ const CopilotRoute = CopilotRouteImport.update({
   path: '/copilot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -346,9 +370,12 @@ const ApiPublicTrackClickTrackingIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
@@ -358,6 +385,7 @@ export interface FileRoutesByFullPath {
   '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
@@ -403,9 +431,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
@@ -415,6 +446,7 @@ export interface FileRoutesByTo {
   '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
@@ -461,9 +493,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
@@ -473,6 +508,7 @@ export interface FileRoutesById {
   '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
@@ -520,9 +556,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/analytics'
+    | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/features'
     | '/goals'
     | '/inbox'
     | '/leads'
@@ -532,6 +571,7 @@ export interface FileRouteTypes {
     | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/pricing'
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
@@ -577,9 +617,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/analytics'
+    | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/features'
     | '/goals'
     | '/inbox'
     | '/leads'
@@ -589,6 +632,7 @@ export interface FileRouteTypes {
     | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/pricing'
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
@@ -634,9 +678,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/analytics'
+    | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/features'
     | '/goals'
     | '/inbox'
     | '/leads'
@@ -646,6 +693,7 @@ export interface FileRouteTypes {
     | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/pricing'
     | '/reply-agent'
     | '/salesflows'
     | '/settings'
@@ -692,9 +740,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  ContactRoute: typeof ContactRoute
   CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
+  FeaturesRoute: typeof FeaturesRoute
   GoalsRoute: typeof GoalsRoute
   InboxRoute: typeof InboxRoute
   LeadsRoute: typeof LeadsRoute
@@ -704,6 +755,7 @@ export interface RootRouteChildren {
   MeetingsRoute: typeof MeetingsRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
+  PricingRoute: typeof PricingRoute
   ReplyAgentRoute: typeof ReplyAgentRoute
   SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
@@ -812,6 +864,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReplyAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pipeline': {
       id: '/pipeline'
       path: '/pipeline'
@@ -875,6 +934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GoalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -889,11 +955,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CopilotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1151,9 +1231,12 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  ContactRoute: ContactRoute,
   CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
+  FeaturesRoute: FeaturesRoute,
   GoalsRoute: GoalsRoute,
   InboxRoute: InboxRoute,
   LeadsRoute: LeadsRoute,
@@ -1163,6 +1246,7 @@ const rootRouteChildren: RootRouteChildren = {
   MeetingsRoute: MeetingsRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
+  PricingRoute: PricingRoute,
   ReplyAgentRoute: ReplyAgentRoute,
   SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
