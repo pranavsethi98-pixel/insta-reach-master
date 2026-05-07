@@ -231,13 +231,13 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         <div className="font-semibold">Step {step.step_order}</div>
         <div className="flex items-center gap-3">
           <Label className="text-xs">Delay</Label>
-          <Input type="number" className="w-20 h-8" value={local.delay_days} onChange={(e) => save({ delay_days: Number(e.target.value) })} />
+          <Input type="number" className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => save({ delay_days: Number(e.target.value) })} />
           <span className="text-sm text-muted-foreground">days</span>
           <Button size="icon" variant="ghost" onClick={remove}><Trash2 className="w-4 h-4" /></Button>
         </div>
       </div>
-      <Input placeholder="Subject" value={local.subject} onChange={(e) => save({ subject: e.target.value })} />
-      <Textarea rows={6} placeholder="Body — supports {{first_name}} and {spintax|variations}" value={local.body} onChange={(e) => save({ body: e.target.value })} />
+      <Input placeholder="Subject" value={local.subject ?? ""} onChange={(e) => save({ subject: e.target.value })} />
+      <Textarea rows={6} placeholder="Body — supports {{first_name}} and {spintax|variations}" value={local.body ?? ""} onChange={(e) => save({ body: e.target.value })} />
       <details className="text-xs">
         <summary className="cursor-pointer text-muted-foreground">Preview (sample lead)</summary>
         <div className="mt-2 bg-muted/50 rounded p-3 whitespace-pre-wrap">
