@@ -76,6 +76,22 @@ function MailboxesPage() {
 
 function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
   const [editing, setEditing] = useState(false);
+  const [showScore, setShowScore] = useState(false);
+  const [testTo, setTestTo] = useState("");
+  const sendTest = useServerFn(sendTestEmail);
+  const { score, checks } = scoreMailbox(m);
+  const tone = score >= 80 ? "text-success" : score >= 50 ? "text-amber-600" : "text-destructive";
+
+  const runTest = async () => {
+    if (!testTo) return toast.error("Enter a recipient email");
+    try {
+      await sendTest({ data: { mailboxId: m.id, to: testTo, subject: "Test from your cold email tool", body: "This is a test send to confirm SMTP works.\n\nIf you got this, you're ready to launch campaigns." } });
+      toast.success("Test sent! Check the inbox.");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   return (
     <div className="bg-card border rounded-xl p-5">
       <div className="flex items-center gap-4">
@@ -86,10 +102,33 @@ function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
             {m.sent_today}/{m.daily_limit} today · ramp {m.ramp_up_enabled ? "on" : "off"} · health {m.health_score ?? 100}/100
           </div>
         </div>
+        <button onClick={() => setShowScore(!showScore)} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-sm font-medium ${tone}`}>
+          <ShieldCheck className="w-4 h-4" /> {score}
+        </button>
         <Switch checked={m.is_active} onCheckedChange={(v) => onToggle(m.id, v)} />
         <Button size="icon" variant="ghost" onClick={() => setEditing(!editing)}><Settings className="w-4 h-4" /></Button>
         <Button size="icon" variant="ghost" onClick={() => onRemove(m.id)}><Trash2 className="w-4 h-4" /></Button>
       </div>
+      {showScore && (
+        <div className="mt-4 pt-4 border-t space-y-3">
+          <div className="text-sm font-medium">Deliverability checklist</div>
+          <ul className="space-y-1.5">
+            {checks.map((c) => (
+              <li key={c.label} className="flex items-start gap-2 text-sm">
+                <span className={c.ok ? "text-success" : "text-muted-foreground"}>{c.ok ? "✓" : "○"}</span>
+                <div>
+                  <div>{c.label}</div>
+                  {!c.ok && <div className="text-xs text-muted-foreground">{c.hint}</div>}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-2 pt-2">
+            <Input placeholder="your@email.com" value={testTo} onChange={(e) => setTestTo(e.target.value)} className="flex-1" />
+            <Button onClick={runTest} variant="outline"><Send className="w-4 h-4 mr-2" /> Send test</Button>
+          </div>
+        </div>
+      )}
       {editing && <MailboxSettings m={m} onSave={() => { setEditing(false); onUpdate(); }} />}
     </div>
   );
