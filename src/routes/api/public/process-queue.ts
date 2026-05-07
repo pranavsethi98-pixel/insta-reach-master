@@ -160,7 +160,7 @@ export const Route = createFileRoute("/api/public/process-queue")({
               await mailer.send({
                 from: { name: mb.from_name, email: mb.from_email },
                 to: lead.email,
-                replyTo: mb.reply_to || mb.from_email,
+                reply: mb.reply_to ? { email: mb.reply_to } : undefined,
                 subject,
                 html,
                 text: body + (mb.signature ? `\n\n${mb.signature}` : ""),
