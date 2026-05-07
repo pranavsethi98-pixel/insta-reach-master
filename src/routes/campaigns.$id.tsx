@@ -173,8 +173,8 @@ function CampaignDetail() {
 
         <TabsContent value="settings" className="mt-4">
           <div className="bg-card border rounded-xl p-6 grid grid-cols-2 gap-4 max-w-xl">
-            <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_start} onBlur={(e) => updateCampaign({ send_window_start: Number(e.target.value) })} /></div>
-            <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_end} onBlur={(e) => updateCampaign({ send_window_end: Number(e.target.value) })} /></div>
+            <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_start ?? 9} onBlur={(e) => updateCampaign({ send_window_start: Number(e.target.value) })} /></div>
+            <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_end ?? 17} onBlur={(e) => updateCampaign({ send_window_end: Number(e.target.value) })} /></div>
             <div className="col-span-2 text-xs text-muted-foreground">
               Sending only happens within this window in your server timezone. Days: Mon–Fri by default.
             </div>
