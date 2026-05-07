@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/public/process-queue")({
         );
 
         // Reset daily counters for mailboxes whose date rolled over
-        await supabase.rpc("noop").catch(() => {});
+        
         const today = new Date().toISOString().slice(0, 10);
         await supabase.from("mailboxes")
           .update({ sent_today: 0, last_reset_date: today })
