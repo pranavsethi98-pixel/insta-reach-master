@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { WorkerMailer } from "worker-mailer";
 import { renderEmail } from "@/lib/spintax";
+import { rewriteLinks } from "@/lib/links";
 
 export const Route = createFileRoute("/api/public/process-queue")({
   server: {
@@ -95,6 +96,34 @@ export const Route = createFileRoute("/api/public/process-queue")({
             const step = steps[stepIdx];
             const lead = cl.leads;
 
+            // Conditional step gating (based on previous step's outcome)
+            if (stepIdx > 0 && step.condition && step.condition !== "always") {
+              const prevStep = steps[stepIdx - 1];
+              const { data: prevSends } = await supabase.from("send_log")
+                .select("opened_at,clicked_at,replied_at")
+                .eq("campaign_id", camp.id).eq("lead_id", cl.lead_id)
+                .eq("step_order", prevStep.step_order);
+              const opened = (prevSends ?? []).some((p: any) => p.opened_at);
+              const clicked = (prevSends ?? []).some((p: any) => p.clicked_at);
+              const replied = (prevSends ?? []).some((p: any) => p.replied_at);
+              const cond = step.condition as string;
+              const skip =
+                (cond === "if_opened" && !opened) ||
+                (cond === "if_not_opened" && opened) ||
+                (cond === "if_clicked" && !clicked) ||
+                (cond === "if_not_replied" && replied);
+              if (skip) {
+                const nextStep = stepIdx + 1;
+                const isDone = nextStep >= steps.length;
+                await supabase.from("campaign_leads").update({
+                  current_step: nextStep,
+                  status: isDone ? "completed" : "in_progress",
+                  next_send_at: isDone ? null : new Date().toISOString(),
+                }).eq("id", cl.id);
+                continue;
+              }
+            }
+
             // Suppression check
             const emailLc = (lead.email || "").toLowerCase();
             const domainLc = emailLc.split("@")[1] ?? "";
@@ -147,7 +176,8 @@ export const Route = createFileRoute("/api/public/process-queue")({
             const trackingPixel = camp.track_opens
               ? `<img src="${origin}/api/public/track/open/${trackingId}" width="1" height="1" style="display:none" />`
               : "";
-            const html = body.replace(/\n/g, "<br>") + sigHtml + trackingPixel;
+            let html = body.replace(/\n/g, "<br>") + sigHtml + trackingPixel;
+            if (camp.track_clicks) html = rewriteLinks(html, origin, trackingId);
 
             try {
               const mailer = await WorkerMailer.connect({

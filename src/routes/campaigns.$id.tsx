@@ -227,9 +227,25 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
   const sample = { first_name: "Jane", last_name: "Doe", company: "Acme", title: "CEO", email: "jane@acme.com" };
   return (
     <div className="bg-card border rounded-xl p-5 space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="font-semibold">Step {step.step_order}</div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {step.step_order > 1 && (
+            <>
+              <Label className="text-xs">Send if</Label>
+              <select
+                className="h-8 text-sm rounded-md border bg-background px-2"
+                value={local.condition ?? "always"}
+                onChange={(e) => save({ condition: e.target.value })}
+              >
+                <option value="always">Always</option>
+                <option value="if_not_replied">No reply yet</option>
+                <option value="if_opened">Previous opened</option>
+                <option value="if_not_opened">Previous not opened</option>
+                <option value="if_clicked">Previous clicked</option>
+              </select>
+            </>
+          )}
           <Label className="text-xs">Delay</Label>
           <Input type="number" className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => save({ delay_days: Number(e.target.value) })} />
           <span className="text-sm text-muted-foreground">days</span>

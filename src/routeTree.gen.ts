@@ -23,7 +23,9 @@ import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
+import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
 
 const WarmupRoute = WarmupRouteImport.update({
   id: '/warmup',
@@ -95,10 +97,21 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicInboundSecretRoute = ApiPublicInboundSecretRouteImport.update({
+  id: '/api/public/inbound/$secret',
+  path: '/api/public/inbound/$secret',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackOpenTrackingIdRoute =
   ApiPublicTrackOpenTrackingIdRouteImport.update({
     id: '/api/public/track/open/$trackingId',
     path: '/api/public/track/open/$trackingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicTrackClickTrackingIdRoute =
+  ApiPublicTrackClickTrackingIdRouteImport.update({
+    id: '/api/public/track/click/$trackingId',
+    path: '/api/public/track/click/$trackingId',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -117,6 +130,8 @@ export interface FileRoutesByFullPath {
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesByTo {
@@ -134,6 +149,8 @@ export interface FileRoutesByTo {
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesById {
@@ -152,6 +169,8 @@ export interface FileRoutesById {
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
+  '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRouteTypes {
@@ -171,6 +190,8 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
+    | '/api/public/inbound/$secret'
+    | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -188,6 +209,8 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
+    | '/api/public/inbound/$secret'
+    | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
     | '__root__'
@@ -205,6 +228,8 @@ export interface FileRouteTypes {
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/warmup-tick'
+    | '/api/public/inbound/$secret'
+    | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
 }
@@ -223,6 +248,8 @@ export interface RootRouteChildren {
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
+  ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
+  ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
   ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
 }
 
@@ -326,11 +353,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/inbound/$secret': {
+      id: '/api/public/inbound/$secret'
+      path: '/api/public/inbound/$secret'
+      fullPath: '/api/public/inbound/$secret'
+      preLoaderRoute: typeof ApiPublicInboundSecretRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track/open/$trackingId': {
       id: '/api/public/track/open/$trackingId'
       path: '/api/public/track/open/$trackingId'
       fullPath: '/api/public/track/open/$trackingId'
       preLoaderRoute: typeof ApiPublicTrackOpenTrackingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track/click/$trackingId': {
+      id: '/api/public/track/click/$trackingId'
+      path: '/api/public/track/click/$trackingId'
+      fullPath: '/api/public/track/click/$trackingId'
+      preLoaderRoute: typeof ApiPublicTrackClickTrackingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -351,6 +392,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
+  ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
+  ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
   ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
 }
 export const routeTree = rootRouteImport
