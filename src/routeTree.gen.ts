@@ -20,6 +20,7 @@ import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as MeetingsRouteImport } from './routes/meetings'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
@@ -97,6 +98,11 @@ const PipelineRoute = PipelineRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingsRoute = MeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MailboxesRoute = MailboxesRouteImport.update({
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/reply-agent': typeof ReplyAgentRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/reply-agent': typeof ReplyAgentRoute
@@ -302,6 +310,7 @@ export interface FileRoutesById {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
   '/reply-agent': typeof ReplyAgentRoute
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
     | '/reply-agent'
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
     | '/reply-agent'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
     | '/reply-agent'
@@ -449,6 +461,7 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  MeetingsRoute: typeof MeetingsRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
   ReplyAgentRoute: typeof ReplyAgentRoute
@@ -551,6 +564,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetings': {
+      id: '/meetings'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof MeetingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mailboxes': {
@@ -739,6 +759,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  MeetingsRoute: MeetingsRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
   ReplyAgentRoute: ReplyAgentRoute,
@@ -766,3 +787,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
