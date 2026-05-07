@@ -613,7 +613,7 @@ export const platformAnalytics = createServerFn({ method: "GET" })
       supabaseAdmin.from("webhooks").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("calendly_token", "is", null),
       supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("slack_webhook_url", "is", null),
-      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("visitor_pixel_secret", "is", null),
+      supabaseAdmin.from("visitor_pixels").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("visitor_events").select("id", { count: "exact", head: true }).gte("created_at", since),
     ]);
     const mrr = (subs.data ?? []).filter((s: any) => s.status === "active")
