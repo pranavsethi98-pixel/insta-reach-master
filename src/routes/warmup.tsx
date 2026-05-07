@@ -89,8 +89,42 @@ function WarmupPage() {
                       <Input type="number" defaultValue={m.warmup_increment ?? 2} onBlur={(e) => update(m.id, { warmup_increment: Number(e.target.value) })} />
                     </div>
                     <div>
-                      <Label className="text-xs">Reply rate</Label>
+                      <Label className="text-xs">Reply rate (0–1)</Label>
                       <Input type="number" step="0.1" min="0" max="1" defaultValue={m.warmup_reply_rate ?? 0.4} onBlur={(e) => update(m.id, { warmup_reply_rate: Number(e.target.value) })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Open rate (0–1)</Label>
+                      <Input type="number" step="0.1" min="0" max="1" defaultValue={(m as any).warmup_open_rate ?? 0.5} onBlur={(e) => update(m.id, { warmup_open_rate: Number(e.target.value) })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Spam protection</Label>
+                      <select className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+                        defaultValue={(m as any).warmup_spam_protection_level ?? "medium"}
+                        onBlur={(e) => update(m.id, { warmup_spam_protection_level: e.target.value })}>
+                        <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between"><Label className="text-xs">Randomize volume</Label>
+                        <Switch checked={(m as any).warmup_randomize ?? true} onCheckedChange={(v) => update(m.id, { warmup_randomize: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs">Slow ramp</Label>
+                        <Switch checked={(m as any).warmup_slow_ramp ?? true} onCheckedChange={(v) => update(m.id, { warmup_slow_ramp: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs">Read emulation</Label>
+                        <Switch checked={(m as any).warmup_read_emulation ?? true} onCheckedChange={(v) => update(m.id, { warmup_read_emulation: v })} /></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 pt-2 border-t mt-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground">Inbox %</div>
+                      <div className="text-2xl font-bold text-emerald-600">{Math.round(((m as any).deliverability_inbox_pct ?? 100))}%</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Spam %</div>
+                      <div className="text-2xl font-bold text-rose-600">{Math.round(((m as any).deliverability_spam_pct ?? 0))}%</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Deliverability score</div>
+                      <div className="text-2xl font-bold">{Math.round(((m as any).deliverability_score ?? 100))}</div>
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground">

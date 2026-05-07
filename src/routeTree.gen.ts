@@ -14,10 +14,13 @@ import { Route as WarmupRouteImport } from './routes/warmup'
 import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
+import { Route as SubsequencesRouteImport } from './routes/subsequences'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
+import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as MeetingsRouteImport } from './routes/meetings'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
@@ -67,6 +70,11 @@ const SuppressionsRoute = SuppressionsRouteImport.update({
   path: '/suppressions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubsequencesRoute = SubsequencesRouteImport.update({
+  id: '/subsequences',
+  path: '/subsequences',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -77,6 +85,11 @@ const SalesflowsRoute = SalesflowsRouteImport.update({
   path: '/salesflows',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReplyAgentRoute = ReplyAgentRouteImport.update({
+  id: '/reply-agent',
+  path: '/reply-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PipelineRoute = PipelineRouteImport.update({
   id: '/pipeline',
   path: '/pipeline',
@@ -85,6 +98,11 @@ const PipelineRoute = PipelineRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingsRoute = MeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MailboxesRoute = MailboxesRouteImport.update({
@@ -217,10 +235,13 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -251,10 +272,13 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -286,10 +310,13 @@ export interface FileRoutesById {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/meetings': typeof MeetingsRoute
   '/onboarding': typeof OnboardingRoute
   '/pipeline': typeof PipelineRoute
+  '/reply-agent': typeof ReplyAgentRoute
   '/salesflows': typeof SalesflowsRoute
   '/settings': typeof SettingsRoute
+  '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/visitors': typeof VisitorsRoute
@@ -322,10 +349,13 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -356,10 +386,13 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -390,10 +423,13 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/mailboxes'
+    | '/meetings'
     | '/onboarding'
     | '/pipeline'
+    | '/reply-agent'
     | '/salesflows'
     | '/settings'
+    | '/subsequences'
     | '/suppressions'
     | '/team'
     | '/visitors'
@@ -425,10 +461,13 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  MeetingsRoute: typeof MeetingsRoute
   OnboardingRoute: typeof OnboardingRoute
   PipelineRoute: typeof PipelineRoute
+  ReplyAgentRoute: typeof ReplyAgentRoute
   SalesflowsRoute: typeof SalesflowsRoute
   SettingsRoute: typeof SettingsRoute
+  SubsequencesRoute: typeof SubsequencesRoute
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
   VisitorsRoute: typeof VisitorsRoute
@@ -485,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppressionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/subsequences': {
+      id: '/subsequences'
+      path: '/subsequences'
+      fullPath: '/subsequences'
+      preLoaderRoute: typeof SubsequencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -499,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SalesflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reply-agent': {
+      id: '/reply-agent'
+      path: '/reply-agent'
+      fullPath: '/reply-agent'
+      preLoaderRoute: typeof ReplyAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pipeline': {
       id: '/pipeline'
       path: '/pipeline'
@@ -511,6 +564,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetings': {
+      id: '/meetings'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof MeetingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mailboxes': {
@@ -699,10 +759,13 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  MeetingsRoute: MeetingsRoute,
   OnboardingRoute: OnboardingRoute,
   PipelineRoute: PipelineRoute,
+  ReplyAgentRoute: ReplyAgentRoute,
   SalesflowsRoute: SalesflowsRoute,
   SettingsRoute: SettingsRoute,
+  SubsequencesRoute: SubsequencesRoute,
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
   VisitorsRoute: VisitorsRoute,

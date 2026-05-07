@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CheckCircle2, AlertCircle, Globe, Trash2 } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
+import { connectCalendly, disconnectCalendly, setCalendlyEvent } from "@/lib/calendly.functions";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -97,7 +98,116 @@ function SettingsPage() {
       </Card>
 
       <CalendarLinkCard />
+      <CalendlyCard />
+      <ReplyAgentCard />
     </div>
+  );
+}
+
+function CalendlyCard() {
+  const qc = useQueryClient();
+  const connect = useServerFn(connectCalendly);
+  const disconnect = useServerFn(disconnectCalendly);
+  const setEvt = useServerFn(setCalendlyEvent);
+  const [token, setToken] = useState("");
+  const [eventTypes, setEventTypes] = useState<any[]>([]);
+  const { data: profile } = useQuery({
+    queryKey: ["profile-cal-conn"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      return (await supabase.from("profiles").select("calendly_token, calendly_event_uri, calendar_link").eq("id", user.id).maybeSingle()).data;
+    },
+  });
+  const isConnected = !!profile?.calendly_token;
+  const handleConnect = async () => {
+    try {
+      const r: any = await connect({ data: { token } });
+      setEventTypes(r.eventTypes);
+      toast.success(`Connected as ${r.name}`);
+      qc.invalidateQueries({ queryKey: ["profile-cal-conn"] });
+    } catch (e: any) { toast.error(e.message); }
+  };
+  return (
+    <Card className="p-6">
+      <div className="font-semibold mb-2">Calendly (native)</div>
+      <p className="text-sm text-muted-foreground mb-4">
+        Connect Calendly so the AI Reply Agent can drop the right scheduling link into replies. Paste a Personal Access Token from <a className="underline" href="https://calendly.com/integrations/api_webhooks" target="_blank">calendly.com/integrations/api_webhooks</a>.
+      </p>
+      {isConnected ? (
+        <div className="flex items-center justify-between border rounded-lg p-3">
+          <div>
+            <Badge variant="default">Connected</Badge>
+            <div className="text-sm mt-1 truncate max-w-md">{profile?.calendar_link}</div>
+          </div>
+          <Button variant="outline" size="sm" onClick={async () => { await disconnect({}); qc.invalidateQueries({ queryKey: ["profile-cal-conn"] }); }}>Disconnect</Button>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Input placeholder="Calendly Personal Access Token" value={token} onChange={(e) => setToken(e.target.value)} />
+          <Button onClick={handleConnect}>Connect</Button>
+        </div>
+      )}
+      {eventTypes.length > 0 && (
+        <div className="mt-4 space-y-2">
+          <div className="text-sm font-medium">Pick default event type</div>
+          {eventTypes.map((e) => (
+            <div key={e.uri} className="flex items-center justify-between border rounded p-2 text-sm">
+              <span>{e.name} <span className="text-muted-foreground">· {e.duration}m</span></span>
+              <Button size="sm" variant="outline" onClick={async () => { await setEvt({ data: { uri: e.uri, schedulingUrl: e.scheduling_url } }); toast.success("Default set"); qc.invalidateQueries({ queryKey: ["profile-cal-conn"] }); }}>Use</Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function ReplyAgentCard() {
+  const qc = useQueryClient();
+  const { data: profile } = useQuery({
+    queryKey: ["profile-reply-agent"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      return (await supabase.from("profiles").select("ai_reply_mode, ai_reply_monthly_cap, ai_reply_used_this_month, slack_webhook_url").eq("id", user.id).maybeSingle()).data;
+    },
+  });
+  const update = async (patch: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("profiles").update(patch).eq("id", user.id);
+    qc.invalidateQueries({ queryKey: ["profile-reply-agent"] });
+    toast.success("Saved");
+  };
+  return (
+    <Card className="p-6">
+      <div className="font-semibold mb-2">AI Reply Agent</div>
+      <p className="text-sm text-muted-foreground mb-4">Auto-classify replies and draft responses. Choose Autopilot to send without approval, or HITL to review in the Live Feed.</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">Mode</Label>
+          <select className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+            value={profile?.ai_reply_mode ?? "hitl"}
+            onChange={(e) => update({ ai_reply_mode: e.target.value })}>
+            <option value="off">Off</option>
+            <option value="hitl">Human-in-the-loop</option>
+            <option value="autopilot">Autopilot</option>
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs">Monthly credit cap</Label>
+          <Input type="number" defaultValue={profile?.ai_reply_monthly_cap ?? 500}
+            onBlur={(e) => update({ ai_reply_monthly_cap: Number(e.target.value) })} />
+          <div className="text-xs text-muted-foreground mt-1">Used: {profile?.ai_reply_used_this_month ?? 0}</div>
+        </div>
+      </div>
+      <div className="mt-3">
+        <Label className="text-xs">Slack webhook (escalations)</Label>
+        <Input placeholder="https://hooks.slack.com/services/..." defaultValue={profile?.slack_webhook_url ?? ""}
+          onBlur={(e) => update({ slack_webhook_url: e.target.value || null })} />
+      </div>
+    </Card>
   );
 }
 

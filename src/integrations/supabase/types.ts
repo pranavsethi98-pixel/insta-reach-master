@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          created_at: string
+          credits: number
+          id: string
+          kind: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          id?: string
+          kind: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          id?: string
+          kind?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_leads: {
         Row: {
           campaign_id: string
@@ -575,6 +602,10 @@ export type Database = {
         Row: {
           created_at: string
           daily_limit: number
+          deliverability_checked_at: string | null
+          deliverability_inbox_pct: number | null
+          deliverability_score: number | null
+          deliverability_spam_pct: number | null
           from_email: string
           from_name: string
           health_score: number | null
@@ -611,13 +642,22 @@ export type Database = {
           warmup_daily_target: number | null
           warmup_enabled: boolean | null
           warmup_increment: number | null
+          warmup_open_rate: number | null
+          warmup_randomize: boolean | null
+          warmup_read_emulation: boolean | null
           warmup_reply_rate: number | null
           warmup_sent_today: number | null
+          warmup_slow_ramp: boolean | null
+          warmup_spam_protection_level: string | null
           warmup_started_at: string | null
         }
         Insert: {
           created_at?: string
           daily_limit?: number
+          deliverability_checked_at?: string | null
+          deliverability_inbox_pct?: number | null
+          deliverability_score?: number | null
+          deliverability_spam_pct?: number | null
           from_email: string
           from_name: string
           health_score?: number | null
@@ -654,13 +694,22 @@ export type Database = {
           warmup_daily_target?: number | null
           warmup_enabled?: boolean | null
           warmup_increment?: number | null
+          warmup_open_rate?: number | null
+          warmup_randomize?: boolean | null
+          warmup_read_emulation?: boolean | null
           warmup_reply_rate?: number | null
           warmup_sent_today?: number | null
+          warmup_slow_ramp?: boolean | null
+          warmup_spam_protection_level?: string | null
           warmup_started_at?: string | null
         }
         Update: {
           created_at?: string
           daily_limit?: number
+          deliverability_checked_at?: string | null
+          deliverability_inbox_pct?: number | null
+          deliverability_score?: number | null
+          deliverability_spam_pct?: number | null
           from_email?: string
           from_name?: string
           health_score?: number | null
@@ -697,9 +746,53 @@ export type Database = {
           warmup_daily_target?: number | null
           warmup_enabled?: boolean | null
           warmup_increment?: number | null
+          warmup_open_rate?: number | null
+          warmup_randomize?: boolean | null
+          warmup_read_emulation?: boolean | null
           warmup_reply_rate?: number | null
           warmup_sent_today?: number | null
+          warmup_slow_ramp?: boolean | null
+          warmup_spam_protection_level?: string | null
           warmup_started_at?: string | null
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          calendly_event_uri: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          lead_id: string | null
+          next_followup_at: string | null
+          no_show_followups_sent: number
+          scheduled_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          calendly_event_uri?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          next_followup_at?: string | null
+          no_show_followups_sent?: number
+          scheduled_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          calendly_event_uri?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          next_followup_at?: string | null
+          no_show_followups_sent?: number
+          scheduled_at?: string | null
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -798,39 +891,123 @@ export type Database = {
       profiles: {
         Row: {
           ai_reply_enabled: boolean
+          ai_reply_mode: string
+          ai_reply_monthly_cap: number | null
+          ai_reply_skip_labels: string[] | null
           ai_reply_tone: string | null
+          ai_reply_trigger_labels: string[] | null
+          ai_reply_used_this_month: number | null
           business_context: string | null
           calendar_link: string | null
+          calendly_event_uri: string | null
+          calendly_token: string | null
+          calendly_user_uri: string | null
           company_name: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          slack_webhook_url: string | null
           website_url: string | null
         }
         Insert: {
           ai_reply_enabled?: boolean
+          ai_reply_mode?: string
+          ai_reply_monthly_cap?: number | null
+          ai_reply_skip_labels?: string[] | null
           ai_reply_tone?: string | null
+          ai_reply_trigger_labels?: string[] | null
+          ai_reply_used_this_month?: number | null
           business_context?: string | null
           calendar_link?: string | null
+          calendly_event_uri?: string | null
+          calendly_token?: string | null
+          calendly_user_uri?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          slack_webhook_url?: string | null
           website_url?: string | null
         }
         Update: {
           ai_reply_enabled?: boolean
+          ai_reply_mode?: string
+          ai_reply_monthly_cap?: number | null
+          ai_reply_skip_labels?: string[] | null
           ai_reply_tone?: string | null
+          ai_reply_trigger_labels?: string[] | null
+          ai_reply_used_this_month?: number | null
           business_context?: string | null
           calendar_link?: string | null
+          calendly_event_uri?: string | null
+          calendly_token?: string | null
+          calendly_user_uri?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          slack_webhook_url?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      reply_queue: {
+        Row: {
+          classification: string | null
+          confidence: number | null
+          context_summary: string | null
+          conversation_id: string
+          created_at: string
+          draft_body: string | null
+          draft_subject: string | null
+          id: string
+          lead_id: string | null
+          mailbox_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sent_at: string | null
+          source: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          classification?: string | null
+          confidence?: number | null
+          context_summary?: string | null
+          conversation_id: string
+          created_at?: string
+          draft_body?: string | null
+          draft_subject?: string | null
+          id?: string
+          lead_id?: string | null
+          mailbox_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sent_at?: string | null
+          source?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          classification?: string | null
+          confidence?: number | null
+          context_summary?: string | null
+          conversation_id?: string
+          created_at?: string
+          draft_body?: string | null
+          draft_subject?: string | null
+          id?: string
+          lead_id?: string | null
+          mailbox_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sent_at?: string | null
+          source?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1026,6 +1203,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subsequence_enrollments: {
+        Row: {
+          created_at: string
+          current_step: number
+          id: string
+          lead_id: string
+          next_send_at: string | null
+          status: string
+          subsequence_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          lead_id: string
+          next_send_at?: string | null
+          status?: string
+          subsequence_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          lead_id?: string
+          next_send_at?: string | null
+          status?: string
+          subsequence_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subsequence_steps: {
+        Row: {
+          body: string
+          created_at: string
+          delay_days: number
+          id: string
+          step_order: number
+          subject: string
+          subsequence_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          step_order: number
+          subject: string
+          subsequence_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          step_order?: number
+          subject?: string
+          subsequence_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subsequence_steps_subsequence_id_fkey"
+            columns: ["subsequence_id"]
+            isOneToOne: false
+            referencedRelation: "subsequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subsequences: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          parent_campaign_id: string
+          trigger_after_days: number
+          trigger_event: string
+          trigger_step: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_campaign_id: string
+          trigger_after_days?: number
+          trigger_event: string
+          trigger_step?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_campaign_id?: string
+          trigger_after_days?: number
+          trigger_event?: string
+          trigger_step?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       suppressions: {
         Row: {
