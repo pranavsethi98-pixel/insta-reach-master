@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WarmupRouteImport } from './routes/warmup'
+import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeadsRouteImport } from './routes/leads'
@@ -19,6 +22,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
@@ -32,9 +36,24 @@ const WarmupRoute = WarmupRouteImport.update({
   path: '/warmup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuppressionsRoute = SuppressionsRouteImport.update({
   id: '/suppressions',
   path: '/suppressions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MailboxesRoute = MailboxesRouteImport.update({
@@ -75,6 +94,11 @@ const IndexRoute = IndexRouteImport.update({
 const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
   id: '/campaigns/',
   path: '/campaigns/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CampaignsIdRoute = CampaignsIdRouteImport.update({
@@ -123,9 +147,13 @@ export interface FileRoutesByFullPath {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/pipeline': typeof PipelineRoute
+  '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
+  '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
@@ -142,9 +170,13 @@ export interface FileRoutesByTo {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/pipeline': typeof PipelineRoute
+  '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
+  '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
@@ -162,9 +194,13 @@ export interface FileRoutesById {
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/pipeline': typeof PipelineRoute
+  '/settings': typeof SettingsRoute
   '/suppressions': typeof SuppressionsRoute
+  '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
@@ -183,9 +219,13 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/pipeline'
+    | '/settings'
     | '/suppressions'
+    | '/team'
     | '/warmup'
     | '/campaigns/$id'
+    | '/invite/$token'
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
@@ -202,9 +242,13 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/pipeline'
+    | '/settings'
     | '/suppressions'
+    | '/team'
     | '/warmup'
     | '/campaigns/$id'
+    | '/invite/$token'
     | '/campaigns'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
@@ -221,9 +265,13 @@ export interface FileRouteTypes {
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/pipeline'
+    | '/settings'
     | '/suppressions'
+    | '/team'
     | '/warmup'
     | '/campaigns/$id'
+    | '/invite/$token'
     | '/campaigns/'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
@@ -241,9 +289,13 @@ export interface RootRouteChildren {
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  PipelineRoute: typeof PipelineRoute
+  SettingsRoute: typeof SettingsRoute
   SuppressionsRoute: typeof SuppressionsRoute
+  TeamRoute: typeof TeamRoute
   WarmupRoute: typeof WarmupRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
+  InviteTokenRoute: typeof InviteTokenRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
@@ -262,11 +314,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WarmupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/suppressions': {
       id: '/suppressions'
       path: '/suppressions'
       fullPath: '/suppressions'
       preLoaderRoute: typeof SuppressionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mailboxes': {
@@ -323,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/campaigns'
       fullPath: '/campaigns/'
       preLoaderRoute: typeof CampaignsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/campaigns/$id': {
@@ -385,9 +465,13 @@ const rootRouteChildren: RootRouteChildren = {
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  PipelineRoute: PipelineRoute,
+  SettingsRoute: SettingsRoute,
   SuppressionsRoute: SuppressionsRoute,
+  TeamRoute: TeamRoute,
   WarmupRoute: WarmupRoute,
   CampaignsIdRoute: CampaignsIdRoute,
+  InviteTokenRoute: InviteTokenRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,

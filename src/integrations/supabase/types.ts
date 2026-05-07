@@ -325,6 +325,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_verifications: {
+        Row: {
+          checked_at: string
+          email: string
+          id: string
+          is_disposable: boolean | null
+          is_role: boolean | null
+          mx_found: boolean | null
+          reason: string | null
+          result: string
+          user_id: string
+        }
+        Insert: {
+          checked_at?: string
+          email: string
+          id?: string
+          is_disposable?: boolean | null
+          is_role?: boolean | null
+          mx_found?: boolean | null
+          reason?: string | null
+          result: string
+          user_id: string
+        }
+        Update: {
+          checked_at?: string
+          email?: string
+          id?: string
+          is_disposable?: boolean | null
+          is_role?: boolean | null
+          mx_found?: boolean | null
+          reason?: string | null
+          result?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inbound_secrets: {
         Row: {
           created_at: string
@@ -369,9 +405,12 @@ export type Database = {
       }
       leads: {
         Row: {
+          closed_at: string | null
           company: string | null
           created_at: string
           custom_fields: Json | null
+          deal_currency: string | null
+          deal_value: number | null
           email: string
           first_name: string | null
           icebreaker: string | null
@@ -379,7 +418,9 @@ export type Database = {
           last_name: string | null
           linkedin: string | null
           list_id: string | null
+          notes: string | null
           phone: string | null
+          pipeline_stage: string
           status: string
           title: string | null
           user_id: string
@@ -387,9 +428,12 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          closed_at?: string | null
           company?: string | null
           created_at?: string
           custom_fields?: Json | null
+          deal_currency?: string | null
+          deal_value?: number | null
           email: string
           first_name?: string | null
           icebreaker?: string | null
@@ -397,7 +441,9 @@ export type Database = {
           last_name?: string | null
           linkedin?: string | null
           list_id?: string | null
+          notes?: string | null
           phone?: string | null
+          pipeline_stage?: string
           status?: string
           title?: string | null
           user_id: string
@@ -405,9 +451,12 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          closed_at?: string | null
           company?: string | null
           created_at?: string
           custom_fields?: Json | null
+          deal_currency?: string | null
+          deal_value?: number | null
           email?: string
           first_name?: string | null
           icebreaker?: string | null
@@ -415,7 +464,9 @@ export type Database = {
           last_name?: string | null
           linkedin?: string | null
           list_id?: string | null
+          notes?: string | null
           phone?: string | null
+          pipeline_stage?: string
           status?: string
           title?: string | null
           user_id?: string
@@ -612,6 +663,42 @@ export type Database = {
           },
         ]
       }
+      pipeline_stages: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_lost: boolean | null
+          is_won: boolean | null
+          key: string
+          label: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_lost?: boolean | null
+          is_won?: boolean | null
+          key: string
+          label: string
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_lost?: boolean | null
+          is_won?: boolean | null
+          key?: string
+          label?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -760,6 +847,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_domains: {
+        Row: {
+          cname_target: string
+          created_at: string
+          domain: string
+          id: string
+          last_checked_at: string | null
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          cname_target?: string
+          created_at?: string
+          domain: string
+          id?: string
+          last_checked_at?: string | null
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          cname_target?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          last_checked_at?: string | null
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       warmup_log: {
         Row: {
           action: string
@@ -790,15 +907,116 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          token: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          token?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          token?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_members: {
+        Row: {
+          invited_email: string | null
+          joined_at: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          invited_email?: string | null
+          joined_at?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          invited_email?: string | null
+          joined_at?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_workspace_member: {
+        Args: { _user: string; _ws: string }
+        Returns: boolean
+      }
+      workspace_role_for: {
+        Args: { _user: string; _ws: string }
+        Returns: Database["public"]["Enums"]["workspace_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      workspace_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -925,6 +1143,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      workspace_role: ["owner", "admin", "member"],
+    },
   },
 } as const
