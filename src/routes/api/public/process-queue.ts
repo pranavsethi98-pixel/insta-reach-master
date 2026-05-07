@@ -4,11 +4,14 @@ import { createClient } from "@supabase/supabase-js";
 import { renderEmail } from "@/lib/spintax";
 import { rewriteLinks } from "@/lib/links";
 import { fireWebhook } from "@/lib/webhooks";
+import { verifyCronSecret } from "@/lib/cron-auth";
 
 export const Route = createFileRoute("/api/public/process-queue")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const unauthorized = verifyCronSecret(request);
+        if (unauthorized) return unauthorized;
         const { WorkerMailer } = await import("worker-mailer");
         const supabase = createClient(
           process.env.SUPABASE_URL!,
