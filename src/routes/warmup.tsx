@@ -74,7 +74,7 @@ function WarmupPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-muted-foreground">Health</span>
                   <span className="px-2 py-0.5 rounded bg-success/15 text-success text-sm font-medium">{m.health_score ?? 100}/100</span>
-                  <Switch checked={m.warmup_enabled} onCheckedChange={(v) => update(m.id, { warmup_enabled: v })} />
+                  <Switch checked={!!m.warmup_enabled} onCheckedChange={(v) => update(m.id, { warmup_enabled: v })} />
                 </div>
               </div>
               {m.warmup_enabled && (
@@ -82,15 +82,15 @@ function WarmupPage() {
                   <div className="grid grid-cols-3 gap-3 pt-2">
                     <div>
                       <Label className="text-xs">Daily target</Label>
-                      <Input type="number" defaultValue={m.warmup_daily_target} onBlur={(e) => update(m.id, { warmup_daily_target: Number(e.target.value) })} />
+                      <Input type="number" defaultValue={m.warmup_daily_target ?? 40} onBlur={(e) => update(m.id, { warmup_daily_target: Number(e.target.value) })} />
                     </div>
                     <div>
                       <Label className="text-xs">Daily increment</Label>
-                      <Input type="number" defaultValue={m.warmup_increment} onBlur={(e) => update(m.id, { warmup_increment: Number(e.target.value) })} />
+                      <Input type="number" defaultValue={m.warmup_increment ?? 2} onBlur={(e) => update(m.id, { warmup_increment: Number(e.target.value) })} />
                     </div>
                     <div>
                       <Label className="text-xs">Reply rate</Label>
-                      <Input type="number" step="0.1" min="0" max="1" defaultValue={m.warmup_reply_rate} onBlur={(e) => update(m.id, { warmup_reply_rate: Number(e.target.value) })} />
+                      <Input type="number" step="0.1" min="0" max="1" defaultValue={m.warmup_reply_rate ?? 0.4} onBlur={(e) => update(m.id, { warmup_reply_rate: Number(e.target.value) })} />
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground">
