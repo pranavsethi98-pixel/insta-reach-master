@@ -176,7 +176,8 @@ export const Route = createFileRoute("/api/public/process-queue")({
             const trackingPixel = camp.track_opens
               ? `<img src="${origin}/api/public/track/open/${trackingId}" width="1" height="1" style="display:none" />`
               : "";
-            const html = body.replace(/\n/g, "<br>") + sigHtml + trackingPixel;
+            let html = body.replace(/\n/g, "<br>") + sigHtml + trackingPixel;
+            if (camp.track_clicks) html = rewriteLinks(html, origin, trackingId);
 
             try {
               const mailer = await WorkerMailer.connect({
