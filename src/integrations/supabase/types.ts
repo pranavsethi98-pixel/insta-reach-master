@@ -96,9 +96,11 @@ export type Database = {
         Row: {
           body: string
           campaign_id: string
+          condition: string
           created_at: string
           delay_days: number
           id: string
+          skip_if_no_open: boolean
           step_order: number
           subject: string
           variant_bodies: Json | null
@@ -107,9 +109,11 @@ export type Database = {
         Insert: {
           body: string
           campaign_id: string
+          condition?: string
           created_at?: string
           delay_days?: number
           id?: string
+          skip_if_no_open?: boolean
           step_order: number
           subject: string
           variant_bodies?: Json | null
@@ -118,9 +122,11 @@ export type Database = {
         Update: {
           body?: string
           campaign_id?: string
+          condition?: string
           created_at?: string
           delay_days?: number
           id?: string
+          skip_if_no_open?: boolean
           step_order?: number
           subject?: string
           variant_bodies?: Json | null
@@ -190,8 +196,47 @@ export type Database = {
         }
         Relationships: []
       }
+      click_events: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          lead_id: string | null
+          send_log_id: string | null
+          url: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          lead_id?: string | null
+          send_log_id?: string | null
+          url: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          lead_id?: string | null
+          send_log_id?: string | null
+          url?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
+          ai_category: string | null
+          ai_confidence: number | null
+          ai_summary: string | null
           campaign_id: string | null
           classification: string | null
           created_at: string
@@ -205,6 +250,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_summary?: string | null
           campaign_id?: string | null
           classification?: string | null
           created_at?: string
@@ -218,6 +266,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_summary?: string | null
           campaign_id?: string | null
           classification?: string | null
           created_at?: string
@@ -270,6 +321,24 @@ export type Database = {
           metadata?: Json | null
           send_log_id?: string | null
           user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inbound_secrets: {
+        Row: {
+          created_at: string
+          secret: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          secret?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          secret?: string
           user_id?: string
         }
         Relationships: []
@@ -567,8 +636,11 @@ export type Database = {
       send_log: {
         Row: {
           body: string | null
+          bounce_reason: string | null
+          bounce_type: string | null
           bounced_at: string | null
           campaign_id: string | null
+          click_count: number
           clicked_at: string | null
           error: string | null
           id: string
@@ -589,8 +661,11 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          bounce_reason?: string | null
+          bounce_type?: string | null
           bounced_at?: string | null
           campaign_id?: string | null
+          click_count?: number
           clicked_at?: string | null
           error?: string | null
           id?: string
@@ -611,8 +686,11 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          bounce_reason?: string | null
+          bounce_type?: string | null
           bounced_at?: string | null
           campaign_id?: string | null
+          click_count?: number
           clicked_at?: string | null
           error?: string | null
           id?: string
