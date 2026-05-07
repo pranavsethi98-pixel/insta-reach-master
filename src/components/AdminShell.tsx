@@ -27,7 +27,7 @@ const sections = [
   { to: "/admin/support", label: "Support", icon: LifeBuoy },
   { to: "/admin/rbac", label: "Admins & Roles", icon: KeyRound },
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
-] as const;
+] as Array<{ to: string; label: string; icon: any; exact?: boolean }>;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
