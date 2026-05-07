@@ -74,7 +74,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   }
 }
 
-export const Route = createFileRoute("/api/public/payments/webhook")({
+export const Route = createFileRoute("/api/public/payments-webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
