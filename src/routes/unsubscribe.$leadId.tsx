@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 // User-facing route alias to the public unsub endpoint
 export const Route = createFileRoute("/unsubscribe/$leadId")({
