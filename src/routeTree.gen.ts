@@ -9,16 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WarmupRouteImport } from './routes/warmup'
+import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as MailboxesRouteImport } from './routes/mailboxes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
+import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
+import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 
+const WarmupRoute = WarmupRouteImport.update({
+  id: '/warmup',
+  path: '/warmup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppressionsRoute = SuppressionsRouteImport.update({
+  id: '/suppressions',
+  path: '/suppressions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MailboxesRoute = MailboxesRouteImport.update({
   id: '/mailboxes',
   path: '/mailboxes',
@@ -44,6 +60,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -59,96 +80,168 @@ const CampaignsIdRoute = CampaignsIdRouteImport.update({
   path: '/campaigns/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
+  id: '/api/public/warmup-tick',
+  path: '/api/public/warmup-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   id: '/api/public/process-queue',
   path: '/api/public/process-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
+  id: '/api/public/imap-sync',
+  path: '/api/public/imap-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackOpenTrackingIdRoute =
+  ApiPublicTrackOpenTrackingIdRouteImport.update({
+    id: '/api/public/track/open/$trackingId',
+    path: '/api/public/track/open/$trackingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/inbox': typeof InboxRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/mailboxes': typeof MailboxesRoute
+  '/suppressions': typeof SuppressionsRoute
+  '/warmup': typeof WarmupRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
+  '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns/'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   id:
     | '__root__'
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/inbox'
     | '/leads'
     | '/login'
     | '/mailboxes'
+    | '/suppressions'
+    | '/warmup'
     | '/campaigns/$id'
     | '/campaigns/'
+    | '/api/public/imap-sync'
     | '/api/public/process-queue'
+    | '/api/public/warmup-tick'
+    | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   DashboardRoute: typeof DashboardRoute
   InboxRoute: typeof InboxRoute
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
   MailboxesRoute: typeof MailboxesRoute
+  SuppressionsRoute: typeof SuppressionsRoute
+  WarmupRoute: typeof WarmupRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
+  ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
+  ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
+  ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/warmup': {
+      id: '/warmup'
+      path: '/warmup'
+      fullPath: '/warmup'
+      preLoaderRoute: typeof WarmupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppressions': {
+      id: '/suppressions'
+      path: '/suppressions'
+      fullPath: '/suppressions'
+      preLoaderRoute: typeof SuppressionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mailboxes': {
       id: '/mailboxes'
       path: '/mailboxes'
@@ -184,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -205,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/warmup-tick': {
+      id: '/api/public/warmup-tick'
+      path: '/api/public/warmup-tick'
+      fullPath: '/api/public/warmup-tick'
+      preLoaderRoute: typeof ApiPublicWarmupTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/process-queue': {
       id: '/api/public/process-queue'
       path: '/api/public/process-queue'
@@ -212,19 +319,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProcessQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/imap-sync': {
+      id: '/api/public/imap-sync'
+      path: '/api/public/imap-sync'
+      fullPath: '/api/public/imap-sync'
+      preLoaderRoute: typeof ApiPublicImapSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track/open/$trackingId': {
+      id: '/api/public/track/open/$trackingId'
+      path: '/api/public/track/open/$trackingId'
+      fullPath: '/api/public/track/open/$trackingId'
+      preLoaderRoute: typeof ApiPublicTrackOpenTrackingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   DashboardRoute: DashboardRoute,
   InboxRoute: InboxRoute,
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
   MailboxesRoute: MailboxesRoute,
+  SuppressionsRoute: SuppressionsRoute,
+  WarmupRoute: WarmupRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
+  ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
+  ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
+  ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
