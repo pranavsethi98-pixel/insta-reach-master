@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WarmupRouteImport } from './routes/warmup'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
@@ -34,6 +35,11 @@ import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
 
+const WebhooksRoute = WebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WarmupRoute = WarmupRouteImport.update({
   id: '/warmup',
   path: '/warmup',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/suppressions': typeof SuppressionsRoute
   '/team': typeof TeamRoute
   '/warmup': typeof WarmupRoute
+  '/webhooks': typeof WebhooksRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/suppressions'
     | '/team'
     | '/warmup'
+    | '/webhooks'
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
@@ -332,6 +344,7 @@ export interface RootRouteChildren {
   SuppressionsRoute: typeof SuppressionsRoute
   TeamRoute: typeof TeamRoute
   WarmupRoute: typeof WarmupRoute
+  WebhooksRoute: typeof WebhooksRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
   UnsubscribeLeadIdRoute: typeof UnsubscribeLeadIdRoute
@@ -347,6 +360,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/webhooks': {
+      id: '/webhooks'
+      path: '/webhooks'
+      fullPath: '/webhooks'
+      preLoaderRoute: typeof WebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/warmup': {
       id: '/warmup'
       path: '/warmup'
@@ -532,6 +552,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuppressionsRoute: SuppressionsRoute,
   TeamRoute: TeamRoute,
   WarmupRoute: WarmupRoute,
+  WebhooksRoute: WebhooksRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   InviteTokenRoute: InviteTokenRoute,
   UnsubscribeLeadIdRoute: UnsubscribeLeadIdRoute,
