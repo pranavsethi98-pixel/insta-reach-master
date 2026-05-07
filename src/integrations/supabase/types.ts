@@ -14,7 +14,348 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      campaign_leads: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          current_step: number
+          id: string
+          last_sent_at: string | null
+          lead_id: string
+          next_send_at: string | null
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          current_step?: number
+          id?: string
+          last_sent_at?: string | null
+          lead_id: string
+          next_send_at?: string | null
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          current_step?: number
+          id?: string
+          last_sent_at?: string | null
+          lead_id?: string
+          next_send_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_mailboxes: {
+        Row: {
+          campaign_id: string
+          mailbox_id: string
+        }
+        Insert: {
+          campaign_id: string
+          mailbox_id: string
+        }
+        Update: {
+          campaign_id?: string
+          mailbox_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_mailboxes_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_mailboxes_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_steps: {
+        Row: {
+          body: string
+          campaign_id: string
+          created_at: string
+          delay_days: number
+          id: string
+          step_order: number
+          subject: string
+        }
+        Insert: {
+          body: string
+          campaign_id: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          step_order: number
+          subject: string
+        }
+        Update: {
+          body?: string
+          campaign_id?: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          step_order?: number
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_steps_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          send_days: number[] | null
+          send_window_end: number | null
+          send_window_start: number | null
+          status: string
+          timezone: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          send_days?: number[] | null
+          send_window_end?: number | null
+          send_window_start?: number | null
+          status?: string
+          timezone?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          send_days?: number[] | null
+          send_window_end?: number | null
+          send_window_start?: number | null
+          status?: string
+          timezone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          custom_fields: Json | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          status: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          status?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          status?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mailboxes: {
+        Row: {
+          created_at: string
+          daily_limit: number
+          from_email: string
+          from_name: string
+          id: string
+          is_active: boolean
+          label: string
+          last_reset_date: string
+          last_sent_at: string | null
+          max_delay_seconds: number
+          min_delay_seconds: number
+          sent_today: number
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_secure: boolean
+          smtp_username: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit?: number
+          from_email: string
+          from_name: string
+          id?: string
+          is_active?: boolean
+          label: string
+          last_reset_date?: string
+          last_sent_at?: string | null
+          max_delay_seconds?: number
+          min_delay_seconds?: number
+          sent_today?: number
+          smtp_host: string
+          smtp_password: string
+          smtp_port?: number
+          smtp_secure?: boolean
+          smtp_username: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit?: number
+          from_email?: string
+          from_name?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          last_reset_date?: string
+          last_sent_at?: string | null
+          max_delay_seconds?: number
+          min_delay_seconds?: number
+          sent_today?: number
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_secure?: boolean
+          smtp_username?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      send_log: {
+        Row: {
+          body: string | null
+          campaign_id: string | null
+          error: string | null
+          id: string
+          lead_id: string | null
+          mailbox_id: string | null
+          sent_at: string
+          status: string
+          step_order: number | null
+          subject: string | null
+          to_email: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          campaign_id?: string | null
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          mailbox_id?: string | null
+          sent_at?: string
+          status: string
+          step_order?: number | null
+          subject?: string | null
+          to_email: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          campaign_id?: string | null
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          mailbox_id?: string | null
+          sent_at?: string
+          status?: string
+          step_order?: number | null
+          subject?: string | null
+          to_email?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "send_log_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "send_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "send_log_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
