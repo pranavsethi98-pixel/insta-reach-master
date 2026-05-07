@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CheckCircle2, AlertCircle, Globe, Trash2 } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
+import { connectCalendly, disconnectCalendly, setCalendlyEvent } from "@/lib/calendly.functions";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -105,9 +106,9 @@ function SettingsPage() {
 
 function CalendlyCard() {
   const qc = useQueryClient();
-  const connect = useServerFn(require("@/lib/calendly.functions").connectCalendly);
-  const disconnect = useServerFn(require("@/lib/calendly.functions").disconnectCalendly);
-  const setEvt = useServerFn(require("@/lib/calendly.functions").setCalendlyEvent);
+  const connect = useServerFn(connectCalendly);
+  const disconnect = useServerFn(disconnectCalendly);
+  const setEvt = useServerFn(setCalendlyEvent);
   const [token, setToken] = useState("");
   const [eventTypes, setEventTypes] = useState<any[]>([]);
   const { data: profile } = useQuery({
