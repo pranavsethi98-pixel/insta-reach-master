@@ -11,9 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Upload, Users, Sparkles } from "lucide-react";
+import { Plus, Trash2, Upload, Users, Sparkles, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { generateIcebreakers } from "@/lib/ai.functions";
+import { verifyLeads } from "@/lib/verify.functions";
 
 export const Route = createFileRoute("/leads")({
   component: () => (
@@ -27,6 +28,17 @@ function LeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [generating, setGenerating] = useState(false);
   const genFn = useServerFn(generateIcebreakers);
+  const verifyFn = useServerFn(verifyLeads);
+  const [verifying, setVerifying] = useState(false);
+  const runVerify = async () => {
+    if (selected.size === 0) return toast.error("Select leads first");
+    setVerifying(true);
+    try {
+      const r = await verifyFn({ data: { leadIds: Array.from(selected).slice(0, 200) } });
+      toast.success(`Verified — ${r.valid} valid · ${r.risky} risky · ${r.invalid} invalid (auto-suppressed)`);
+    } catch (e: any) { toast.error(e?.message ?? "Failed"); }
+    finally { setVerifying(false); }
+  };
 
   const { data: leads } = useQuery({
     queryKey: ["leads"],
@@ -117,6 +129,9 @@ function LeadsPage() {
         <div className="flex gap-2">
           {selected.size > 0 && (
             <>
+              <Button variant="outline" onClick={runVerify} disabled={verifying}>
+                <ShieldCheck className="w-4 h-4 mr-2" /> {verifying ? "Verifying…" : `Verify (${selected.size})`}
+              </Button>
               <Button variant="outline" onClick={generateAI} disabled={generating}>
                 <Sparkles className="w-4 h-4 mr-2" /> {generating ? "Generating…" : `AI icebreakers (${selected.size})`}
               </Button>
