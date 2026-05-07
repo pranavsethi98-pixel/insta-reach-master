@@ -248,7 +248,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
             <div><Label>Password / App Password *</Label><Input type="password" value={form.smtp_password} onChange={(e) => setForm({ ...form, smtp_password: e.target.value })} /></div>
           </TabsContent>
           <TabsContent value="imap" className="grid grid-cols-2 gap-3 pt-3">
-            <div className="col-span-2 text-xs text-muted-foreground">Used for reply detection (coming soon). Defaults to your SMTP credentials if blank.</div>
+            <div className="col-span-2 text-xs text-muted-foreground">Used for reply detection. Defaults to your SMTP credentials if blank.</div>
             <div className="col-span-2"><Label>IMAP host</Label><Input value={form.imap_host} onChange={(e) => setForm({ ...form, imap_host: e.target.value })} /></div>
             <div><Label>Port</Label><Input type="number" value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} /></div>
             <div className="flex items-end gap-2"><Switch checked={form.imap_secure} onCheckedChange={(v) => setForm({ ...form, imap_secure: v })} /><span className="text-sm">SSL</span></div>
