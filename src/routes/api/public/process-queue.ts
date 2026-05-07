@@ -9,6 +9,7 @@ export const Route = createFileRoute("/api/public/process-queue")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { WorkerMailer } = await import("worker-mailer");
         const supabase = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,
