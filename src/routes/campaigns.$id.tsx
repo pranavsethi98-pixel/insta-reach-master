@@ -254,7 +254,24 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
           <Button size="icon" variant="ghost" onClick={remove}><Trash2 className="w-4 h-4" /></Button>
         </div>
       </div>
-      <Input placeholder="Subject" value={local.subject ?? ""} onChange={(e) => save({ subject: e.target.value })} />
+      <div className="flex gap-2">
+        <Input placeholder="Subject" value={local.subject ?? ""} onChange={(e) => save({ subject: e.target.value })} />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" type="button"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Templates</Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-2">
+            <div className="text-xs text-muted-foreground px-2 py-1">Click to load a starter</div>
+            {TEMPLATES.map(t => (
+              <button key={t.id} className="w-full text-left p-2 rounded hover:bg-muted"
+                onClick={() => save({ subject: t.subject, body: t.body })}>
+                <div className="text-sm font-medium">{t.name}</div>
+                <div className="text-xs text-muted-foreground">{t.category}</div>
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
+      </div>
       <Textarea rows={6} placeholder="Body — supports {{first_name}} and {spintax|variations}" value={local.body ?? ""} onChange={(e) => save({ body: e.target.value })} />
       <details className="text-xs">
         <summary className="cursor-pointer text-muted-foreground">Preview (sample lead)</summary>
