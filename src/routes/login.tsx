@@ -35,14 +35,17 @@ function LoginPage() {
 
   const signUp = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: window.location.origin + "/dashboard" },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Account created! Signing you in…");
+    if (!data.session) {
+      toast.success("Check your inbox to verify your email before signing in.");
+      return;
+    }
     navigate({ to: "/dashboard" });
   };
 
