@@ -8,9 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Mail } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Trash2, Mail, Settings } from "lucide-react";
 import { toast } from "sonner";
+
+const PRESETS: Record<string, { smtp_host: string; smtp_port: number; smtp_secure: boolean; imap_host: string; imap_port: number; imap_secure: boolean }> = {
+  Gmail: { smtp_host: "smtp.gmail.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.gmail.com", imap_port: 993, imap_secure: true },
+  Outlook: { smtp_host: "smtp-mail.outlook.com", smtp_port: 587, smtp_secure: false, imap_host: "outlook.office365.com", imap_port: 993, imap_secure: true },
+  "Zoho Mail": { smtp_host: "smtp.zoho.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.zoho.com", imap_port: 993, imap_secure: true },
+  Yahoo: { smtp_host: "smtp.mail.yahoo.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.mail.yahoo.com", imap_port: 993, imap_secure: true },
+};
 
 export const Route = createFileRoute("/mailboxes")({
   component: () => (
@@ -22,16 +31,11 @@ function MailboxesPage() {
   const qc = useQueryClient();
   const { data: mailboxes } = useQuery({
     queryKey: ["mailboxes"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("mailboxes").select("*").order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await supabase.from("mailboxes").select("*").order("created_at", { ascending: false })).data ?? [],
   });
 
   const remove = async (id: string) => {
-    const { error } = await supabase.from("mailboxes").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    await supabase.from("mailboxes").delete().eq("id", id);
     toast.success("Mailbox removed");
     qc.invalidateQueries({ queryKey: ["mailboxes"] });
   };
@@ -46,7 +50,7 @@ function MailboxesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mailboxes</h1>
-          <p className="text-muted-foreground mt-1">SMTP accounts used to send your campaigns.</p>
+          <p className="text-muted-foreground mt-1">SMTP accounts used to send your campaigns. Add multiple to rotate sends.</p>
         </div>
         <AddMailboxDialog onCreated={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
       </div>
@@ -54,72 +58,166 @@ function MailboxesPage() {
       {mailboxes?.length === 0 && (
         <div className="bg-card border rounded-xl p-12 text-center">
           <Mail className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground">No mailboxes yet. Add one to start sending.</p>
+          <p className="text-muted-foreground">No mailboxes yet. Add your first one to start sending.</p>
         </div>
       )}
 
       <div className="grid gap-3">
         {mailboxes?.map((m) => (
-          <div key={m.id} className="bg-card border rounded-xl p-5 flex items-center gap-4">
-            <div className="flex-1">
-              <div className="font-semibold">{m.label}</div>
-              <div className="text-sm text-muted-foreground">{m.from_name} &lt;{m.from_email}&gt; · {m.smtp_host}:{m.smtp_port}</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Daily limit: {m.daily_limit} · Delay {m.min_delay_seconds}–{m.max_delay_seconds}s · Sent today: {m.sent_today}/{m.daily_limit}
-              </div>
-            </div>
-            <Switch checked={m.is_active} onCheckedChange={(v) => toggle(m.id, v)} />
-            <Button size="icon" variant="ghost" onClick={() => remove(m.id)}><Trash2 className="w-4 h-4" /></Button>
-          </div>
+          <MailboxRow key={m.id} m={m} onToggle={toggle} onRemove={remove} onUpdate={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
         ))}
       </div>
     </div>
   );
 }
 
+function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
+  const [editing, setEditing] = useState(false);
+  return (
+    <div className="bg-card border rounded-xl p-5">
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <div className="font-semibold">{m.label}</div>
+          <div className="text-sm text-muted-foreground">{m.from_name} &lt;{m.from_email}&gt; · {m.smtp_host}</div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {m.sent_today}/{m.daily_limit} today · ramp {m.ramp_up_enabled ? "on" : "off"} · health {m.health_score ?? 100}/100
+          </div>
+        </div>
+        <Switch checked={m.is_active} onCheckedChange={(v) => onToggle(m.id, v)} />
+        <Button size="icon" variant="ghost" onClick={() => setEditing(!editing)}><Settings className="w-4 h-4" /></Button>
+        <Button size="icon" variant="ghost" onClick={() => onRemove(m.id)}><Trash2 className="w-4 h-4" /></Button>
+      </div>
+      {editing && <MailboxSettings m={m} onSave={() => { setEditing(false); onUpdate(); }} />}
+    </div>
+  );
+}
+
+function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
+  const [form, setForm] = useState(m);
+  const save = async () => {
+    const { id, created_at, sent_today, sent_this_hour, last_sent_at, last_reset_date, hour_reset_at, warmup_sent_today, ...patch } = form;
+    const { error } = await supabase.from("mailboxes").update(patch).eq("id", m.id);
+    if (error) return toast.error(error.message);
+    toast.success("Saved");
+    onSave();
+  };
+  const upd = (k: string, v: any) => setForm({ ...form, [k]: v });
+  return (
+    <div className="mt-4 pt-4 border-t space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label>Daily limit</Label><Input type="number" value={form.daily_limit ?? 30} onChange={(e) => upd("daily_limit", Number(e.target.value))} /></div>
+        <div><Label>Hourly limit</Label><Input type="number" value={form.hourly_limit ?? 10} onChange={(e) => upd("hourly_limit", Number(e.target.value))} /></div>
+        <div><Label>Min delay (s)</Label><Input type="number" value={form.min_delay_seconds} onChange={(e) => upd("min_delay_seconds", Number(e.target.value))} /></div>
+        <div><Label>Max delay (s)</Label><Input type="number" value={form.max_delay_seconds} onChange={(e) => upd("max_delay_seconds", Number(e.target.value))} /></div>
+      </div>
+      <div className="flex items-center gap-3">
+        <Switch checked={!!form.ramp_up_enabled} onCheckedChange={(v) => upd("ramp_up_enabled", v)} />
+        <Label>Auto ramp-up</Label>
+        <span className="text-xs text-muted-foreground">Start at {form.ramp_start ?? 5}/day, +{form.ramp_increment ?? 5}/day until cap</span>
+      </div>
+      <div>
+        <Label>Signature</Label>
+        <Textarea value={form.signature ?? ""} onChange={(e) => upd("signature", e.target.value)} rows={3} placeholder="— John Doe&#10;CEO, Acme Inc" />
+      </div>
+      <div><Label>Reply-to (optional)</Label><Input value={form.reply_to ?? ""} onChange={(e) => upd("reply_to", e.target.value)} /></div>
+      <Button onClick={save}>Save</Button>
+    </div>
+  );
+}
+
 function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
+  const [preset, setPreset] = useState<string>("Gmail");
   const [form, setForm] = useState({
     label: "", from_name: "", from_email: "",
-    smtp_host: "", smtp_port: 587, smtp_secure: false,
+    smtp_host: PRESETS.Gmail.smtp_host, smtp_port: 587, smtp_secure: false,
     smtp_username: "", smtp_password: "",
-    daily_limit: 30, min_delay_seconds: 60, max_delay_seconds: 180,
+    imap_host: PRESETS.Gmail.imap_host, imap_port: 993, imap_secure: true,
+    imap_username: "", imap_password: "",
+    daily_limit: 30, hourly_limit: 10, min_delay_seconds: 60, max_delay_seconds: 180,
+    ramp_up_enabled: true,
   });
 
+  const applyPreset = (name: string) => {
+    setPreset(name);
+    const p = PRESETS[name];
+    if (p) setForm(f => ({ ...f, ...p }));
+  };
+
   const save = async () => {
+    if (!form.label || !form.from_email || !form.smtp_username || !form.smtp_password) {
+      return toast.error("Fill in all required fields");
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("mailboxes").insert({ ...form, user_id: user.id });
+    const payload = {
+      ...form,
+      imap_username: form.imap_username || form.smtp_username,
+      imap_password: form.imap_password || form.smtp_password,
+      user_id: user.id,
+    };
+    const { error } = await supabase.from("mailboxes").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("Mailbox added");
     setOpen(false);
     onCreated();
   };
 
-  const f = (k: keyof typeof form) => ({
-    value: form[k] as any,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value }),
-  });
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" /> Add mailbox</Button></DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader><DialogTitle>Add SMTP mailbox</DialogTitle></DialogHeader>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2"><Label>Label</Label><Input {...f("label")} placeholder="My Gmail" /></div>
-          <div><Label>From name</Label><Input {...f("from_name")} /></div>
-          <div><Label>From email</Label><Input type="email" {...f("from_email")} /></div>
-          <div className="col-span-2"><Label>SMTP host</Label><Input {...f("smtp_host")} placeholder="smtp.gmail.com" /></div>
-          <div><Label>Port</Label><Input type="number" {...f("smtp_port")} /></div>
-          <div className="flex items-end gap-2"><Switch checked={form.smtp_secure} onCheckedChange={(v) => setForm({ ...form, smtp_secure: v })} /><span className="text-sm">Use SSL (465)</span></div>
-          <div><Label>Username</Label><Input {...f("smtp_username")} /></div>
-          <div><Label>Password</Label><Input type="password" {...f("smtp_password")} /></div>
-          <div><Label>Daily limit</Label><Input type="number" {...f("daily_limit")} /></div>
-          <div><Label>Min delay (s)</Label><Input type="number" {...f("min_delay_seconds")} /></div>
-          <div><Label>Max delay (s)</Label><Input type="number" {...f("max_delay_seconds")} /></div>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>Connect a mailbox</DialogTitle></DialogHeader>
+
+        <div>
+          <Label className="text-xs">Provider preset</Label>
+          <div className="flex gap-2 flex-wrap mt-1">
+            {Object.keys(PRESETS).map(p => (
+              <Button key={p} type="button" size="sm" variant={preset === p ? "default" : "outline"} onClick={() => applyPreset(p)}>{p}</Button>
+            ))}
+            <Button type="button" size="sm" variant={preset === "Custom" ? "default" : "outline"} onClick={() => setPreset("Custom")}>Custom</Button>
+          </div>
+          {preset === "Gmail" && (
+            <p className="text-xs text-muted-foreground mt-2">For Gmail you need an <a className="underline" target="_blank" href="https://myaccount.google.com/apppasswords">App Password</a> (regular password won't work).</p>
+          )}
         </div>
+
+        <Tabs defaultValue="basics" className="mt-4">
+          <TabsList>
+            <TabsTrigger value="basics">Basics</TabsTrigger>
+            <TabsTrigger value="smtp">SMTP (sending)</TabsTrigger>
+            <TabsTrigger value="imap">IMAP (replies)</TabsTrigger>
+            <TabsTrigger value="limits">Limits</TabsTrigger>
+          </TabsList>
+          <TabsContent value="basics" className="grid grid-cols-2 gap-3 pt-3">
+            <div className="col-span-2"><Label>Label *</Label><Input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="My Gmail" /></div>
+            <div><Label>From name *</Label><Input value={form.from_name} onChange={(e) => setForm({ ...form, from_name: e.target.value })} /></div>
+            <div><Label>From email *</Label><Input type="email" value={form.from_email} onChange={(e) => setForm({ ...form, from_email: e.target.value, smtp_username: form.smtp_username || e.target.value })} /></div>
+          </TabsContent>
+          <TabsContent value="smtp" className="grid grid-cols-2 gap-3 pt-3">
+            <div className="col-span-2"><Label>SMTP host *</Label><Input value={form.smtp_host} onChange={(e) => setForm({ ...form, smtp_host: e.target.value })} /></div>
+            <div><Label>Port</Label><Input type="number" value={form.smtp_port} onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })} /></div>
+            <div className="flex items-end gap-2"><Switch checked={form.smtp_secure} onCheckedChange={(v) => setForm({ ...form, smtp_secure: v })} /><span className="text-sm">SSL (port 465)</span></div>
+            <div><Label>Username *</Label><Input value={form.smtp_username} onChange={(e) => setForm({ ...form, smtp_username: e.target.value })} /></div>
+            <div><Label>Password / App Password *</Label><Input type="password" value={form.smtp_password} onChange={(e) => setForm({ ...form, smtp_password: e.target.value })} /></div>
+          </TabsContent>
+          <TabsContent value="imap" className="grid grid-cols-2 gap-3 pt-3">
+            <div className="col-span-2 text-xs text-muted-foreground">Used for reply detection (coming soon). Defaults to your SMTP credentials if blank.</div>
+            <div className="col-span-2"><Label>IMAP host</Label><Input value={form.imap_host} onChange={(e) => setForm({ ...form, imap_host: e.target.value })} /></div>
+            <div><Label>Port</Label><Input type="number" value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} /></div>
+            <div className="flex items-end gap-2"><Switch checked={form.imap_secure} onCheckedChange={(v) => setForm({ ...form, imap_secure: v })} /><span className="text-sm">SSL</span></div>
+          </TabsContent>
+          <TabsContent value="limits" className="grid grid-cols-2 gap-3 pt-3">
+            <div><Label>Daily limit</Label><Input type="number" value={form.daily_limit} onChange={(e) => setForm({ ...form, daily_limit: Number(e.target.value) })} /></div>
+            <div><Label>Hourly limit</Label><Input type="number" value={form.hourly_limit} onChange={(e) => setForm({ ...form, hourly_limit: Number(e.target.value) })} /></div>
+            <div><Label>Min delay (s)</Label><Input type="number" value={form.min_delay_seconds} onChange={(e) => setForm({ ...form, min_delay_seconds: Number(e.target.value) })} /></div>
+            <div><Label>Max delay (s)</Label><Input type="number" value={form.max_delay_seconds} onChange={(e) => setForm({ ...form, max_delay_seconds: Number(e.target.value) })} /></div>
+            <div className="col-span-2 flex items-center gap-3 pt-2">
+              <Switch checked={form.ramp_up_enabled} onCheckedChange={(v) => setForm({ ...form, ramp_up_enabled: v })} />
+              <span className="text-sm">Auto ramp-up (recommended for new accounts)</span>
+            </div>
+          </TabsContent>
+        </Tabs>
         <DialogFooter><Button onClick={save}>Save mailbox</Button></DialogFooter>
       </DialogContent>
     </Dialog>
