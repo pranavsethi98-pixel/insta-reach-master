@@ -53,7 +53,10 @@ export const processInboundReply = createServerFn({ method: "POST" })
     }
 
     const { data: conv } = await supabase
-      .from("conversations").select("*, lead:leads(*)").eq("id", data.conversationId).single();
+      .from("conversations").select("*").eq("id", data.conversationId).single();
+    const { data: lead } = conv?.lead_id
+      ? await supabase.from("leads").select("*").eq("id", conv.lead_id).single()
+      : { data: null };
     const { data: msgs } = await supabase
       .from("messages").select("*").eq("conversation_id", data.conversationId).order("created_at");
     const latest = msgs?.find((m) => m.id === data.messageId) ?? msgs?.[msgs.length - 1];
