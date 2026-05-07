@@ -153,7 +153,7 @@ export const processInboundReply = createServerFn({ method: "POST" })
       try {
         await fetch(profile.slack_webhook_url, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: `🚨 ${classification.toUpperCase()} from ${conv?.lead?.email}\n> ${latest.body?.slice(0, 200)}` }),
+          body: JSON.stringify({ text: `🚨 ${classification.toUpperCase()} from ${lead?.email ?? "lead"}\n> ${latest.body?.slice(0, 200)}` }),
         });
       } catch {}
     }
