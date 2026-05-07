@@ -27,7 +27,7 @@ const nav = [
   { to: "/suppressions", label: "Suppressions", icon: Ban },
   { to: "/team", label: "Team", icon: UsersRound },
   { to: "/webhooks", label: "Webhooks", icon: Webhook },
-  { to: "/billing", label: "Billing", icon: CreditCard },
+  
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -29,7 +29,6 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CopilotRouteImport } from './routes/copilot'
-import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -50,7 +49,6 @@ import { Route as AdminCreditsRouteImport } from './routes/admin.credits'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
-import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
@@ -58,7 +56,6 @@ import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-inv
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments-webhook'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
 import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
@@ -168,11 +165,6 @@ const CopilotRoute = CopilotRouteImport.update({
   path: '/copilot',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BillingRoute = BillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -273,11 +265,6 @@ const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
   path: '/admin/campaigns',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminBillingRoute = AdminBillingRouteImport.update({
-  id: '/admin/billing',
-  path: '/admin/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
@@ -313,12 +300,6 @@ const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   path: '/api/public/process-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments-webhook',
-    path: '/api/public/payments-webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   id: '/api/public/imap-sync',
   path: '/api/public/imap-sync',
@@ -366,7 +347,6 @@ const ApiPublicTrackClickTrackingIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
-  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -391,7 +371,6 @@ export interface FileRoutesByFullPath {
   '/admin/ai': typeof AdminAiRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/billing': typeof AdminBillingRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/content': typeof AdminContentRoute
@@ -413,7 +392,6 @@ export interface FileRoutesByFullPath {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
-  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
@@ -426,7 +404,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
-  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -451,7 +428,6 @@ export interface FileRoutesByTo {
   '/admin/ai': typeof AdminAiRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/billing': typeof AdminBillingRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/content': typeof AdminContentRoute
@@ -473,7 +449,6 @@ export interface FileRoutesByTo {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
-  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
@@ -487,7 +462,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
-  '/billing': typeof BillingRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
   '/goals': typeof GoalsRoute
@@ -512,7 +486,6 @@ export interface FileRoutesById {
   '/admin/ai': typeof AdminAiRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/billing': typeof AdminBillingRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/content': typeof AdminContentRoute
@@ -534,7 +507,6 @@ export interface FileRoutesById {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
-  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
@@ -549,7 +521,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analytics'
-    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -574,7 +545,6 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/analytics'
     | '/admin/audit'
-    | '/admin/billing'
     | '/admin/campaigns'
     | '/admin/compliance'
     | '/admin/content'
@@ -596,7 +566,6 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
-    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
@@ -609,7 +578,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analytics'
-    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -634,7 +602,6 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/analytics'
     | '/admin/audit'
-    | '/admin/billing'
     | '/admin/campaigns'
     | '/admin/compliance'
     | '/admin/content'
@@ -656,7 +623,6 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
-    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
@@ -669,7 +635,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/analytics'
-    | '/billing'
     | '/copilot'
     | '/dashboard'
     | '/goals'
@@ -694,7 +659,6 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/analytics'
     | '/admin/audit'
-    | '/admin/billing'
     | '/admin/campaigns'
     | '/admin/compliance'
     | '/admin/content'
@@ -716,7 +680,6 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
-    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
@@ -730,7 +693,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
-  BillingRoute: typeof BillingRoute
   CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
   GoalsRoute: typeof GoalsRoute
@@ -755,7 +717,6 @@ export interface RootRouteChildren {
   AdminAiRoute: typeof AdminAiRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminAuditRoute: typeof AdminAuditRoute
-  AdminBillingRoute: typeof AdminBillingRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminComplianceRoute: typeof AdminComplianceRoute
   AdminContentRoute: typeof AdminContentRoute
@@ -776,7 +737,6 @@ export interface RootRouteChildren {
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
@@ -928,13 +888,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CopilotRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/billing': {
-      id: '/billing'
-      path: '/billing'
-      fullPath: '/billing'
-      preLoaderRoute: typeof BillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
@@ -1075,13 +1028,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCampaignsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/billing': {
-      id: '/admin/billing'
-      path: '/admin/billing'
-      fullPath: '/admin/billing'
-      preLoaderRoute: typeof AdminBillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/admin/audit'
@@ -1129,13 +1075,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/process-queue'
       fullPath: '/api/public/process-queue'
       preLoaderRoute: typeof ApiPublicProcessQueueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/payments-webhook': {
-      id: '/api/public/payments-webhook'
-      path: '/api/public/payments-webhook'
-      fullPath: '/api/public/payments-webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/imap-sync': {
@@ -1223,7 +1162,6 @@ const ApiPublicVisitorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
-  BillingRoute: BillingRoute,
   CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
   GoalsRoute: GoalsRoute,
@@ -1248,7 +1186,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAiRoute: AdminAiRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminAuditRoute: AdminAuditRoute,
-  AdminBillingRoute: AdminBillingRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminComplianceRoute: AdminComplianceRoute,
   AdminContentRoute: AdminContentRoute,
@@ -1269,7 +1206,6 @@ const rootRouteChildren: RootRouteChildren = {
   CampaignsIndexRoute: CampaignsIndexRoute,
   AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
@@ -1281,3 +1217,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
