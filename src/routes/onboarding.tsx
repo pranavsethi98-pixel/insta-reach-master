@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
@@ -24,7 +24,6 @@ const SMTP_PRESETS: Record<string, { host: string; port: number; secure: boolean
 };
 
 function Wizard() {
-  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [provider, setProvider] = useState<keyof typeof SMTP_PRESETS>("gmail");
   const [mb, setMb] = useState({
