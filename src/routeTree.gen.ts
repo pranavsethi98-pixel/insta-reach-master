@@ -58,12 +58,12 @@ import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-inv
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments-webhook'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
 import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
 import { Route as ApiPublicVisitorJsRouteImport } from './routes/api/public/visitor.js'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
 import { Route as ApiPublicTrackClickTrackingIdRouteImport } from './routes/api/public/track.click.$trackingId'
@@ -313,6 +313,12 @@ const ApiPublicProcessQueueRoute = ApiPublicProcessQueueRouteImport.update({
   path: '/api/public/process-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments-webhook',
+    path: '/api/public/payments-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   id: '/api/public/imap-sync',
   path: '/api/public/imap-sync',
@@ -337,12 +343,6 @@ const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
     id: '/api/public/unsubscribe/$leadId',
     path: '/api/public/unsubscribe/$leadId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicInboundSecretRoute = ApiPublicInboundSecretRouteImport.update({
@@ -413,11 +413,11 @@ export interface FileRoutesByFullPath {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
+  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -473,11 +473,11 @@ export interface FileRoutesByTo {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
+  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -534,11 +534,11 @@ export interface FileRoutesById {
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
+  '/api/public/payments-webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRouteWithChildren
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/visitor/js': typeof ApiPublicVisitorJsRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -596,11 +596,11 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
+    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
-    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -656,11 +656,11 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
+    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
-    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -716,11 +716,11 @@ export interface FileRouteTypes {
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
     | '/api/public/imap-sync'
+    | '/api/public/payments-webhook'
     | '/api/public/process-queue'
     | '/api/public/visitor'
     | '/api/public/warmup-tick'
     | '/api/public/inbound/$secret'
-    | '/api/public/payments/webhook'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/visitor/js'
     | '/api/public/track/click/$trackingId'
@@ -776,11 +776,11 @@ export interface RootRouteChildren {
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRouteWithChildren
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
   ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
   ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
@@ -1131,6 +1131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProcessQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments-webhook': {
+      id: '/api/public/payments-webhook'
+      path: '/api/public/payments-webhook'
+      fullPath: '/api/public/payments-webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/imap-sync': {
       id: '/api/public/imap-sync'
       path: '/api/public/imap-sync'
@@ -1164,13 +1171,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/unsubscribe/$leadId'
       fullPath: '/api/public/unsubscribe/$leadId'
       preLoaderRoute: typeof ApiPublicUnsubscribeLeadIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/inbound/$secret': {
@@ -1269,11 +1269,11 @@ const rootRouteChildren: RootRouteChildren = {
   CampaignsIndexRoute: CampaignsIndexRoute,
   AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicVisitorRoute: ApiPublicVisitorRouteWithChildren,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
   ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
   ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
@@ -1281,3 +1281,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
