@@ -56,7 +56,6 @@ import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminRbacRouteImport } from './routes/admin.rbac'
 import { Route as AdminMailboxesRouteImport } from './routes/admin.mailboxes'
 import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
-import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminDeliverabilityRouteImport } from './routes/admin.deliverability'
 import { Route as AdminCreditsRouteImport } from './routes/admin.credits'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
@@ -66,6 +65,7 @@ import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-invite'
+import { Route as AdminIntegrationsIndexRouteImport } from './routes/admin.integrations.index'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicVisitorDotjsRouteImport } from './routes/api/public/visitor[.]js'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
@@ -315,11 +315,6 @@ const AdminLeadsRoute = AdminLeadsRouteImport.update({
   path: '/admin/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIntegrationsRoute = AdminIntegrationsRouteImport.update({
-  id: '/admin/integrations',
-  path: '/admin/integrations',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminDeliverabilityRoute = AdminDeliverabilityRouteImport.update({
   id: '/admin/deliverability',
   path: '/admin/deliverability',
@@ -363,6 +358,11 @@ const AdminAiRoute = AdminAiRouteImport.update({
 const AdminAcceptInviteRoute = AdminAcceptInviteRouteImport.update({
   id: '/admin/accept-invite',
   path: '/admin/accept-invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIntegrationsIndexRoute = AdminIntegrationsIndexRouteImport.update({
+  id: '/admin/integrations/',
+  path: '/admin/integrations/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
@@ -476,7 +476,6 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -501,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -548,7 +548,6 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -573,6 +572,7 @@ export interface FileRoutesByTo {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -621,7 +621,6 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -646,6 +645,7 @@ export interface FileRoutesById {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -695,7 +695,6 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/credits'
     | '/admin/deliverability'
-    | '/admin/integrations'
     | '/admin/leads'
     | '/admin/mailboxes'
     | '/admin/rbac'
@@ -720,6 +719,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -767,7 +767,6 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/credits'
     | '/admin/deliverability'
-    | '/admin/integrations'
     | '/admin/leads'
     | '/admin/mailboxes'
     | '/admin/rbac'
@@ -792,6 +791,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -839,7 +839,6 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/credits'
     | '/admin/deliverability'
-    | '/admin/integrations'
     | '/admin/leads'
     | '/admin/mailboxes'
     | '/admin/rbac'
@@ -864,6 +863,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -912,7 +912,6 @@ export interface RootRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminCreditsRoute: typeof AdminCreditsRoute
   AdminDeliverabilityRoute: typeof AdminDeliverabilityRoute
-  AdminIntegrationsRoute: typeof AdminIntegrationsRouteWithChildren
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminMailboxesRoute: typeof AdminMailboxesRoute
   AdminRbacRoute: typeof AdminRbacRoute
@@ -935,6 +934,7 @@ export interface RootRouteChildren {
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRoute
   ApiPublicVisitorDotjsRoute: typeof ApiPublicVisitorDotjsRoute
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
+  AdminIntegrationsIndexRoute: typeof AdminIntegrationsIndexRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
   ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
@@ -1272,13 +1272,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/integrations': {
-      id: '/admin/integrations'
-      path: '/admin/integrations'
-      fullPath: '/admin/integrations'
-      preLoaderRoute: typeof AdminIntegrationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/deliverability': {
       id: '/admin/deliverability'
       path: '/admin/deliverability'
@@ -1340,6 +1333,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/accept-invite'
       fullPath: '/admin/accept-invite'
       preLoaderRoute: typeof AdminAcceptInviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/integrations/': {
+      id: '/admin/integrations/'
+      path: '/admin/integrations'
+      fullPath: '/admin/integrations/'
+      preLoaderRoute: typeof AdminIntegrationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/warmup-tick': {
@@ -1436,17 +1436,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AdminIntegrationsRouteChildren {
-  AdminIntegrationsGhlRoute: typeof AdminIntegrationsGhlRoute
-}
-
-const AdminIntegrationsRouteChildren: AdminIntegrationsRouteChildren = {
-  AdminIntegrationsGhlRoute: AdminIntegrationsGhlRoute,
-}
-
-const AdminIntegrationsRouteWithChildren =
-  AdminIntegrationsRoute._addFileChildren(AdminIntegrationsRouteChildren)
-
 interface AdminUsersRouteChildren {
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
 }
@@ -1501,7 +1490,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminCreditsRoute: AdminCreditsRoute,
   AdminDeliverabilityRoute: AdminDeliverabilityRoute,
-  AdminIntegrationsRoute: AdminIntegrationsRouteWithChildren,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminMailboxesRoute: AdminMailboxesRoute,
   AdminRbacRoute: AdminRbacRoute,
@@ -1524,6 +1512,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVisitorRoute: ApiPublicVisitorRoute,
   ApiPublicVisitorDotjsRoute: ApiPublicVisitorDotjsRoute,
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
+  AdminIntegrationsIndexRoute: AdminIntegrationsIndexRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
   ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
@@ -1532,3 +1521,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
