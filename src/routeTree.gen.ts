@@ -19,6 +19,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SequenceBlueprintRouteImport } from './routes/sequence-blueprint'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReplyRateFormulaRouteImport } from './routes/reply-rate-formula'
 import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -130,6 +131,11 @@ const SalesflowsRoute = SalesflowsRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReplyRateFormulaRoute = ReplyRateFormulaRouteImport.update({
@@ -470,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
   '/sequence-blueprint': typeof SequenceBlueprintRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
   '/sequence-blueprint': typeof SequenceBlueprintRoute
@@ -618,6 +626,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
   '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
   '/sequence-blueprint': typeof SequenceBlueprintRoute
@@ -694,6 +703,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reply-agent'
     | '/reply-rate-formula'
+    | '/reset-password'
     | '/resources'
     | '/salesflows'
     | '/sequence-blueprint'
@@ -768,6 +778,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reply-agent'
     | '/reply-rate-formula'
+    | '/reset-password'
     | '/resources'
     | '/salesflows'
     | '/sequence-blueprint'
@@ -841,6 +852,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reply-agent'
     | '/reply-rate-formula'
+    | '/reset-password'
     | '/resources'
     | '/salesflows'
     | '/sequence-blueprint'
@@ -916,6 +928,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ReplyAgentRoute: typeof ReplyAgentRoute
   ReplyRateFormulaRoute: typeof ReplyRateFormulaRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   SalesflowsRoute: typeof SalesflowsRoute
   SequenceBlueprintRoute: typeof SequenceBlueprintRoute
@@ -1035,6 +1048,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reply-rate-formula': {
@@ -1522,6 +1542,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ReplyAgentRoute: ReplyAgentRoute,
   ReplyRateFormulaRoute: ReplyRateFormulaRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   SalesflowsRoute: SalesflowsRoute,
   SequenceBlueprintRoute: SequenceBlueprintRoute,
