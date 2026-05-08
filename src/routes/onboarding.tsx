@@ -88,7 +88,7 @@ function Wizard() {
     } as any);
     if (error) throw error;
     toast.success("Mailbox connected");
-  }, [provider, fromName, fromEmail, smtpPassword]);
+  }, [provider, fromName, fromEmail, smtpPassword, testSmtp]);
 
   const importLeads = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();
