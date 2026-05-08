@@ -44,7 +44,7 @@ function FeaturesPage() {
       </section>
       <section className="max-w-6xl mx-auto px-6 pb-20 grid md:grid-cols-3 gap-5">
         {features.map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="bg-card border border-border rounded-2xl p-6 hover:shadow-[0_20px_40px_-20px_rgba(80,40,180,0.25)] hover:-translate-y-0.5 transition-all">
+          <div key={title} className="bg-card border border-border rounded-2xl p-6 hover:shadow-[0_20px_40px_-20px_oklch(0.55_0.22_263/0.35)] hover:-translate-y-0.5 transition-all">
             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
               <Icon className="w-5 h-5" />
             </div>

@@ -8,7 +8,7 @@ export function HeroVisual() {
       <div className="absolute -inset-10 bg-gradient-to-tr from-primary/20 via-primary/10 to-transparent blur-3xl rounded-full pointer-events-none" />
 
       {/* Browser frame */}
-      <div className="relative rounded-2xl bg-card border border-border shadow-[0_30px_80px_-30px_rgba(80,40,180,0.45)] overflow-hidden">
+      <div className="relative rounded-2xl bg-card border border-border shadow-[0_30px_80px_-30px_oklch(0.55_0.22_263/0.45)] overflow-hidden">
         {/* Title bar */}
         <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
           <div className="flex gap-1.5">
