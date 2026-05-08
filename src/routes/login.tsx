@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowRight, Briefcase, Building2, CheckCircle2, KeyRound, Loader2, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -13,13 +14,31 @@ export const Route = createFileRoute("/login")({
 });
 
 type Mode = "signin" | "signup";
+type Step = "form" | "otp";
+
+const BUSINESS_TYPES = [
+  { v: "agency", l: "Agency" },
+  { v: "freelancer", l: "Freelancer / Solo" },
+  { v: "saas", l: "SaaS / Software" },
+  { v: "ecommerce", l: "E-commerce" },
+  { v: "consultant", l: "Consultant / Coach" },
+  { v: "recruiter", l: "Recruiter" },
+  { v: "sales_team", l: "In-house Sales Team" },
+  { v: "other", l: "Other" },
+];
 
 function LoginPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signin");
+  const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState<null | "email" | "google">(null);
+  const [fullName, setFullName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState<null | "email" | "google" | "otp" | "resend">(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -36,19 +55,55 @@ function LoginPage() {
         if (error) throw error;
         navigate({ to: "/dashboard" });
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        if (!businessType) throw new Error("Please select your business type");
+        const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin + "/onboarding" },
+          options: {
+            emailRedirectTo: window.location.origin + "/onboarding",
+            data: {
+              full_name: fullName,
+              business_name: businessName,
+              business_type: businessType,
+              phone,
+            },
+          },
         });
         if (error) throw error;
-        if (!data.session) {
-          toast.success("Check your inbox to verify your email.");
-        } else {
-          navigate({ to: "/onboarding" });
-        }
+        toast.success("We sent a 6-digit code to " + email);
+        setStep("otp");
       }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const verifyOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setLoading("otp");
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email, token: otp.trim(), type: "signup",
+      });
+      if (error) throw error;
+      toast.success("Email verified");
+      navigate({ to: "/onboarding" });
+    } catch (err: any) {
+      toast.error(err.message || "Invalid or expired code");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const resendOtp = async () => {
+    setLoading("resend");
+    try {
+      const { error } = await supabase.auth.resend({ type: "signup", email });
+      if (error) throw error;
+      toast.success("Code resent");
+    } catch (err: any) {
+      toast.error(err.message || "Could not resend");
     } finally {
       setLoading(null);
     }
