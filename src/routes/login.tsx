@@ -73,7 +73,9 @@ function LoginPage() {
         setStep("otp");
       }
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+      const msg = err?.message || "Something went wrong";
+      const reasons = err?.weak_password?.reasons?.join(", ");
+      toast.error(reasons ? `${msg} (${reasons})` : msg, { duration: 8000 });
     } finally {
       setLoading(null);
     }
