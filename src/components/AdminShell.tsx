@@ -55,32 +55,37 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!data || data.roles.length === 0) {
+    const canClaimSuperAdmin = data?.canClaimSuperAdmin === true;
     return (
       <div className="min-h-screen flex items-center justify-center p-8 bg-background">
         <div className="max-w-md bg-card border rounded-xl p-6 space-y-4">
           <ShieldCheck className="w-8 h-8 text-primary" />
           <h1 className="text-xl font-bold">Admin access required</h1>
           <p className="text-sm text-muted-foreground">
-            You don't have an admin role. If this platform has no super admin yet, you can claim it now (one-time bootstrap).
+            {canClaimSuperAdmin
+              ? "This account is allowed to claim super admin access."
+              : "You don't have an admin role. Super admin access is restricted to the platform owner."}
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
-            <Button
-              disabled={bootBusy}
-              onClick={async () => {
-                setBootBusy(true);
-                try {
-                  await claim();
-                  await refetch();
-                } catch (e: any) {
-                  alert(e.message ?? "Failed");
-                } finally { setBootBusy(false); }
-              }}
-            >
-              {bootBusy ? "Claiming…" : "Claim super admin"}
-            </Button>
+            {canClaimSuperAdmin && (
+              <Button
+                disabled={bootBusy}
+                onClick={async () => {
+                  setBootBusy(true);
+                  try {
+                    await claim();
+                    await refetch();
+                  } catch (e: any) {
+                    alert(e.message ?? "Failed");
+                  } finally { setBootBusy(false); }
+                }}
+              >
+                {bootBusy ? "Claiming…" : "Claim super admin"}
+              </Button>
+            )}
           </div>
         </div>
       </div>
