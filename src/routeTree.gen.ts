@@ -70,8 +70,10 @@ import { Route as ApiPublicVisitorDotjsRouteImport } from './routes/api/public/v
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
 import { Route as ApiPublicProcessQueueRouteImport } from './routes/api/public/process-queue'
 import { Route as ApiPublicImapSyncRouteImport } from './routes/api/public/imap-sync'
+import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl-webhook'
 import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
+import { Route as AdminIntegrationsGhlRouteImport } from './routes/admin.integrations.ghl'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
@@ -382,6 +384,11 @@ const ApiPublicImapSyncRoute = ApiPublicImapSyncRouteImport.update({
   path: '/api/public/imap-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
+  id: '/api/public/ghl-webhook',
+  path: '/api/public/ghl-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminViewAsUserIdRoute = AdminViewAsUserIdRouteImport.update({
   id: '/admin/view-as/$userId',
   path: '/admin/view-as/$userId',
@@ -391,6 +398,11 @@ const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
   getParentRoute: () => AdminUsersRoute,
+} as any)
+const AdminIntegrationsGhlRoute = AdminIntegrationsGhlRouteImport.update({
+  id: '/ghl',
+  path: '/ghl',
+  getParentRoute: () => AdminIntegrationsRoute,
 } as any)
 const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
@@ -457,7 +469,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -473,8 +485,10 @@ export interface FileRoutesByFullPath {
   '/vs/smartlead': typeof VsSmartleadRoute
   '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/admin/integrations/ghl': typeof AdminIntegrationsGhlRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
+  '/api/public/ghl-webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRoute
@@ -526,7 +540,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -542,8 +556,10 @@ export interface FileRoutesByTo {
   '/vs/smartlead': typeof VsSmartleadRoute
   '/admin': typeof AdminIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
+  '/admin/integrations/ghl': typeof AdminIntegrationsGhlRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
+  '/api/public/ghl-webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRoute
@@ -596,7 +612,7 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRoute
+  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -612,8 +628,10 @@ export interface FileRoutesById {
   '/vs/smartlead': typeof VsSmartleadRoute
   '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/admin/integrations/ghl': typeof AdminIntegrationsGhlRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/view-as/$userId': typeof AdminViewAsUserIdRoute
+  '/api/public/ghl-webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/imap-sync': typeof ApiPublicImapSyncRoute
   '/api/public/process-queue': typeof ApiPublicProcessQueueRoute
   '/api/public/visitor': typeof ApiPublicVisitorRoute
@@ -683,8 +701,10 @@ export interface FileRouteTypes {
     | '/vs/smartlead'
     | '/admin/'
     | '/campaigns/'
+    | '/admin/integrations/ghl'
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
+    | '/api/public/ghl-webhook'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -752,8 +772,10 @@ export interface FileRouteTypes {
     | '/vs/smartlead'
     | '/admin'
     | '/campaigns'
+    | '/admin/integrations/ghl'
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
+    | '/api/public/ghl-webhook'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -821,8 +843,10 @@ export interface FileRouteTypes {
     | '/vs/smartlead'
     | '/admin/'
     | '/campaigns/'
+    | '/admin/integrations/ghl'
     | '/admin/users/$userId'
     | '/admin/view-as/$userId'
+    | '/api/public/ghl-webhook'
     | '/api/public/imap-sync'
     | '/api/public/process-queue'
     | '/api/public/visitor'
@@ -875,7 +899,7 @@ export interface RootRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminCreditsRoute: typeof AdminCreditsRoute
   AdminDeliverabilityRoute: typeof AdminDeliverabilityRoute
-  AdminIntegrationsRoute: typeof AdminIntegrationsRoute
+  AdminIntegrationsRoute: typeof AdminIntegrationsRouteWithChildren
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminMailboxesRoute: typeof AdminMailboxesRoute
   AdminRbacRoute: typeof AdminRbacRoute
@@ -892,6 +916,7 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
+  ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicImapSyncRoute: typeof ApiPublicImapSyncRoute
   ApiPublicProcessQueueRoute: typeof ApiPublicProcessQueueRoute
   ApiPublicVisitorRoute: typeof ApiPublicVisitorRoute
@@ -1332,6 +1357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImapSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ghl-webhook': {
+      id: '/api/public/ghl-webhook'
+      path: '/api/public/ghl-webhook'
+      fullPath: '/api/public/ghl-webhook'
+      preLoaderRoute: typeof ApiPublicGhlWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/view-as/$userId': {
       id: '/admin/view-as/$userId'
       path: '/admin/view-as/$userId'
@@ -1345,6 +1377,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AdminUsersUserIdRouteImport
       parentRoute: typeof AdminUsersRoute
+    }
+    '/admin/integrations/ghl': {
+      id: '/admin/integrations/ghl'
+      path: '/ghl'
+      fullPath: '/admin/integrations/ghl'
+      preLoaderRoute: typeof AdminIntegrationsGhlRouteImport
+      parentRoute: typeof AdminIntegrationsRoute
     }
     '/api/public/unsubscribe/$leadId': {
       id: '/api/public/unsubscribe/$leadId'
@@ -1376,6 +1415,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminIntegrationsRouteChildren {
+  AdminIntegrationsGhlRoute: typeof AdminIntegrationsGhlRoute
+}
+
+const AdminIntegrationsRouteChildren: AdminIntegrationsRouteChildren = {
+  AdminIntegrationsGhlRoute: AdminIntegrationsGhlRoute,
+}
+
+const AdminIntegrationsRouteWithChildren =
+  AdminIntegrationsRoute._addFileChildren(AdminIntegrationsRouteChildren)
 
 interface AdminUsersRouteChildren {
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
@@ -1430,7 +1480,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminCreditsRoute: AdminCreditsRoute,
   AdminDeliverabilityRoute: AdminDeliverabilityRoute,
-  AdminIntegrationsRoute: AdminIntegrationsRoute,
+  AdminIntegrationsRoute: AdminIntegrationsRouteWithChildren,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminMailboxesRoute: AdminMailboxesRoute,
   AdminRbacRoute: AdminRbacRoute,
@@ -1447,6 +1497,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
+  ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicImapSyncRoute: ApiPublicImapSyncRoute,
   ApiPublicProcessQueueRoute: ApiPublicProcessQueueRoute,
   ApiPublicVisitorRoute: ApiPublicVisitorRoute,

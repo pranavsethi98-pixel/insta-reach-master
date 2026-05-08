@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
 import { AdminShell } from "@/components/AdminShell";
 import { platformAnalytics } from "@/lib/admin.functions";
-import { Globe, Webhook, Calendar, MessageSquare } from "lucide-react";
+import { Globe, Webhook, Calendar, MessageSquare, Plug, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/admin/integrations")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -21,6 +21,21 @@ function Page() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Integrations</h1>
+
+      <Link
+        to="/admin/integrations/ghl"
+        className="block bg-card border rounded-xl p-4 hover:border-primary transition-colors"
+      >
+        <div className="flex items-center gap-4">
+          <Plug className="w-6 h-6 text-primary" />
+          <div className="flex-1">
+            <div className="font-semibold">GoHighLevel (CRM)</div>
+            <div className="text-sm text-muted-foreground">Sync contacts, opportunities and conversations to a GHL sub-account.</div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        </div>
+      </Link>
+
       <div className="grid md:grid-cols-2 gap-3">
         {items.map((i) => (
           <div key={i.label} className="bg-card border rounded-xl p-4 flex items-center gap-4">
