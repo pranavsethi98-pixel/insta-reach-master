@@ -41,36 +41,37 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* EmailSend light palette
- * Signal Blue #2563EB is the only accent.
- * Snow #F1F5F9 surfaces · Fog #94A3B8 muted · Mint/Ember/Alert = status only */
+/* EmailSend dark-first palette
+ * Void #06090F · Obsidian #0C1526 · Storm #0F1D35
+ * Signal #2563EB · Snow #F1F5F9 · Fog #94A3B8
+ * Mint #10B981 · Ember #F59E0B · Alert #EF4444 */
 :root {
   --radius: 0.5rem;
-  --background: oklch(1 0 0);                   /* white canvas */
-  --foreground: oklch(0.18 0.02 260);           /* near-black ink */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 260);
+  --background: oklch(0.13 0.018 260);          /* Void */
+  --foreground: oklch(0.96 0.005 250);          /* Snow */
+  --card: oklch(0.18 0.025 260);                /* Obsidian */
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.18 0.025 260);
+  --popover-foreground: oklch(0.96 0.005 250);
   --primary: oklch(0.55 0.22 263);              /* Signal Blue #2563EB */
-  --primary-foreground: oklch(0.99 0.005 250);
-  --secondary: oklch(0.97 0.005 250);           /* Snow #F1F5F9-ish */
-  --secondary-foreground: oklch(0.22 0.02 260);
-  --muted: oklch(0.97 0.005 250);
-  --muted-foreground: oklch(0.55 0.02 250);     /* Fog */
-  --accent: oklch(0.95 0.03 263);               /* tinted Signal Blue surface */
-  --accent-foreground: oklch(0.40 0.18 263);
+  --primary-foreground: oklch(0.98 0.005 250);
+  --secondary: oklch(0.22 0.03 260);            /* Storm */
+  --secondary-foreground: oklch(0.96 0.005 250);
+  --muted: oklch(0.22 0.03 260);
+  --muted-foreground: oklch(0.71 0.025 250);    /* Fog */
+  --accent: oklch(0.55 0.22 263);
+  --accent-foreground: oklch(0.98 0.005 250);
   --destructive: oklch(0.62 0.22 27);           /* Alert */
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.65 0.16 162);              /* Mint */
-  --success-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.69 0.16 162);              /* Mint */
+  --success-foreground: oklch(0.13 0.018 260);
   --warning: oklch(0.76 0.16 70);               /* Ember */
-  --warning-foreground: oklch(0.18 0.02 260);
-  --border: oklch(0.92 0.008 250);
-  --input: oklch(0.92 0.008 250);
+  --warning-foreground: oklch(0.13 0.018 260);
+  --border: oklch(0.26 0.035 260);
+  --input: oklch(0.22 0.03 260);
   --ring: oklch(0.55 0.22 263);
-  --sidebar: oklch(0.13 0.018 260);             /* keep app sidebar dark for contrast */
-  --sidebar-foreground: oklch(0.92 0.008 250);
+  --sidebar: oklch(0.10 0.015 260);
+  --sidebar-foreground: oklch(0.85 0.015 250);
   --sidebar-accent: oklch(0.22 0.03 260);
   --sidebar-accent-foreground: oklch(0.98 0.005 250);
   --sidebar-border: oklch(0.22 0.03 260);
