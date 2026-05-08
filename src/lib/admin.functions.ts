@@ -755,12 +755,17 @@ export const viewAsUser = createServerFn({ method: "GET" })
 export const claimFirstSuperAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertSuperAdminEmail(context.userId);
     const { count } = await supabaseAdmin
       .from("user_roles").select("id", { count: "exact", head: true }).eq("role", "super_admin");
-    if ((count ?? 0) > 0) throw new Error("A super admin already exists");
-    await supabaseAdmin.from("user_roles").insert({
+    if ((count ?? 0) > 0) {
+      const roles = await requireRole(context.userId, SUPER);
+      return { ok: true, roles };
+    }
+    const { error } = await supabaseAdmin.from("user_roles").insert({
       user_id: context.userId, role: "super_admin", granted_by: context.userId,
     });
+    if (error) throw new Error(error.message);
     await audit(context.userId, "admin.bootstrap_super");
     return { ok: true };
   });
