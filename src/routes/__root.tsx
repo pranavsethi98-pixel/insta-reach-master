@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "EmailSend.ai" },
+      { name: "description", content: "Automate Instagram outreach with personalized messaging and multi-account support." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "EmailSend.ai" },
+      { property: "og:description", content: "Automate Instagram outreach with personalized messaging and multi-account support." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "EmailSend.ai" },
+      { name: "twitter:description", content: "Automate Instagram outreach with personalized messaging and multi-account support." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d09a32c8-d95e-4004-8b7f-6eb90875432b/id-preview-5d3476e3--c1fb09cc-dc95-493b-92f3-507054f93627.lovable.app-1778248627307.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d09a32c8-d95e-4004-8b7f-6eb90875432b/id-preview-5d3476e3--c1fb09cc-dc95-493b-92f3-507054f93627.lovable.app-1778248627307.png" },
     ],
     links: [
       {
