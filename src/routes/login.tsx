@@ -6,7 +6,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Briefcase, Building2, CheckCircle2, KeyRound, Loader2, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, Briefcase, Building2, CheckCircle2, Loader2, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/login")({
 });
 
 type Mode = "signin" | "signup";
-type Step = "form" | "otp";
+type Step = "form" | "verifyEmail";
 
 const BUSINESS_TYPES = [
   { v: "agency", l: "Agency" },
@@ -37,8 +37,7 @@ function LoginPage() {
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState<null | "email" | "google" | "otp" | "resend">(null);
+  const [loading, setLoading] = useState<null | "email" | "google" | "resend">(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -69,8 +68,8 @@ function LoginPage() {
           },
         });
         if (error) throw error;
-        toast.success("We sent a 6-digit code to " + email);
-        setStep("otp");
+        toast.success("We sent a verification email to " + email);
+        setStep("verifyEmail");
       }
     } catch (err: any) {
       const msg = err?.message || "Something went wrong";
@@ -81,31 +80,14 @@ function LoginPage() {
     }
   };
 
-  const verifyOtp = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setLoading("otp");
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email, token: otp.trim(), type: "signup",
-      });
-      if (error) throw error;
-      toast.success("Email verified");
-      navigate({ to: "/onboarding" });
-    } catch (err: any) {
-      toast.error(err.message || "Invalid or expired code");
-    } finally {
-      setLoading(null);
-    }
-  };
-
-  const resendOtp = async () => {
+  const resendVerificationEmail = async () => {
     setLoading("resend");
     try {
       const { error } = await supabase.auth.resend({ type: "signup", email });
       if (error) throw error;
-      toast.success("Code resent");
+      toast.success("Verification email resent");
     } catch (err: any) {
-      toast.error(err.message || "Could not resend");
+      toast.error(err.message || "Could not resend verification email");
     } finally {
       setLoading(null);
     }
@@ -172,32 +154,26 @@ function LoginPage() {
                 </div>
               </div>
 
-              {step === "otp" ? (
-                <form onSubmit={verifyOtp} className="space-y-3">
-                  <div className="text-sm text-muted-foreground">
-                    Enter the 6-digit code we emailed to <span className="font-mono text-foreground">{email}</span>
+              {step === "verifyEmail" ? (
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-border bg-card/40 px-4 py-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Mail className="w-4 h-4 text-primary" /> Verification email sent
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      Click the verification link sent to <span className="font-mono text-foreground">{email}</span>. After verifying, you'll be sent to onboarding.
+                    </p>
                   </div>
-                  <FieldIcon icon={<KeyRound className="w-4 h-4" />}>
-                    <Input
-                      inputMode="numeric" autoComplete="one-time-code" required
-                      maxLength={6} pattern="[0-9]{6}"
-                      value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                      placeholder="123456"
-                      className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0 tracking-[0.5em] font-mono text-lg"
-                    />
-                  </FieldIcon>
-                  <Button type="submit" disabled={!!loading || otp.length !== 6} className="w-full h-11 group">
-                    {loading === "otp"
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <>Verify & continue<ArrowRight className="w-4 h-4 ml-2" /></>}
+                  <Button type="button" onClick={() => setMode("signin")} className="w-full h-11 group">
+                    Sign in after verifying<ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <button type="button" onClick={() => setStep("form")} className="hover:text-foreground">← back</button>
-                    <button type="button" onClick={resendOtp} disabled={!!loading} className="hover:text-foreground">
-                      {loading === "resend" ? "sending…" : "resend code"}
+                    <button type="button" onClick={resendVerificationEmail} disabled={!!loading} className="hover:text-foreground">
+                      {loading === "resend" ? "sending…" : "resend email"}
                     </button>
                   </div>
-                </form>
+                </div>
               ) : (
                 <form onSubmit={submit} className="space-y-3">
                   {mode === "signup" && (
@@ -264,7 +240,7 @@ function LoginPage() {
                   <Button type="submit" disabled={!!loading} className="w-full h-11 group">
                     {loading === "email"
                       ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <>{mode === "signin" ? "Sign in" : "Send verification code"}<ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" /></>}
+                      : <>{mode === "signin" ? "Sign in" : "Send verification email"}<ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" /></>}
                   </Button>
                 </form>
               )}
