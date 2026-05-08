@@ -96,6 +96,32 @@ function LoginPage() {
     }
   };
 
+  const forgotPassword = async () => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setMessage({ type: "error", text: "Enter your email above first, then click forgot password." });
+      return;
+    }
+    if (loading) return;
+    setMessage(null);
+    setLoading("email");
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: window.location.origin + "/reset-password",
+      });
+      if (error) throw error;
+      const text = `Reset link sent to ${cleanEmail}. Check your inbox.`;
+      setMessage({ type: "success", text });
+      toast.success(text);
+    } catch (err: any) {
+      const text = err?.message || "Could not send reset email";
+      setMessage({ type: "error", text });
+      toast.error(text);
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const google = async () => {
     if (loading) return;
     setMessage(null);
@@ -245,7 +271,14 @@ function LoginPage() {
                     {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
                   </button>
                   {mode === "signin" && (
-                    <span className="font-mono">Forgot? <span className="text-foreground/60">support@emailsend.ai</span></span>
+                    <button
+                      type="button"
+                      onClick={forgotPassword}
+                      disabled={!!loading}
+                      className="hover:text-foreground transition disabled:opacity-50"
+                    >
+                      Forgot password?
+                    </button>
                   )}
                 </div>
               )}
