@@ -33,10 +33,6 @@ function LoginPage() {
   const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [businessName, setBusinessName] = useState("");
-  const [businessType, setBusinessType] = useState("");
-  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState<null | "email" | "google" | "resend">(null);
   const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
@@ -52,22 +48,12 @@ function LoginPage() {
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) {
-      setMessage({ type: "error", text: "Enter your email and password first." });
+      setMessage({ type: "error", text: "Enter your email and password." });
       return;
     }
-    if (mode === "signup") {
-      if (!fullName.trim() || !businessName.trim() || !phone.trim()) {
-        setMessage({ type: "error", text: "Fill in your name, business, and phone first." });
-        return;
-      }
-      if (!businessType) {
-        setMessage({ type: "error", text: "Select your business type first." });
-        return;
-      }
-      if (password.length < 6) {
-        setMessage({ type: "error", text: "Password must be at least 6 characters." });
-        return;
-      }
+    if (mode === "signup" && password.length < 6) {
+      setMessage({ type: "error", text: "Password must be at least 6 characters." });
+      return;
     }
 
     setMessage(null);
@@ -83,12 +69,6 @@ function LoginPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin + "/onboarding",
-            data: {
-              full_name: fullName.trim(),
-              business_name: businessName.trim(),
-              business_type: businessType,
-              phone: phone.trim(),
-            },
           },
         });
         if (error) throw error;
