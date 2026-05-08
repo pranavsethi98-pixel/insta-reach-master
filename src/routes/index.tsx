@@ -37,7 +37,7 @@ function Landing() {
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
             Cold email that{" "}
-            <span className="bg-gradient-to-r from-primary via-fuchsia-500 to-warning bg-clip-text text-transparent">actually lands.</span>
+            <span className="text-primary">actually lands.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">
             Connect unlimited mailboxes. Warm them up automatically. Send AI-personalized sequences that get real replies — not spam folder views.
@@ -57,7 +57,7 @@ function Landing() {
           </div>
           <div className="mt-8 flex items-center gap-3">
             <div className="flex -space-x-2">
-              {["from-primary to-fuchsia-500", "from-fuchsia-500 to-warning", "from-success to-primary", "from-warning to-destructive", "from-primary to-success"].map((c, i) => (
+              {["from-primary to-primary", "from-primary to-primary", "from-primary to-primary", "from-primary to-primary", "from-primary to-primary"].map((c, i) => (
                 <div key={i} className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} border-2 border-background`} />
               ))}
             </div>
@@ -92,7 +92,7 @@ function Landing() {
             { n: "2,400+", l: "Active teams" },
           ].map((s) => (
             <div key={s.l} className="bg-card p-8 text-center">
-              <div className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text text-transparent">{s.n}</div>
+              <div className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">{s.n}</div>
               <div className="mt-2 text-sm text-muted-foreground">{s.l}</div>
             </div>
           ))}
@@ -105,7 +105,7 @@ function Landing() {
           <Zap className="w-3 h-3" /> Built for serious outbound
         </div>
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-          Replace 6 tools with <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">one workspace.</span>
+          Replace 6 tools with <span className="text-primary">one workspace.</span>
         </h2>
         <p className="mt-4 text-muted-foreground text-lg">From the first send to the booked meeting — everything you need, nothing you don't.</p>
       </section>
@@ -203,7 +203,7 @@ function Landing() {
               <Quote className="w-6 h-6 text-primary/30 mb-3" />
               <p className="text-sm leading-relaxed flex-1">"{t.q}"</p>
               <div className="mt-5 pt-5 border-t border-border flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-fuchsia-500" />
+                <div className="w-9 h-9 rounded-full bg-primary" />
                 <div>
                   <div className="text-sm font-semibold">{t.n}</div>
                   <div className="text-xs text-muted-foreground">{t.r}</div>
@@ -216,7 +216,7 @@ function Landing() {
 
       {/* CTA */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="relative rounded-3xl bg-gradient-to-br from-primary via-fuchsia-500 to-warning p-12 md:p-16 text-primary-foreground overflow-hidden text-center">
+        <div className="relative rounded-3xl bg-primary p-12 md:p-16 text-primary-foreground overflow-hidden text-center">
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
           <div className="relative">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">Ready to fill your pipeline?</h2>

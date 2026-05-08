@@ -36,7 +36,7 @@ function ContactPage() {
       <section className="max-w-5xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-2 gap-12">
         <div>
           <h1 className="text-5xl font-extrabold tracking-tight mb-4">
-            Let's <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">talk.</span>
+            Let's <span className="text-primary">talk.</span>
           </h1>
           <p className="text-muted-foreground mb-8">
             Questions about pricing, deliverability, or just want to chat outbound strategy? Drop us a note.

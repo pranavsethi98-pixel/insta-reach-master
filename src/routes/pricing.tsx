@@ -51,7 +51,7 @@ function PricingPage() {
     <MarketingLayout>
       <section className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
-          Simple <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">pricing.</span>
+          Simple <span className="text-primary">pricing.</span>
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">No per-mailbox fees. No hidden add-ons. Cancel anytime.</p>
       </section>
@@ -61,7 +61,7 @@ function PricingPage() {
             key={p.name}
             className={`relative rounded-2xl p-8 border transition-all ${
               p.highlight
-                ? "bg-gradient-to-b from-primary to-fuchsia-500 text-primary-foreground border-transparent shadow-2xl scale-[1.02]"
+                ? "bg-primary text-primary-foreground border-transparent shadow-2xl scale-[1.02]"
                 : "bg-card border-border"
             }`}
           >

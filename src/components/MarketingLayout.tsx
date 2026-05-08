@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Zap, Twitter, Github, Linkedin } from "lucide-react";
+import { ArrowRight, Twitter, Github, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,10 +22,10 @@ export function MarketingHeader() {
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_4px_0_0_oklch(0.32_0.15_270)]">
-            <Zap className="w-4 h-4 text-primary-foreground" />
+          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+            <ArrowRight className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-extrabold text-lg tracking-tight">EmailSend</span>
+          <span className="font-extrabold text-lg tracking-tight">EmailSend<span className="text-muted-foreground font-normal">.ai</span></span>
         </Link>
         <nav className="hidden md:flex items-center gap-1">
           {nav.map((n) => (
