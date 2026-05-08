@@ -66,6 +66,7 @@ import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAcceptInviteRouteImport } from './routes/admin.accept-invite'
+import { Route as AdminIntegrationsIndexRouteImport } from './routes/admin.integrations.index'
 import { Route as ApiPublicWarmupTickRouteImport } from './routes/api/public/warmup-tick'
 import { Route as ApiPublicVisitorDotjsRouteImport } from './routes/api/public/visitor[.]js'
 import { Route as ApiPublicVisitorRouteImport } from './routes/api/public/visitor'
@@ -365,6 +366,11 @@ const AdminAcceptInviteRoute = AdminAcceptInviteRouteImport.update({
   path: '/admin/accept-invite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIntegrationsIndexRoute = AdminIntegrationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminIntegrationsRoute,
+} as any)
 const ApiPublicWarmupTickRoute = ApiPublicWarmupTickRouteImport.update({
   id: '/api/public/warmup-tick',
   path: '/api/public/warmup-tick',
@@ -501,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -548,7 +555,6 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/deliverability': typeof AdminDeliverabilityRoute
-  '/admin/integrations': typeof AdminIntegrationsRouteWithChildren
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/mailboxes': typeof AdminMailboxesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -573,6 +579,7 @@ export interface FileRoutesByTo {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -646,6 +653,7 @@ export interface FileRoutesById {
   '/api/public/visitor': typeof ApiPublicVisitorRoute
   '/api/public/visitor.js': typeof ApiPublicVisitorDotjsRoute
   '/api/public/warmup-tick': typeof ApiPublicWarmupTickRoute
+  '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
@@ -720,6 +728,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -767,7 +776,6 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/credits'
     | '/admin/deliverability'
-    | '/admin/integrations'
     | '/admin/leads'
     | '/admin/mailboxes'
     | '/admin/rbac'
@@ -792,6 +800,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -864,6 +873,7 @@ export interface FileRouteTypes {
     | '/api/public/visitor'
     | '/api/public/visitor.js'
     | '/api/public/warmup-tick'
+    | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
     | '/api/public/track/click/$trackingId'
@@ -1342,6 +1352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAcceptInviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/integrations/': {
+      id: '/admin/integrations/'
+      path: '/'
+      fullPath: '/admin/integrations/'
+      preLoaderRoute: typeof AdminIntegrationsIndexRouteImport
+      parentRoute: typeof AdminIntegrationsRoute
+    }
     '/api/public/warmup-tick': {
       id: '/api/public/warmup-tick'
       path: '/api/public/warmup-tick'
@@ -1438,10 +1455,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminIntegrationsRouteChildren {
   AdminIntegrationsGhlRoute: typeof AdminIntegrationsGhlRoute
+  AdminIntegrationsIndexRoute: typeof AdminIntegrationsIndexRoute
 }
 
 const AdminIntegrationsRouteChildren: AdminIntegrationsRouteChildren = {
   AdminIntegrationsGhlRoute: AdminIntegrationsGhlRoute,
+  AdminIntegrationsIndexRoute: AdminIntegrationsIndexRoute,
 }
 
 const AdminIntegrationsRouteWithChildren =
