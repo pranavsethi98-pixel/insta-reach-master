@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createServerClient } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const captureLead = createServerFn({ method: "POST" })
   .inputValidator((input) =>
@@ -13,8 +13,7 @@ export const captureLead = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    const supabase = createServerClient();
-    const { error } = await supabase.from("marketing_leads").insert({
+    const { error } = await supabaseAdmin.from("marketing_leads").insert({
       email: data.email.toLowerCase().trim(),
       source: data.source,
       utm_source: data.utm_source ?? null,
