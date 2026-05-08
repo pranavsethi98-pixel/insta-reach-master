@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Users, Send, CheckCircle2, Eye, Reply, Flame, ArrowRight, Inbox, Activity, TrendingUp, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatCard, Panel, EmptyState, StatusPill } from "@/components/app/PageHeader";
+import { ensureSelfSyncedToGhl } from "@/lib/ghl-sync.functions";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => (
@@ -14,6 +17,9 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function Dashboard() {
+  const ensureSync = useServerFn(ensureSelfSyncedToGhl);
+  useEffect(() => { ensureSync({}).catch(() => {}); }, [ensureSync]);
+
   const { data } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
