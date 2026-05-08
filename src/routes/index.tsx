@@ -33,44 +33,65 @@ function Landing() {
   return (
     <MarketingLayout>
       {/* ─────────── HERO ─────────── */}
-      <section className="relative max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-24 grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center">
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full surface-1 text-[11px] font-mono uppercase tracking-widest mb-7">
-            <span className="relative flex w-1.5 h-1.5">
-              <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
-              <span className="relative w-1.5 h-1.5 rounded-full bg-success" />
-            </span>
-            <span className="text-muted-foreground">v2.0 · public beta</span>
-            <span className="text-border">·</span>
-            <span className="text-foreground/80">12M+ sends / mo</span>
+      <section className="relative max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-20">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          {/* Left: copy column */}
+          <div className="lg:col-span-7 relative">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full surface-1 text-[11px] font-mono uppercase tracking-widest mb-7">
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
+                <span className="relative w-1.5 h-1.5 rounded-full bg-success" />
+              </span>
+              <span className="text-muted-foreground">v2.0 · public beta</span>
+              <span className="text-border">·</span>
+              <span className="text-foreground/80">12M+ sends / mo</span>
+            </div>
+
+            <h1 className="text-display">
+              Cold email<br />
+              infrastructure<br />
+              that <span className="text-gradient">delivers.</span>
+            </h1>
+
+            <p className="mt-7 text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
+              Unlimited inboxes. Automatic warmup. AI sequences. One feed for every reply. Built for operators who send for a living — not marketers who play at it.
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button size="lg" className="rounded-full text-base h-12 px-7 shadow-glow group" onClick={() => navigate({ to: "/login" })}>
+                Start free <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
+              </Button>
+              <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-7 surface-1" asChild>
+                <a href="#playbook"><Download className="w-4 h-4 mr-1.5" /> Free playbook</a>
+              </Button>
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> No credit card</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Unlimited mailboxes</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Free warmup forever</span>
+            </div>
+
+            {/* Side meta rail under hero */}
+            <div className="mt-12 grid grid-cols-3 gap-6 max-w-xl border-t border-border/60 pt-7">
+              {[
+                { k: "99.2%", l: "Inbox placement" },
+                { k: "<5 min", l: "Time to first send" },
+                { k: "38%", l: "Avg reply rate" },
+              ].map((s) => (
+                <div key={s.l}>
+                  <div className="text-2xl font-extrabold tracking-tight text-foreground">{s.k}</div>
+                  <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{s.l}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h1 className="text-display">
-            Cold email<br />
-            infrastructure<br />
-            that <span className="text-gradient">delivers.</span>
-          </h1>
-
-          <p className="mt-7 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-            Unlimited inboxes. Automatic warmup. AI sequences. One feed for every reply. Built for operators who send for a living — not marketers who play at it.
-          </p>
-
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Button size="lg" className="rounded-full text-base h-12 px-7 shadow-glow group" onClick={() => navigate({ to: "/login" })}>
-              Start free <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
-            </Button>
-            <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-7 surface-1" asChild>
-              <a href="#playbook"><Download className="w-4 h-4 mr-1.5" /> Free playbook</a>
-            </Button>
-          </div>
-
-          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> No credit card</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Unlimited mailboxes</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Free warmup forever</span>
+          {/* Right: visual */}
+          <div className="lg:col-span-5 relative float-slow">
+            <HeroVisual />
           </div>
         </div>
-        <div className="relative float-slow"><HeroVisual /></div>
       </section>
 
       {/* ─────────── MARQUEE PROOF BAR ─────────── */}
@@ -92,7 +113,18 @@ function Landing() {
         </div>
       </section>
 
-      <div className="pt-20" />
+      {/* ─────────── MANIFESTO ─────────── */}
+      <section className="relative max-w-5xl mx-auto px-6 pt-24 pb-8">
+        <div className="text-eyebrow mb-6 text-center">A short manifesto</div>
+        <p className="text-center text-2xl md:text-4xl font-extrabold tracking-tight leading-[1.15] max-w-4xl mx-auto">
+          We don't believe in <span className="text-muted-foreground/50 line-through decoration-destructive/50">credit packs</span>, <span className="text-muted-foreground/50 line-through decoration-destructive/50">per-mailbox tax</span>, or <span className="text-muted-foreground/50 line-through decoration-destructive/50">warmup that quietly burns your domain</span>.
+          <br className="hidden md:block" />
+          We believe in <span className="text-gradient">replies per send</span> — and building the stack that gets you more of them.
+        </p>
+      </section>
+
+      <div className="pt-12" />
+
 
 
       {/* ─────────── PROBLEM ─────────── */}
