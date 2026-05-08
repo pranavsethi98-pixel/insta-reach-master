@@ -5,8 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Briefcase, Building2, CheckCircle2, Loader2, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -16,27 +15,12 @@ export const Route = createFileRoute("/login")({
 type Mode = "signin" | "signup";
 type Step = "form" | "verifyEmail";
 
-const BUSINESS_TYPES = [
-  { v: "agency", l: "Agency" },
-  { v: "freelancer", l: "Freelancer / Solo" },
-  { v: "saas", l: "SaaS / Software" },
-  { v: "ecommerce", l: "E-commerce" },
-  { v: "consultant", l: "Consultant / Coach" },
-  { v: "recruiter", l: "Recruiter" },
-  { v: "sales_team", l: "In-house Sales Team" },
-  { v: "other", l: "Other" },
-];
-
 function LoginPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signin");
   const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [businessName, setBusinessName] = useState("");
-  const [businessType, setBusinessType] = useState("");
-  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState<null | "email" | "google" | "resend">(null);
   const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
@@ -52,22 +36,12 @@ function LoginPage() {
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) {
-      setMessage({ type: "error", text: "Enter your email and password first." });
+      setMessage({ type: "error", text: "Enter your email and password." });
       return;
     }
-    if (mode === "signup") {
-      if (!fullName.trim() || !businessName.trim() || !phone.trim()) {
-        setMessage({ type: "error", text: "Fill in your name, business, and phone first." });
-        return;
-      }
-      if (!businessType) {
-        setMessage({ type: "error", text: "Select your business type first." });
-        return;
-      }
-      if (password.length < 6) {
-        setMessage({ type: "error", text: "Password must be at least 6 characters." });
-        return;
-      }
+    if (mode === "signup" && password.length < 6) {
+      setMessage({ type: "error", text: "Password must be at least 6 characters." });
+      return;
     }
 
     setMessage(null);
@@ -83,12 +57,6 @@ function LoginPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin + "/onboarding",
-            data: {
-              full_name: fullName.trim(),
-              business_name: businessName.trim(),
-              business_type: businessType,
-              phone: phone.trim(),
-            },
           },
         });
         if (error) throw error;
@@ -241,49 +209,6 @@ function LoginPage() {
                 </div>
               ) : (
                 <form onSubmit={submit} className="space-y-3">
-                  {mode === "signup" && (
-                    <>
-                      <FieldIcon icon={<User className="w-4 h-4" />}>
-                        <Input
-                          type="text" autoComplete="name" required
-                          value={fullName} onChange={(e) => setFullName(e.target.value)}
-                          placeholder="Your full name"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                      <FieldIcon icon={<Building2 className="w-4 h-4" />}>
-                        <Input
-                          type="text" autoComplete="organization" required
-                          value={businessName} onChange={(e) => setBusinessName(e.target.value)}
-                          placeholder="Business name"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                      <div className="flex items-center gap-3 px-3 rounded-lg border border-border bg-card/40 focus-within:border-primary transition">
-                        <span className="text-muted-foreground"><Briefcase className="w-4 h-4" /></span>
-                        <div className="flex-1">
-                          <Select value={businessType} onValueChange={setBusinessType}>
-                            <SelectTrigger className="h-11 border-0 bg-transparent focus:ring-0 pl-0 shadow-none">
-                              <SelectValue placeholder="Business type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {BUSINESS_TYPES.map((b) => (
-                                <SelectItem key={b.v} value={b.v}>{b.l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <FieldIcon icon={<Phone className="w-4 h-4" />}>
-                        <Input
-                          type="tel" autoComplete="tel" required
-                          value={phone} onChange={(e) => setPhone(e.target.value)}
-                          placeholder="Phone (e.g. +1 555 123 4567)"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                    </>
-                  )}
                   <FieldIcon icon={<Mail className="w-4 h-4" />}>
                     <Input
                       type="email" autoComplete="email" required
