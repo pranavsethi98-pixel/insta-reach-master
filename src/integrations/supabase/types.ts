@@ -817,6 +817,57 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_magnets: {
+        Row: {
+          category: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          file_size_kb: number | null
+          file_url: string
+          id: string
+          is_published: boolean
+          page_count: number | null
+          slug: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          file_size_kb?: number | null
+          file_url: string
+          id?: string
+          is_published?: boolean
+          page_count?: number | null
+          slug: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          file_size_kb?: number | null
+          file_url?: string
+          id?: string
+          is_published?: boolean
+          page_count?: number | null
+          slug?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_tasks: {
         Row: {
           completed_at: string | null
@@ -1149,8 +1200,10 @@ export type Database = {
       marketing_leads: {
         Row: {
           created_at: string
+          delivered_at: string | null
           email: string
           id: string
+          lead_magnet_slug: string | null
           source: string
           utm_campaign: string | null
           utm_medium: string | null
@@ -1158,8 +1211,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          delivered_at?: string | null
           email: string
           id?: string
+          lead_magnet_slug?: string | null
           source?: string
           utm_campaign?: string | null
           utm_medium?: string | null
@@ -1167,8 +1222,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          delivered_at?: string | null
           email?: string
           id?: string
+          lead_magnet_slug?: string | null
           source?: string
           utm_campaign?: string | null
           utm_medium?: string | null
