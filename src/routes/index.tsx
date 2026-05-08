@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Mail, Flame, Bot, Shield, CheckCircle2, Star, Zap, KanbanSquare, Inbox, BarChart3, Globe, Webhook, Calendar, Users, Workflow, Quote } from "lucide-react";
+import { ArrowRight, Flame, Shield, CheckCircle2, Star, Zap, Globe, Webhook, Calendar, Users, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingLayout } from "@/components/MarketingLayout";
 import { HeroVisual } from "@/components/marketing/HeroVisual";
