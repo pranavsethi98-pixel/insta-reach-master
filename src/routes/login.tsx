@@ -38,6 +38,7 @@ function LoginPage() {
   const [businessType, setBusinessType] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState<null | "email" | "google" | "resend">(null);
+  const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -47,37 +48,71 @@ function LoginPage() {
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (loading) return;
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !password) {
+      setMessage({ type: "error", text: "Enter your email and password first." });
+      return;
+    }
+    if (mode === "signup") {
+      if (!fullName.trim() || !businessName.trim() || !phone.trim()) {
+        setMessage({ type: "error", text: "Fill in your name, business, and phone first." });
+        return;
+      }
+      if (!businessType) {
+        setMessage({ type: "error", text: "Select your business type first." });
+        return;
+      }
+      if (password.length < 6) {
+        setMessage({ type: "error", text: "Password must be at least 6 characters." });
+        return;
+      }
+    }
+
+    setMessage(null);
     setLoading("email");
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
         if (error) throw error;
         navigate({ to: "/dashboard" });
       } else {
-        if (!businessType) throw new Error("Please select your business type");
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email: cleanEmail,
+          password,
           options: {
             emailRedirectTo: window.location.origin + "/onboarding",
             data: {
-              full_name: fullName,
-              business_name: businessName,
+              full_name: fullName.trim(),
+              business_name: businessName.trim(),
               business_type: businessType,
-              phone,
+              phone: phone.trim(),
             },
           },
         });
         if (error) throw error;
-        toast.success("We sent a verification email to " + email);
+        const sentMessage = "We sent a verification email to " + cleanEmail;
+        setEmail(cleanEmail);
+        setMessage({ type: "success", text: sentMessage });
+        toast.success(sentMessage);
         setStep("verifyEmail");
       }
     } catch (err: any) {
       const msg = err?.message || "Something went wrong";
       const reasons = err?.weak_password?.reasons?.join(", ");
-      toast.error(reasons ? `${msg} (${reasons})` : msg, { duration: 8000 });
+      const text = reasons ? `${msg} (${reasons})` : msg;
+      setMessage({ type: "error", text });
+      toast.error(text, { duration: 8000 });
     } finally {
       setLoading(null);
     }
+  };
+
+  const switchMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    setStep("form");
+    setMessage(null);
   };
 
   const resendVerificationEmail = async () => {
@@ -94,9 +129,15 @@ function LoginPage() {
   };
 
   const google = async () => {
+    if (loading) return;
+    setMessage(null);
     setLoading("google");
     const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) { toast.error("Google sign-in failed"); setLoading(null); }
+    if (r.error) {
+      setMessage({ type: "error", text: "Google sign-in failed. Try email/password instead." });
+      toast.error("Google sign-in failed");
+      setLoading(null);
+    }
   };
 
   return (
