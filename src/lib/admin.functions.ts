@@ -4,6 +4,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 type Role = "super_admin" | "billing_admin" | "support_admin" | "read_only_admin";
+const SUPER_ADMIN_EMAIL = "pranav@insanex.io";
+
+async function getUserEmail(userId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  return data?.email?.toLowerCase() ?? null;
+}
+
+async function assertSuperAdminEmail(userId: string) {
+  const email = await getUserEmail(userId);
+  if (email !== SUPER_ADMIN_EMAIL) {
+    throw new Error("Super admin is restricted to pranav@insanex.io");
+  }
+}
 
 async function requireRole(userId: string, allowed: Role[]): Promise<Role[]> {
   const { data, error } = await supabaseAdmin
@@ -11,7 +28,10 @@ async function requireRole(userId: string, allowed: Role[]): Promise<Role[]> {
     .select("role")
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
-  const roles = (data ?? []).map((r) => r.role as Role);
+  const email = await getUserEmail(userId);
+  const roles = (data ?? [])
+    .map((r) => r.role as Role)
+    .filter((role) => role !== "super_admin" || email === SUPER_ADMIN_EMAIL);
   if (!roles.some((r) => allowed.includes(r))) {
     throw new Error("Forbidden: insufficient role");
   }
@@ -47,7 +67,11 @@ export const getMyAdminRoles = createServerFn({ method: "GET" })
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId);
-    return { roles: (data ?? []).map((r) => r.role as Role) };
+    const email = await getUserEmail(context.userId);
+    const roles = (data ?? [])
+      .map((r) => r.role as Role)
+      .filter((role) => role !== "super_admin" || email === SUPER_ADMIN_EMAIL);
+    return { roles, canClaimSuperAdmin: email === SUPER_ADMIN_EMAIL };
   });
 
 // ---------- platform overview ----------
