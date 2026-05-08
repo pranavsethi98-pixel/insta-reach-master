@@ -1,70 +1,115 @@
-import { Mail, BarChart3, Users, CheckCircle2, Send, Inbox } from "lucide-react";
+import { Mail, BarChart3, Inbox, CheckCircle2, Send, Sparkles, TrendingUp, Users } from "lucide-react";
 
-// Pure CSS/SVG hero visual — no AI art, no garbled text.
-// Three floating glassmorphism cards over a gradient mesh.
+// Polished single-frame product hero mockup — looks like a real app screenshot.
 export function HeroVisual() {
   return (
-    <div className="relative w-full aspect-[5/4] max-w-[640px] mx-auto">
-      {/* Gradient mesh background */}
-      <div className="absolute inset-0 rounded-[2rem] overflow-hidden">
-        <div className="absolute -top-20 -left-10 w-72 h-72 rounded-full bg-primary/40 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-violet-400/40 blur-3xl" />
-        <div className="absolute top-1/3 left-1/3 w-60 h-60 rounded-full bg-fuchsia-300/30 blur-3xl" />
-      </div>
+    <div className="relative w-full max-w-[680px] mx-auto">
+      {/* Glow */}
+      <div className="absolute -inset-10 bg-gradient-to-tr from-primary/30 via-fuchsia-500/20 to-transparent blur-3xl rounded-full pointer-events-none" />
 
-      {/* Card 1 — Inbox */}
-      <div className="absolute top-6 left-2 w-[58%] rounded-2xl bg-card/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_-20px_rgba(80,40,180,0.35)] p-4 rotate-[-4deg]">
-        <div className="flex items-center gap-2 mb-3">
-          <Inbox className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold">Inbox</span>
-          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">12 new</span>
+      {/* Browser frame */}
+      <div className="relative rounded-2xl bg-card border border-border shadow-[0_30px_80px_-30px_rgba(80,40,180,0.45)] overflow-hidden">
+        {/* Title bar */}
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
+            <div className="w-2.5 h-2.5 rounded-full bg-warning/70" />
+            <div className="w-2.5 h-2.5 rounded-full bg-success/70" />
+          </div>
+          <div className="ml-3 flex-1 max-w-xs mx-auto px-3 py-1 rounded-md bg-background text-[10px] text-muted-foreground text-center font-mono truncate">
+            app.outreachly.io / campaigns / q4-outbound
+          </div>
         </div>
-        {[
-          { n: "Sarah Chen", t: "Re: Quick question about pricing" },
-          { n: "Marcus Webb", t: "Sounds good — let's schedule" },
-          { n: "Priya Patel", t: "Interested, send more info" },
-        ].map((m, i) => (
-          <div key={i} className="flex items-center gap-2 py-1.5 border-b border-border/40 last:border-0">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-fuchsia-400" />
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-medium truncate">{m.n}</div>
-              <div className="text-[10px] text-muted-foreground truncate">{m.t}</div>
+
+        {/* App body */}
+        <div className="grid grid-cols-12 min-h-[380px]">
+          {/* Sidebar */}
+          <div className="col-span-2 border-r border-border bg-muted/20 p-2 space-y-1">
+            {[
+              { i: Mail, label: "Inbox", active: false },
+              { i: Send, label: "Campaigns", active: true },
+              { i: BarChart3, label: "Analytics", active: false },
+              { i: Users, label: "Leads", active: false },
+            ].map((n, idx) => (
+              <div key={idx} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] ${n.active ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"}`}>
+                <n.i className="w-3 h-3" />
+                <span className="truncate">{n.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Main content */}
+          <div className="col-span-7 p-5 border-r border-border">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="text-[10px] text-muted-foreground">Campaign</div>
+                <div className="text-sm font-bold">Q4 Outbound · SaaS founders</div>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-semibold">● Live</span>
+            </div>
+
+            {/* Mini chart */}
+            <div className="flex items-end gap-1.5 h-20 mb-4">
+              {[35, 55, 42, 70, 60, 85, 78, 92, 80, 95].map((h, i) => (
+                <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-primary/60 to-fuchsia-500" style={{ height: `${h}%` }} />
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { l: "Sent", v: "1,247", d: "+18%" },
+                { l: "Replies", v: "476", d: "+24%" },
+                { l: "Booked", v: "38", d: "+12%" },
+              ].map((s) => (
+                <div key={s.l} className="rounded-lg border border-border p-2.5">
+                  <div className="text-[9px] uppercase text-muted-foreground tracking-wider">{s.l}</div>
+                  <div className="text-base font-bold mt-0.5">{s.v}</div>
+                  <div className="text-[9px] text-success flex items-center gap-0.5"><TrendingUp className="w-2.5 h-2.5" />{s.d}</div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Card 2 — Analytics */}
-      <div className="absolute top-12 right-0 w-[48%] rounded-2xl bg-card/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_-20px_rgba(80,40,180,0.35)] p-4 rotate-[3deg]">
-        <div className="flex items-center gap-2 mb-3">
-          <BarChart3 className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold">Reply rate</span>
-        </div>
-        <div className="text-2xl font-bold">38.2%</div>
-        <div className="text-[10px] text-success mb-2">↑ 12% vs last week</div>
-        <div className="flex items-end gap-1 h-12">
-          {[40, 65, 50, 80, 70, 95, 88].map((h, i) => (
-            <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-primary to-fuchsia-400" style={{ height: `${h}%` }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Card 3 — Send confirmation */}
-      <div className="absolute bottom-4 left-12 w-[55%] rounded-2xl bg-card/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_-20px_rgba(80,40,180,0.35)] p-4 rotate-[-2deg]">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-full bg-success/15 flex items-center justify-center">
-            <CheckCircle2 className="w-4 h-4 text-success" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold">Campaign live</div>
-            <div className="text-[10px] text-muted-foreground">Q4 outbound · 1,240 leads</div>
+          {/* Right inbox panel */}
+          <div className="col-span-3 bg-muted/10">
+            <div className="px-3 py-2.5 border-b border-border flex items-center gap-1.5">
+              <Inbox className="w-3 h-3 text-primary" />
+              <span className="text-[10px] font-bold">Replies</span>
+              <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground">5</span>
+            </div>
+            {[
+              { n: "Sarah Chen", t: "Yes, let's chat Thursday", c: "from-primary to-fuchsia-500" },
+              { n: "Marcus Webb", t: "Send the deck", c: "from-fuchsia-500 to-warning" },
+              { n: "Priya Patel", t: "Interested — more info?", c: "from-success to-primary" },
+              { n: "David Park", t: "Pricing question", c: "from-warning to-destructive" },
+            ].map((m, i) => (
+              <div key={i} className="px-3 py-2 border-b border-border/60 last:border-0 flex items-start gap-2">
+                <div className={`w-5 h-5 shrink-0 rounded-full bg-gradient-to-br ${m.c}`} />
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold truncate">{m.n}</div>
+                  <div className="text-[9px] text-muted-foreground truncate">{m.t}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="flex gap-3 mt-2 text-[10px]">
-          <div className="flex items-center gap-1"><Send className="w-3 h-3 text-primary" /> 8 mailboxes</div>
-          <div className="flex items-center gap-1"><Users className="w-3 h-3 text-primary" /> Personalized</div>
-          <div className="flex items-center gap-1"><Mail className="w-3 h-3 text-primary" /> 3 steps</div>
+      </div>
+
+      {/* Floating reply pill */}
+      <div className="absolute -bottom-4 -left-4 hidden sm:flex items-center gap-2 rounded-full bg-card border border-border shadow-xl px-3 py-2">
+        <div className="w-7 h-7 rounded-full bg-success/15 flex items-center justify-center">
+          <CheckCircle2 className="w-4 h-4 text-success" />
         </div>
+        <div>
+          <div className="text-[10px] font-semibold">New reply · Helios</div>
+          <div className="text-[9px] text-muted-foreground">Booked: 30 min · Thursday</div>
+        </div>
+      </div>
+
+      {/* Floating AI badge */}
+      <div className="absolute -top-3 -right-3 hidden sm:flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-fuchsia-500 text-primary-foreground shadow-xl px-3 py-1.5">
+        <Sparkles className="w-3.5 h-3.5" />
+        <span className="text-[11px] font-bold">AI Copilot</span>
       </div>
     </div>
   );
