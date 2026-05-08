@@ -33,44 +33,67 @@ function Landing() {
   return (
     <MarketingLayout>
       {/* ─────────── HERO ─────────── */}
-      <section className="relative max-w-6xl mx-auto px-6 pt-12 md:pt-20 pb-20 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card text-xs font-medium mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-            <span className="text-muted-foreground">Now in public beta</span>
+      <section className="relative max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-24 grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center">
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full surface-1 text-[11px] font-mono uppercase tracking-widest mb-7">
+            <span className="relative flex w-1.5 h-1.5">
+              <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
+              <span className="relative w-1.5 h-1.5 rounded-full bg-success" />
+            </span>
+            <span className="text-muted-foreground">v2.0 · public beta</span>
+            <span className="text-border">·</span>
+            <span className="text-foreground/80">12M+ sends / mo</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
-            Cold email infrastructure that <span className="text-primary">delivers.</span>
+
+          <h1 className="text-display">
+            Cold email<br />
+            infrastructure<br />
+            that <span className="text-gradient">delivers.</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">
-            Unlimited inboxes. Automatic warmup. AI sequences. One inbox for every reply. Built for the operators who send for a living.
+
+          <p className="mt-7 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
+            Unlimited inboxes. Automatic warmup. AI sequences. One feed for every reply. Built for operators who send for a living — not marketers who play at it.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="rounded-full text-base h-12 px-6" onClick={() => navigate({ to: "/login" })}>
-              Start free <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
+
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Button size="lg" className="rounded-full text-base h-12 px-7 shadow-glow group" onClick={() => navigate({ to: "/login" })}>
+              Start free <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
             </Button>
-            <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-6" asChild>
-              <a href="#playbook">Get the free playbook</a>
+            <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-7 surface-1" asChild>
+              <a href="#playbook"><Download className="w-4 h-4 mr-1.5" /> Free playbook</a>
             </Button>
           </div>
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> No credit card</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Unlimited mailboxes</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Free warmup forever</span>
           </div>
         </div>
-        <HeroVisual />
+        <div className="relative float-slow"><HeroVisual /></div>
       </section>
 
-      {/* ─────────── LOGO BAR ─────────── */}
-      <section className="max-w-5xl mx-auto px-6 pb-20 border-y border-border/60 py-10">
-        <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground mb-6">Built by operators. Used by teams sending</p>
-        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
-          {["Northwind", "Acme Co", "Helios", "Quanta", "Lumen", "Vertex"].map((b) => (
-            <div key={b} className="text-xl font-bold tracking-tight text-muted-foreground/70 hover:text-foreground transition-colors">{b}</div>
-          ))}
+      {/* ─────────── MARQUEE PROOF BAR ─────────── */}
+      <section className="border-y border-border/60 py-7 bg-card/40 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-6">
+          <p className="text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5 font-mono">Powering outbound for teams that ship</p>
+          <div className="marquee">
+            <div className="marquee-track">
+              {["Northwind", "Acme Co", "Helios", "Quanta", "Lumen", "Vertex", "Atlas", "Forge", "Nimbus", "Orbital"].map((b) => (
+                <div key={b} className="text-2xl font-extrabold tracking-tight text-muted-foreground/50 hover:text-foreground transition-colors whitespace-nowrap">{b}</div>
+              ))}
+            </div>
+            <div className="marquee-track" aria-hidden>
+              {["Northwind", "Acme Co", "Helios", "Quanta", "Lumen", "Vertex", "Atlas", "Forge", "Nimbus", "Orbital"].map((b) => (
+                <div key={b + "2"} className="text-2xl font-extrabold tracking-tight text-muted-foreground/50 whitespace-nowrap">{b}</div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
+      <div className="pt-20" />
+
 
       {/* ─────────── PROBLEM ─────────── */}
       <section className="max-w-5xl mx-auto px-6 pb-20">
