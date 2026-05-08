@@ -691,6 +691,78 @@ export type Database = {
         }
         Relationships: []
       }
+      ghl_contact_map: {
+        Row: {
+          created_at: string
+          ghl_contact_id: string
+          ghl_location_id: string
+          id: string
+          last_synced_at: string
+          lead_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ghl_contact_id: string
+          ghl_location_id: string
+          id?: string
+          last_synced_at?: string
+          lead_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ghl_contact_id?: string
+          ghl_location_id?: string
+          id?: string
+          last_synced_at?: string
+          lead_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ghl_sync_log: {
+        Row: {
+          action: string
+          created_at: string
+          direction: string
+          error: string | null
+          ghl_contact_id: string | null
+          http_status: number | null
+          id: string
+          lead_id: string | null
+          payload: Json | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          direction: string
+          error?: string | null
+          ghl_contact_id?: string | null
+          http_status?: number | null
+          id?: string
+          lead_id?: string | null
+          payload?: Json | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          direction?: string
+          error?: string | null
+          ghl_contact_id?: string | null
+          http_status?: number | null
+          id?: string
+          lead_id?: string | null
+          payload?: Json | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       global_blacklist: {
         Row: {
           created_at: string
