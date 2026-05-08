@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { getMyAdminRoles, claimFirstSuperAdmin } from "@/lib/admin.functions";
+import { claimFirstSuperAdmin } from "@/lib/admin.functions";
+import { getMyAdminRoles } from "@/lib/admin-session.functions";
 
 const sections = [
   { to: "/admin", label: "Overview", icon: ShieldCheck, exact: true },
