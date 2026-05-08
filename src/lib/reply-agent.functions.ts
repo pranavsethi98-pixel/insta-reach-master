@@ -82,6 +82,27 @@ export const processInboundReply = createServerFn({ method: "POST" })
     // Update conversation classification
     await supabase.from("conversations").update({ classification, ai_category: classification, ai_confidence: confidence }).eq("id", data.conversationId);
 
+    // GHL: tag the lead's contact based on classification
+    try {
+      const ghlSettings = await getGhlSyncSettings();
+      if (ghlSettings.tag_replies && conv?.lead_id) {
+        const tagMap: Record<string, string[]> = {
+          interested: ["replied", "positive"],
+          meeting_booked: ["replied", "meeting-booked"],
+          objection: ["replied", "objection"],
+          referral: ["replied", "referral"],
+          not_interested: ["replied", "not-interested"],
+          unsubscribe: ["unsubscribed"],
+          out_of_office: ["ooo"],
+          other: ["replied"],
+        };
+        const tags = tagMap[classification] ?? ["replied"];
+        const note = `Reply classified as "${classification}" (${Math.round(confidence * 100)}%):\n\n${(latest.body ?? "").slice(0, 500)}`;
+        await tagLeadContact({ userId, leadId: conv.lead_id, tags, note });
+      }
+    } catch (e) { console.error("GHL tag on reply failed", e); }
+
+
     // OOO handling
     if (classification === "out_of_office") {
       const m = latest.body?.match(/back\s+(?:on\s+)?([A-Za-z]+\s+\d{1,2}|\d{4}-\d{2}-\d{2})/i);
