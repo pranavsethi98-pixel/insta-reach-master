@@ -48,9 +48,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="w-60 bg-sidebar text-sidebar-foreground flex flex-col p-4 border-r border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3 mb-6">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary-foreground" />
+            <ArrowRight className="w-4 h-4 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-bold text-lg text-white">EmailSend</span>
+          <span className="font-bold text-lg text-white">EmailSend<span className="text-sidebar-foreground/60 font-normal">.ai</span></span>
         </div>
         <nav className="flex-1 space-y-1">
           {nav.map(({ to, label, icon: Icon }) => {

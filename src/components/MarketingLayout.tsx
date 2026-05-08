@@ -62,9 +62,9 @@ export function MarketingFooter() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Zap className="w-4 h-4 text-primary-foreground" />
+              <ArrowRight className="w-4 h-4 text-primary-foreground" strokeWidth={2.5} />
             </div>
-            <span className="font-bold">EmailSend</span>
+            <span className="font-bold">EmailSend<span className="text-muted-foreground font-normal">.ai</span></span>
           </div>
           <p className="text-sm text-muted-foreground">Cold outreach that lands in inboxes — and gets replies.</p>
           <div className="flex gap-3 mt-4 text-muted-foreground">
