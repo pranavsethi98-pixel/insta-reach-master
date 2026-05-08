@@ -38,6 +38,7 @@ function LoginPage() {
   const [businessType, setBusinessType] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState<null | "email" | "google" | "resend">(null);
+  const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -47,37 +48,71 @@ function LoginPage() {
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (loading) return;
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !password) {
+      setMessage({ type: "error", text: "Enter your email and password first." });
+      return;
+    }
+    if (mode === "signup") {
+      if (!fullName.trim() || !businessName.trim() || !phone.trim()) {
+        setMessage({ type: "error", text: "Fill in your name, business, and phone first." });
+        return;
+      }
+      if (!businessType) {
+        setMessage({ type: "error", text: "Select your business type first." });
+        return;
+      }
+      if (password.length < 6) {
+        setMessage({ type: "error", text: "Password must be at least 6 characters." });
+        return;
+      }
+    }
+
+    setMessage(null);
     setLoading("email");
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
         if (error) throw error;
         navigate({ to: "/dashboard" });
       } else {
-        if (!businessType) throw new Error("Please select your business type");
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email: cleanEmail,
+          password,
           options: {
             emailRedirectTo: window.location.origin + "/onboarding",
             data: {
-              full_name: fullName,
-              business_name: businessName,
+              full_name: fullName.trim(),
+              business_name: businessName.trim(),
               business_type: businessType,
-              phone,
+              phone: phone.trim(),
             },
           },
         });
         if (error) throw error;
-        toast.success("We sent a verification email to " + email);
+        const sentMessage = "We sent a verification email to " + cleanEmail;
+        setEmail(cleanEmail);
+        setMessage({ type: "success", text: sentMessage });
+        toast.success(sentMessage);
         setStep("verifyEmail");
       }
     } catch (err: any) {
       const msg = err?.message || "Something went wrong";
       const reasons = err?.weak_password?.reasons?.join(", ");
-      toast.error(reasons ? `${msg} (${reasons})` : msg, { duration: 8000 });
+      const text = reasons ? `${msg} (${reasons})` : msg;
+      setMessage({ type: "error", text });
+      toast.error(text, { duration: 8000 });
     } finally {
       setLoading(null);
     }
+  };
+
+  const switchMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    setStep("form");
+    setMessage(null);
   };
 
   const resendVerificationEmail = async () => {
@@ -94,9 +129,15 @@ function LoginPage() {
   };
 
   const google = async () => {
+    if (loading) return;
+    setMessage(null);
     setLoading("google");
     const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) { toast.error("Google sign-in failed"); setLoading(null); }
+    if (r.error) {
+      setMessage({ type: "error", text: "Google sign-in failed. Try email/password instead." });
+      toast.error("Google sign-in failed");
+      setLoading(null);
+    }
   };
 
   return (
@@ -121,6 +162,24 @@ function LoginPage() {
               <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3 flex items-center gap-2">
                 <span className="w-6 h-px bg-primary" />
                 {mode === "signin" ? "Sign in" : "Create account"}
+              </div>
+              <div className="mt-6 grid grid-cols-2 rounded-lg border border-border bg-card/40 p-1">
+                <button
+                  type="button"
+                  onClick={() => switchMode("signin")}
+                  aria-pressed={mode === "signin"}
+                  className={`h-10 rounded-md text-sm font-medium transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode("signup")}
+                  aria-pressed={mode === "signup"}
+                  className={`h-10 rounded-md text-sm font-medium transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Sign up
+                </button>
               </div>
               <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
                 {mode === "signin"
@@ -154,6 +213,12 @@ function LoginPage() {
                 </div>
               </div>
 
+              {message && (
+                <div className={`rounded-lg border px-3 py-2 text-sm ${message.type === "error" ? "border-destructive/50 bg-destructive/10 text-destructive" : "border-success/50 bg-success/10 text-success"}`}>
+                  {message.text}
+                </div>
+              )}
+
               {step === "verifyEmail" ? (
                 <div className="space-y-3">
                   <div className="rounded-lg border border-border bg-card/40 px-4 py-4">
@@ -164,7 +229,7 @@ function LoginPage() {
                       Click the verification link sent to <span className="font-mono text-foreground">{email}</span>. After verifying, you'll be sent to onboarding.
                     </p>
                   </div>
-                  <Button type="button" onClick={() => setMode("signin")} className="w-full h-11 group">
+                  <Button type="button" onClick={() => switchMode("signin")} className="w-full h-11 group">
                     Sign in after verifying<ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -248,7 +313,8 @@ function LoginPage() {
               {step === "form" && (
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                   <button
-                    onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                    type="button"
+                    onClick={() => switchMode(mode === "signin" ? "signup" : "signin")}
                     className="hover:text-foreground transition"
                   >
                     {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
