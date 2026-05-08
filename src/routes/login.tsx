@@ -241,49 +241,6 @@ function LoginPage() {
                 </div>
               ) : (
                 <form onSubmit={submit} className="space-y-3">
-                  {mode === "signup" && (
-                    <>
-                      <FieldIcon icon={<User className="w-4 h-4" />}>
-                        <Input
-                          type="text" autoComplete="name" required
-                          value={fullName} onChange={(e) => setFullName(e.target.value)}
-                          placeholder="Your full name"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                      <FieldIcon icon={<Building2 className="w-4 h-4" />}>
-                        <Input
-                          type="text" autoComplete="organization" required
-                          value={businessName} onChange={(e) => setBusinessName(e.target.value)}
-                          placeholder="Business name"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                      <div className="flex items-center gap-3 px-3 rounded-lg border border-border bg-card/40 focus-within:border-primary transition">
-                        <span className="text-muted-foreground"><Briefcase className="w-4 h-4" /></span>
-                        <div className="flex-1">
-                          <Select value={businessType} onValueChange={setBusinessType}>
-                            <SelectTrigger className="h-11 border-0 bg-transparent focus:ring-0 pl-0 shadow-none">
-                              <SelectValue placeholder="Business type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {BUSINESS_TYPES.map((b) => (
-                                <SelectItem key={b.v} value={b.v}>{b.l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <FieldIcon icon={<Phone className="w-4 h-4" />}>
-                        <Input
-                          type="tel" autoComplete="tel" required
-                          value={phone} onChange={(e) => setPhone(e.target.value)}
-                          placeholder="Phone (e.g. +1 555 123 4567)"
-                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                        />
-                      </FieldIcon>
-                    </>
-                  )}
                   <FieldIcon icon={<Mail className="w-4 h-4" />}>
                     <Input
                       type="email" autoComplete="email" required
