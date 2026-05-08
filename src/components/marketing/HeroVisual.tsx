@@ -5,7 +5,7 @@ export function HeroVisual() {
   return (
     <div className="relative w-full max-w-[680px] mx-auto">
       {/* Glow */}
-      <div className="absolute -inset-10 bg-gradient-to-tr from-primary/30 via-fuchsia-500/20 to-transparent blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -inset-10 bg-gradient-to-tr from-primary/20 via-primary/10 to-transparent blur-3xl rounded-full pointer-events-none" />
 
       {/* Browser frame */}
       <div className="relative rounded-2xl bg-card border border-border shadow-[0_30px_80px_-30px_rgba(80,40,180,0.45)] overflow-hidden">
@@ -51,7 +51,7 @@ export function HeroVisual() {
             {/* Mini chart */}
             <div className="flex items-end gap-1.5 h-20 mb-4">
               {[35, 55, 42, 70, 60, 85, 78, 92, 80, 95].map((h, i) => (
-                <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-primary/60 to-fuchsia-500" style={{ height: `${h}%` }} />
+                <div key={i} className="flex-1 rounded-t bg-primary" style={{ height: `${h}%` }} />
               ))}
             </div>
 
@@ -78,10 +78,10 @@ export function HeroVisual() {
               <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground">5</span>
             </div>
             {[
-              { n: "Sarah Chen", t: "Yes, let's chat Thursday", c: "from-primary to-fuchsia-500" },
-              { n: "Marcus Webb", t: "Send the deck", c: "from-fuchsia-500 to-warning" },
-              { n: "Priya Patel", t: "Interested — more info?", c: "from-success to-primary" },
-              { n: "David Park", t: "Pricing question", c: "from-warning to-destructive" },
+              { n: "Sarah Chen", t: "Yes, let's chat Thursday", c: "from-primary to-primary" },
+              { n: "Marcus Webb", t: "Send the deck", c: "from-primary to-primary" },
+              { n: "Priya Patel", t: "Interested — more info?", c: "from-primary to-primary" },
+              { n: "David Park", t: "Pricing question", c: "from-primary to-primary" },
             ].map((m, i) => (
               <div key={i} className="px-3 py-2 border-b border-border/60 last:border-0 flex items-start gap-2">
                 <div className={`w-5 h-5 shrink-0 rounded-full bg-gradient-to-br ${m.c}`} />
@@ -107,7 +107,7 @@ export function HeroVisual() {
       </div>
 
       {/* Floating AI badge */}
-      <div className="absolute -top-3 -right-3 hidden sm:flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-fuchsia-500 text-primary-foreground shadow-xl px-3 py-1.5">
+      <div className="absolute -top-3 -right-3 hidden sm:flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground shadow-xl px-3 py-1.5">
         <Sparkles className="w-3.5 h-3.5" />
         <span className="text-[11px] font-bold">AI Copilot</span>
       </div>

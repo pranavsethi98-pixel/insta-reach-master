@@ -18,7 +18,7 @@ function AboutPage() {
     <MarketingLayout>
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-24">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-8">
-          Built for teams that <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">actually send.</span>
+          Built for teams that <span className="text-primary">actually send.</span>
         </h1>
         <div className="prose prose-lg max-w-none text-muted-foreground space-y-5">
           <p>

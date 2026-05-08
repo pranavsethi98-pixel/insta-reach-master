@@ -20,13 +20,13 @@ export function MailboxRotationVisual() {
       <div className="divide-y divide-border">
         {mailboxes.map((m) => (
           <div key={m.email} className="px-5 py-3 flex items-center gap-3 hover:bg-muted/20">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 flex items-center justify-center text-primary-foreground text-xs font-bold">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
               {m.email[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate">{m.email}</div>
               <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-fuchsia-500" style={{ width: `${(m.sent / m.cap) * 100}%` }} />
+                <div className="h-full bg-primary" style={{ width: `${(m.sent / m.cap) * 100}%` }} />
               </div>
             </div>
             <div className="text-right">
@@ -95,7 +95,7 @@ export function InboxVisual() {
       </div>
       {threads.map((t, i) => (
         <div key={i} className={`px-5 py-3 border-b border-border last:border-0 flex items-start gap-3 ${t.unread ? "bg-primary/5" : ""}`}>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-fuchsia-500 flex items-center justify-center text-primary-foreground text-xs font-bold">
+          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
             {t.name.split(" ").map(n => n[0]).join("")}
           </div>
           <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export function InboxVisual() {
 export function PipelineVisual() {
   const cols = [
     { title: "Replied", count: 24, color: "bg-primary", deals: [{ n: "Helios", v: "$12k" }, { n: "Quanta", v: "$8k" }] },
-    { title: "Meeting", count: 11, color: "bg-fuchsia-500", deals: [{ n: "Northwind", v: "$24k" }] },
+    { title: "Meeting", count: 11, color: "bg-primary", deals: [{ n: "Northwind", v: "$24k" }] },
     { title: "Won", count: 6, color: "bg-success", deals: [{ n: "Lumen", v: "$32k" }] },
   ];
   return (
