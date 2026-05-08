@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState, useCallback, type ReactNode } from "react
 import { AnimatePresence, motion } from "framer-motion";
 import { RequireAuth } from "@/components/AuthGate";
 import { supabase } from "@/integrations/supabase/client";
+import { testSmtpCredentials } from "@/lib/test-smtp.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,8 +60,22 @@ function Wizard() {
   const [body, setBody] = useState("Hi {{first_name}},\n\nNoticed {{company}} and wanted to reach out…\n\nWorth a quick chat?\n\n— Me");
   const [saving, setSaving] = useState(false);
 
+  const testSmtp = useServerFn(testSmtpCredentials);
+
   const saveMailbox = useCallback(async () => {
     const preset = SMTP_PRESETS[provider];
+    // Verify SMTP credentials BEFORE saving the mailbox.
+    try {
+      await testSmtp({ data: {
+        smtp_host: preset.host,
+        smtp_port: preset.port,
+        smtp_secure: preset.secure,
+        smtp_username: fromEmail,
+        smtp_password: smtpPassword,
+      }});
+    } catch (e: any) {
+      throw new Error(e?.message || "Could not connect — check your app password and try again.");
+    }
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("mailboxes").insert({
       user_id: u.user!.id,
@@ -72,7 +88,7 @@ function Wizard() {
     } as any);
     if (error) throw error;
     toast.success("Mailbox connected");
-  }, [provider, fromName, fromEmail, smtpPassword]);
+  }, [provider, fromName, fromEmail, smtpPassword, testSmtp]);
 
   const importLeads = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();

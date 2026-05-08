@@ -15,6 +15,7 @@ import { Plus, Trash2, Mail, Settings, ShieldCheck, Send } from "lucide-react";
 import { toast } from "sonner";
 import { scoreMailbox } from "@/lib/deliverability";
 import { sendTestEmail } from "@/lib/test-send.functions";
+import { testSmtpCredentials } from "@/lib/test-smtp.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { BulkImportMailboxes } from "@/components/BulkImportMailboxes";
 
@@ -174,6 +175,9 @@ function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
 function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [preset, setPreset] = useState<string>("Gmail");
+  const [testing, setTesting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const testSmtp = useServerFn(testSmtpCredentials);
   const [form, setForm] = useState({
     label: "", from_name: "", from_email: "",
     smtp_host: PRESETS.Gmail.smtp_host, smtp_port: 587, smtp_secure: false,
@@ -191,20 +195,39 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
   };
 
   const save = async () => {
+    setError(null);
     if (!form.label || !form.from_email || !form.smtp_username || !form.smtp_password) {
-      return toast.error("Fill in all required fields");
+      setError("Fill in all required fields.");
+      return;
+    }
+    setTesting(true);
+    try {
+      await testSmtp({ data: {
+        smtp_host: form.smtp_host,
+        smtp_port: form.smtp_port,
+        smtp_secure: form.smtp_secure,
+        smtp_username: form.smtp_username,
+        smtp_password: form.smtp_password,
+      }});
+    } catch (e: any) {
+      const msg = e?.message || "Could not connect — check your app password and try again.";
+      setError(msg);
+      toast.error(msg);
+      setTesting(false);
+      return;
     }
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) { setTesting(false); return; }
     const payload = {
       ...form,
       imap_username: form.imap_username || form.smtp_username,
       imap_password: form.imap_password || form.smtp_password,
       user_id: user.id,
     };
-    const { error } = await supabase.from("mailboxes").insert(payload);
-    if (error) return toast.error(error.message);
-    toast.success("Mailbox added");
+    const { error: insertErr } = await supabase.from("mailboxes").insert(payload);
+    setTesting(false);
+    if (insertErr) { setError(insertErr.message); return toast.error(insertErr.message); }
+    toast.success("Mailbox connected");
     setOpen(false);
     onCreated();
   };
@@ -264,7 +287,16 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
             </div>
           </TabsContent>
         </Tabs>
-        <DialogFooter><Button onClick={save}>Save mailbox</Button></DialogFooter>
+        {error && (
+          <div className="rounded-md border border-destructive/50 bg-destructive/10 text-destructive text-sm px-3 py-2">
+            {error}
+          </div>
+        )}
+        <DialogFooter>
+          <Button onClick={save} disabled={testing}>
+            {testing ? "Testing connection…" : "Test & save mailbox"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
