@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState, useCallback, type ReactNode } from "react
 import { AnimatePresence, motion } from "framer-motion";
 import { RequireAuth } from "@/components/AuthGate";
 import { supabase } from "@/integrations/supabase/client";
+import { testSmtpCredentials } from "@/lib/test-smtp.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
