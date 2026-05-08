@@ -128,18 +128,21 @@ function Landing() {
 
       {/* ─────────── STATS ─────────── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="grid md:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden">
-          {[
-            { n: "12M+", l: "Emails sent monthly" },
-            { n: "38%", l: "Avg reply rate" },
-            { n: "99.2%", l: "Inbox placement" },
-            { n: "< 5 min", l: "Time to first send" },
-          ].map((s) => (
-            <div key={s.l} className="bg-card p-8 text-center">
-              <div className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">{s.n}</div>
-              <div className="mt-2 text-sm text-muted-foreground">{s.l}</div>
-            </div>
-          ))}
+        <div className="relative rounded-3xl surface-1 p-1 shadow-soft overflow-hidden">
+          <div className="absolute inset-0 bg-dots opacity-30 pointer-events-none" />
+          <div className="relative grid md:grid-cols-4 gap-px bg-border/60 rounded-[22px] overflow-hidden">
+            {[
+              { n: "12M+", l: "Emails sent / month" },
+              { n: "38%", l: "Avg reply rate" },
+              { n: "99.2%", l: "Inbox placement" },
+              { n: "< 5 min", l: "Time to first send" },
+            ].map((s) => (
+              <div key={s.l} className="bg-card/90 backdrop-blur p-9 text-center">
+                <div className="text-5xl md:text-6xl font-extrabold tracking-tight text-gradient">{s.n}</div>
+                <div className="mt-3 text-xs uppercase tracking-widest text-muted-foreground font-mono">{s.l}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
