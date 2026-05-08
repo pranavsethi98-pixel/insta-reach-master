@@ -4,6 +4,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 type Role = "super_admin" | "billing_admin" | "support_admin" | "read_only_admin";
+const SUPER_ADMIN_EMAIL = "pranav@insanex.io";
+
+async function getUserEmail(userId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  return data?.email?.toLowerCase() ?? null;
+}
+
+async function assertSuperAdminEmail(userId: string) {
+  const email = await getUserEmail(userId);
+  if (email !== SUPER_ADMIN_EMAIL) {
+    throw new Error("Super admin is restricted to pranav@insanex.io");
+  }
+}
 
 async function requireRole(userId: string, allowed: Role[]): Promise<Role[]> {
   const { data, error } = await supabaseAdmin
@@ -11,7 +28,10 @@ async function requireRole(userId: string, allowed: Role[]): Promise<Role[]> {
     .select("role")
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
-  const roles = (data ?? []).map((r) => r.role as Role);
+  const email = await getUserEmail(userId);
+  const roles = (data ?? [])
+    .map((r) => r.role as Role)
+    .filter((role) => role !== "super_admin" || email === SUPER_ADMIN_EMAIL);
   if (!roles.some((r) => allowed.includes(r))) {
     throw new Error("Forbidden: insufficient role");
   }
@@ -47,7 +67,11 @@ export const getMyAdminRoles = createServerFn({ method: "GET" })
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId);
-    return { roles: (data ?? []).map((r) => r.role as Role) };
+    const email = await getUserEmail(context.userId);
+    const roles = (data ?? [])
+      .map((r) => r.role as Role)
+      .filter((role) => role !== "super_admin" || email === SUPER_ADMIN_EMAIL);
+    return { roles, canClaimSuperAdmin: email === SUPER_ADMIN_EMAIL };
   });
 
 // ---------- platform overview ----------
@@ -225,6 +249,7 @@ export const grantRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: z.enum(["super_admin","billing_admin","support_admin","read_only_admin"]) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
+    if (data.role === "super_admin") await assertSuperAdminEmail(data.userId);
     const { error } = await supabaseAdmin.from("user_roles").upsert({
       user_id: data.userId, role: data.role, granted_by: context.userId,
     });
@@ -250,6 +275,9 @@ export const inviteAdmin = createServerFn({ method: "POST" })
     z.object({ email: z.string().email(), role: z.enum(["super_admin","billing_admin","support_admin","read_only_admin"]) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
+    if (data.role === "super_admin" && data.email.toLowerCase() !== SUPER_ADMIN_EMAIL) {
+      throw new Error("Super admin is restricted to pranav@insanex.io");
+    }
     const { data: inv, error } = await supabaseAdmin
       .from("admin_invites")
       .insert({ email: data.email, role: data.role, invited_by: context.userId })
@@ -278,6 +306,7 @@ export const acceptAdminInvite = createServerFn({ method: "POST" })
     if (!user || user.email?.toLowerCase() !== inv.email.toLowerCase()) {
       throw new Error("Invite is for a different email");
     }
+    if (inv.role === "super_admin") await assertSuperAdminEmail(context.userId);
     await supabaseAdmin.from("user_roles").upsert({ user_id: context.userId, role: inv.role, granted_by: inv.invited_by });
     await supabaseAdmin.from("admin_invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
     return { ok: true, role: inv.role };
@@ -731,12 +760,17 @@ export const viewAsUser = createServerFn({ method: "GET" })
 export const claimFirstSuperAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertSuperAdminEmail(context.userId);
     const { count } = await supabaseAdmin
       .from("user_roles").select("id", { count: "exact", head: true }).eq("role", "super_admin");
-    if ((count ?? 0) > 0) throw new Error("A super admin already exists");
-    await supabaseAdmin.from("user_roles").insert({
+    if ((count ?? 0) > 0) {
+      const roles = await requireRole(context.userId, SUPER);
+      return { ok: true, roles };
+    }
+    const { error } = await supabaseAdmin.from("user_roles").insert({
       user_id: context.userId, role: "super_admin", granted_by: context.userId,
     });
+    if (error) throw new Error(error.message);
     await audit(context.userId, "admin.bootstrap_super");
     return { ok: true };
   });
