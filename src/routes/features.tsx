@@ -36,7 +36,7 @@ function FeaturesPage() {
     <MarketingLayout>
       <section className="max-w-5xl mx-auto px-6 pt-16 pb-12 text-center">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
-          One platform. <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">Every outbound step.</span>
+          One platform. <span className="text-primary">Every outbound step.</span>
         </h1>
         <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
           From the first cold email to the booked demo, EmailSend handles the entire flow without ten different tools duct-taped together.
