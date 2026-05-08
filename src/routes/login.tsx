@@ -170,43 +170,116 @@ function LoginPage() {
                 </div>
               </div>
 
-              <form onSubmit={submit} className="space-y-3">
-                <FieldIcon icon={<Mail className="w-4 h-4" />}>
-                  <Input
-                    type="email" autoComplete="email" required
-                    value={email} onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
-                    className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                  />
-                </FieldIcon>
-                <FieldIcon icon={<Lock className="w-4 h-4" />}>
-                  <Input
-                    type="password" required minLength={6}
-                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                    value={password} onChange={(e) => setPassword(e.target.value)}
-                    placeholder={mode === "signin" ? "Your password" : "Create a strong password"}
-                    className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
-                  />
-                </FieldIcon>
+              {step === "otp" ? (
+                <form onSubmit={verifyOtp} className="space-y-3">
+                  <div className="text-sm text-muted-foreground">
+                    Enter the 6-digit code we emailed to <span className="font-mono text-foreground">{email}</span>
+                  </div>
+                  <FieldIcon icon={<KeyRound className="w-4 h-4" />}>
+                    <Input
+                      inputMode="numeric" autoComplete="one-time-code" required
+                      maxLength={6} pattern="[0-9]{6}"
+                      value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                      placeholder="123456"
+                      className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0 tracking-[0.5em] font-mono text-lg"
+                    />
+                  </FieldIcon>
+                  <Button type="submit" disabled={!!loading || otp.length !== 6} className="w-full h-11 group">
+                    {loading === "otp"
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : <>Verify & continue<ArrowRight className="w-4 h-4 ml-2" /></>}
+                  </Button>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <button type="button" onClick={() => setStep("form")} className="hover:text-foreground">← back</button>
+                    <button type="button" onClick={resendOtp} disabled={!!loading} className="hover:text-foreground">
+                      {loading === "resend" ? "sending…" : "resend code"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={submit} className="space-y-3">
+                  {mode === "signup" && (
+                    <>
+                      <FieldIcon icon={<User className="w-4 h-4" />}>
+                        <Input
+                          type="text" autoComplete="name" required
+                          value={fullName} onChange={(e) => setFullName(e.target.value)}
+                          placeholder="Your full name"
+                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                        />
+                      </FieldIcon>
+                      <FieldIcon icon={<Building2 className="w-4 h-4" />}>
+                        <Input
+                          type="text" autoComplete="organization" required
+                          value={businessName} onChange={(e) => setBusinessName(e.target.value)}
+                          placeholder="Business name"
+                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                        />
+                      </FieldIcon>
+                      <div className="flex items-center gap-3 px-3 rounded-lg border border-border bg-card/40 focus-within:border-primary transition">
+                        <span className="text-muted-foreground"><Briefcase className="w-4 h-4" /></span>
+                        <div className="flex-1">
+                          <Select value={businessType} onValueChange={setBusinessType}>
+                            <SelectTrigger className="h-11 border-0 bg-transparent focus:ring-0 pl-0 shadow-none">
+                              <SelectValue placeholder="Business type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {BUSINESS_TYPES.map((b) => (
+                                <SelectItem key={b.v} value={b.v}>{b.l}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <FieldIcon icon={<Phone className="w-4 h-4" />}>
+                        <Input
+                          type="tel" autoComplete="tel" required
+                          value={phone} onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Phone (e.g. +1 555 123 4567)"
+                          className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                        />
+                      </FieldIcon>
+                    </>
+                  )}
+                  <FieldIcon icon={<Mail className="w-4 h-4" />}>
+                    <Input
+                      type="email" autoComplete="email" required
+                      value={email} onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@company.com"
+                      className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                    />
+                  </FieldIcon>
+                  <FieldIcon icon={<Lock className="w-4 h-4" />}>
+                    <Input
+                      type="password" required minLength={6}
+                      autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                      value={password} onChange={(e) => setPassword(e.target.value)}
+                      placeholder={mode === "signin" ? "Your password" : "Create a strong password (6+ chars)"}
+                      className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                    />
+                  </FieldIcon>
 
-                <Button type="submit" disabled={!!loading} className="w-full h-11 group">
-                  {loading === "email"
-                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                    : <>{mode === "signin" ? "Sign in" : "Create account"}<ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" /></>}
-                </Button>
-              </form>
+                  <Button type="submit" disabled={!!loading} className="w-full h-11 group">
+                    {loading === "email"
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : <>{mode === "signin" ? "Sign in" : "Send verification code"}<ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" /></>}
+                  </Button>
+                </form>
+              )}
 
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                <button
-                  onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-                  className="hover:text-foreground transition"
-                >
-                  {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
-                </button>
-                {mode === "signin" && (
-                  <span className="font-mono">Forgot? <span className="text-foreground/60">support@emailsend.ai</span></span>
-                )}
-              </div>
+              {step === "form" && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <button
+                    onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                    className="hover:text-foreground transition"
+                  >
+                    {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
+                  </button>
+                  {mode === "signin" && (
+                    <span className="font-mono">Forgot? <span className="text-foreground/60">support@emailsend.ai</span></span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-10 flex items-center gap-2 text-[11px] font-mono text-muted-foreground">
