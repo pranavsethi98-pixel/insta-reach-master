@@ -12,10 +12,10 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
   head: () => ({
     meta: [
-      { title: "Contact — Outreachly" },
-      { name: "description", content: "Talk to the Outreachly team about pricing, features, or partnerships." },
-      { property: "og:title", content: "Contact — Outreachly" },
-      { property: "og:description", content: "Get in touch with the Outreachly team." },
+      { title: "Contact — EmailSend" },
+      { name: "description", content: "Talk to the EmailSend team about pricing, features, or partnerships." },
+      { property: "og:title", content: "Contact — EmailSend" },
+      { property: "og:description", content: "Get in touch with the EmailSend team." },
     ],
   }),
 });
@@ -42,11 +42,11 @@ function ContactPage() {
             Questions about pricing, deliverability, or just want to chat outbound strategy? Drop us a note.
           </p>
           <div className="space-y-4">
-            <a href="mailto:hello@outreachly.app" className="flex items-center gap-3 group">
+            <a href="mailto:hello@emailsend.ai" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><Mail className="w-5 h-5" /></div>
               <div>
                 <div className="text-sm font-medium">Email</div>
-                <div className="text-sm text-muted-foreground group-hover:text-foreground">hello@outreachly.app</div>
+                <div className="text-sm text-muted-foreground group-hover:text-foreground">hello@emailsend.ai</div>
               </div>
             </a>
             <div className="flex items-center gap-3">

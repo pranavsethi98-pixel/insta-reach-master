@@ -5,10 +5,10 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
   head: () => ({
     meta: [
-      { title: "About — Outreachly" },
+      { title: "About — EmailSend" },
       { name: "description", content: "We're building the cold email tool we always wished we had — clean, fast, and built for teams that ship." },
-      { property: "og:title", content: "About — Outreachly" },
-      { property: "og:description", content: "The story behind Outreachly and the team building it." },
+      { property: "og:title", content: "About — EmailSend" },
+      { property: "og:description", content: "The story behind EmailSend and the team building it." },
     ],
   }),
 });
@@ -22,7 +22,7 @@ function AboutPage() {
         </h1>
         <div className="prose prose-lg max-w-none text-muted-foreground space-y-5">
           <p>
-            We started Outreachly because every existing cold email tool felt like it was designed in 2014 and then bolted onto for the next decade. Bloated UIs. Per-mailbox pricing that punished growth. Warmup that quietly made your domain worse.
+            We started EmailSend because every existing cold email tool felt like it was designed in 2014 and then bolted onto for the next decade. Bloated UIs. Per-mailbox pricing that punished growth. Warmup that quietly made your domain worse.
           </p>
           <p>
             So we built the tool we always wanted: clean, fast, and honest. Unlimited mailboxes on every paid plan. Real warmup that actually mimics human conversation. AI that helps you write — not generic spam.

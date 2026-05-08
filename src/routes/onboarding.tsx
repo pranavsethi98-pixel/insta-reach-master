@@ -112,7 +112,7 @@ function Wizard() {
         {step === 0 && (
           <div className="text-center space-y-4">
             <Sparkles className="w-12 h-12 mx-auto text-primary" />
-            <h1 className="text-3xl font-bold">Welcome to Outreachly</h1>
+            <h1 className="text-3xl font-bold">Welcome to EmailSend</h1>
             <p className="text-muted-foreground">We'll get you sending cold emails in under 5 minutes. No fluff.</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 text-left">
               {[{i:Mail,t:"Connect mailbox"},{i:Flame,t:"Auto warmup"},{i:Users,t:"Import leads"},{i:Send,t:"Launch campaign"}].map(({i:Ic,t},k) => (

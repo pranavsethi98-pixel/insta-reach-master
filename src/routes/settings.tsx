@@ -67,7 +67,7 @@ function SettingsPage() {
         <p className="text-sm text-muted-foreground mb-4">
           Replace generic tracking links with your own subdomain (e.g. <code>track.yourbrand.com</code>) to boost
           deliverability. Add the subdomain below, then create a <b>CNAME</b> record at your DNS provider pointing
-          to <code className="bg-muted px-1.5 py-0.5 rounded">track.outreachly.app</code>, and click Verify.
+          to <code className="bg-muted px-1.5 py-0.5 rounded">track.emailsend.ai</code>, and click Verify.
         </p>
         <div className="flex gap-2 mb-4">
           <Input placeholder="track.yourbrand.com" value={domain} onChange={e => setDomain(e.target.value)} />

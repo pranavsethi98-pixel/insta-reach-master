@@ -7,9 +7,9 @@ export const Route = createFileRoute("/features")({
   component: FeaturesPage,
   head: () => ({
     meta: [
-      { title: "Features — Outreachly" },
+      { title: "Features — EmailSend" },
       { name: "description", content: "Unlimited mailboxes, warmup, AI personalization, sequences, deliverability, inbox, pipeline, meetings, and more." },
-      { property: "og:title", content: "Features — Outreachly" },
+      { property: "og:title", content: "Features — EmailSend" },
       { property: "og:description", content: "Everything you need to run cold email outbound — in one clean workspace." },
     ],
   }),
@@ -39,7 +39,7 @@ function FeaturesPage() {
           One platform. <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">Every outbound step.</span>
         </h1>
         <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
-          From the first cold email to the booked demo, Outreachly handles the entire flow without ten different tools duct-taped together.
+          From the first cold email to the booked demo, EmailSend handles the entire flow without ten different tools duct-taped together.
         </p>
       </section>
       <section className="max-w-6xl mx-auto px-6 pb-20 grid md:grid-cols-3 gap-5">

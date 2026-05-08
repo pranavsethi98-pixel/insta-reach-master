@@ -17,7 +17,7 @@ export function HeroVisual() {
             <div className="w-2.5 h-2.5 rounded-full bg-success/70" />
           </div>
           <div className="ml-3 flex-1 max-w-xs mx-auto px-3 py-1 rounded-md bg-background text-[10px] text-muted-foreground text-center font-mono truncate">
-            app.outreachly.io / campaigns / q4-outbound
+            app.emailsend.ai / campaigns / q4-outbound
           </div>
         </div>
 

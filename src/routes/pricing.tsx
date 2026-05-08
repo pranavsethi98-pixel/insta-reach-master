@@ -7,9 +7,9 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
   head: () => ({
     meta: [
-      { title: "Pricing — Outreachly" },
+      { title: "Pricing — EmailSend" },
       { name: "description", content: "Simple, transparent pricing. Start free, upgrade as you scale. No per-mailbox fees." },
-      { property: "og:title", content: "Pricing — Outreachly" },
+      { property: "og:title", content: "Pricing — EmailSend" },
       { property: "og:description", content: "Free to start. Unlimited mailboxes on every paid plan." },
     ],
   }),

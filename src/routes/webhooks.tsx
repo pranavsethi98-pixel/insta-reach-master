@@ -76,7 +76,7 @@ function WebhooksPage() {
             </div>
             <div className="text-xs text-muted-foreground mt-3">
               Signing secret: <code className="bg-muted px-1.5 py-0.5 rounded">{h.secret}</code>
-              {" · "}Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-Outreachly-Signature: sha256=&lt;hex&gt;</code>
+              {" · "}Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-EmailSend-Signature: sha256=&lt;hex&gt;</code>
             </div>
           </Card>
         ))}
@@ -137,7 +137,7 @@ function AddWebhookDialog({ onCreated }: { onCreated: () => void }) {
         <div className="space-y-4">
           <div>
             <Label>Endpoint URL</Label>
-            <Input placeholder="https://yourapp.com/hooks/outreachly" value={url} onChange={e => setUrl(e.target.value)} />
+            <Input placeholder="https://yourapp.com/hooks/emailsend" value={url} onChange={e => setUrl(e.target.value)} />
           </div>
           <div>
             <Label>Events</Label>
