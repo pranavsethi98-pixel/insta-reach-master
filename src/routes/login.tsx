@@ -5,8 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Briefcase, Building2, CheckCircle2, Loader2, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -15,17 +14,6 @@ export const Route = createFileRoute("/login")({
 
 type Mode = "signin" | "signup";
 type Step = "form" | "verifyEmail";
-
-const BUSINESS_TYPES = [
-  { v: "agency", l: "Agency" },
-  { v: "freelancer", l: "Freelancer / Solo" },
-  { v: "saas", l: "SaaS / Software" },
-  { v: "ecommerce", l: "E-commerce" },
-  { v: "consultant", l: "Consultant / Coach" },
-  { v: "recruiter", l: "Recruiter" },
-  { v: "sales_team", l: "In-house Sales Team" },
-  { v: "other", l: "Other" },
-];
 
 function LoginPage() {
   const navigate = useNavigate();
