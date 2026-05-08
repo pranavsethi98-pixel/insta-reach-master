@@ -42,6 +42,9 @@ import { Route as R47TemplatesRouteImport } from './routes/47-templates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as VsSmartleadRouteImport } from './routes/vs.smartlead'
+import { Route as VsLemlistRouteImport } from './routes/vs.lemlist'
+import { Route as VsInstantlyRouteImport } from './routes/vs.instantly'
 import { Route as UnsubscribeLeadIdRouteImport } from './routes/unsubscribe.$leadId'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
@@ -237,6 +240,21 @@ const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VsSmartleadRoute = VsSmartleadRouteImport.update({
+  id: '/vs/smartlead',
+  path: '/vs/smartlead',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VsLemlistRoute = VsLemlistRouteImport.update({
+  id: '/vs/lemlist',
+  path: '/vs/lemlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VsInstantlyRoute = VsInstantlyRouteImport.update({
+  id: '/vs/instantly',
+  path: '/vs/instantly',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnsubscribeLeadIdRoute = UnsubscribeLeadIdRouteImport.update({
@@ -450,6 +468,9 @@ export interface FileRoutesByFullPath {
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/vs/instantly': typeof VsInstantlyRoute
+  '/vs/lemlist': typeof VsLemlistRoute
+  '/vs/smartlead': typeof VsSmartleadRoute
   '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -516,6 +537,9 @@ export interface FileRoutesByTo {
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/vs/instantly': typeof VsInstantlyRoute
+  '/vs/lemlist': typeof VsLemlistRoute
+  '/vs/smartlead': typeof VsSmartleadRoute
   '/admin': typeof AdminIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -583,6 +607,9 @@ export interface FileRoutesById {
   '/campaigns/$id': typeof CampaignsIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/unsubscribe/$leadId': typeof UnsubscribeLeadIdRoute
+  '/vs/instantly': typeof VsInstantlyRoute
+  '/vs/lemlist': typeof VsLemlistRoute
+  '/vs/smartlead': typeof VsSmartleadRoute
   '/admin/': typeof AdminIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -651,6 +678,9 @@ export interface FileRouteTypes {
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/vs/instantly'
+    | '/vs/lemlist'
+    | '/vs/smartlead'
     | '/admin/'
     | '/campaigns/'
     | '/admin/users/$userId'
@@ -717,6 +747,9 @@ export interface FileRouteTypes {
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/vs/instantly'
+    | '/vs/lemlist'
+    | '/vs/smartlead'
     | '/admin'
     | '/campaigns'
     | '/admin/users/$userId'
@@ -783,6 +816,9 @@ export interface FileRouteTypes {
     | '/campaigns/$id'
     | '/invite/$token'
     | '/unsubscribe/$leadId'
+    | '/vs/instantly'
+    | '/vs/lemlist'
+    | '/vs/smartlead'
     | '/admin/'
     | '/campaigns/'
     | '/admin/users/$userId'
@@ -850,6 +886,9 @@ export interface RootRouteChildren {
   CampaignsIdRoute: typeof CampaignsIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
   UnsubscribeLeadIdRoute: typeof UnsubscribeLeadIdRoute
+  VsInstantlyRoute: typeof VsInstantlyRoute
+  VsLemlistRoute: typeof VsLemlistRoute
+  VsSmartleadRoute: typeof VsSmartleadRoute
   AdminIndexRoute: typeof AdminIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   AdminViewAsUserIdRoute: typeof AdminViewAsUserIdRoute
@@ -1095,6 +1134,27 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vs/smartlead': {
+      id: '/vs/smartlead'
+      path: '/vs/smartlead'
+      fullPath: '/vs/smartlead'
+      preLoaderRoute: typeof VsSmartleadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vs/lemlist': {
+      id: '/vs/lemlist'
+      path: '/vs/lemlist'
+      fullPath: '/vs/lemlist'
+      preLoaderRoute: typeof VsLemlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vs/instantly': {
+      id: '/vs/instantly'
+      path: '/vs/instantly'
+      fullPath: '/vs/instantly'
+      preLoaderRoute: typeof VsInstantlyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unsubscribe/$leadId': {
@@ -1381,6 +1441,9 @@ const rootRouteChildren: RootRouteChildren = {
   CampaignsIdRoute: CampaignsIdRoute,
   InviteTokenRoute: InviteTokenRoute,
   UnsubscribeLeadIdRoute: UnsubscribeLeadIdRoute,
+  VsInstantlyRoute: VsInstantlyRoute,
+  VsLemlistRoute: VsLemlistRoute,
+  VsSmartleadRoute: VsSmartleadRoute,
   AdminIndexRoute: AdminIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   AdminViewAsUserIdRoute: AdminViewAsUserIdRoute,
