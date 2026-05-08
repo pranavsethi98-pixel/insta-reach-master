@@ -1,20 +1,23 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Flame, Shield, CheckCircle2, Star, Zap, Globe, Webhook, Calendar, Users, Quote } from "lucide-react";
+import { ArrowRight, Flame, Shield, CheckCircle2, X, Globe, Webhook, Calendar, Users, Quote, Download, Lock, Zap, Target, Inbox, Bot, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MarketingLayout } from "@/components/MarketingLayout";
 import { HeroVisual } from "@/components/marketing/HeroVisual";
 import { MailboxRotationVisual, SequenceVisual, InboxVisual, PipelineVisual, AnalyticsVisual, AIComposeVisual } from "@/components/marketing/FeatureShowcase";
+import { captureLead } from "@/lib/marketing-leads.functions";
 
 export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "EmailSend — Cold email outreach that lands in inboxes" },
-      { name: "description", content: "Send cold email at scale across unlimited mailboxes. Built-in warmup, AI personalization, and reply detection. The modern alternative to Instantly." },
-      { property: "og:title", content: "EmailSend — Cold email outreach that lands in inboxes" },
-      { property: "og:description", content: "Unlimited mailboxes, AI personalization, warmup, and reply detection — in one clean workspace." },
+      { title: "EmailSend.ai — Cold email infrastructure that delivers" },
+      { name: "description", content: "Unlimited inboxes, automatic warmup, AI-personalized sequences, and a unified reply inbox. Built for agencies and outbound teams that send for a living." },
+      { property: "og:title", content: "EmailSend.ai — Cold email infrastructure that delivers" },
+      { property: "og:description", content: "Unlimited inboxes, automatic warmup, AI sequences, unified reply inbox. The infrastructure cold outbound teams actually need." },
     ],
   }),
 });
@@ -29,52 +32,39 @@ function Landing() {
 
   return (
     <MarketingLayout>
-      {/* Hero */}
+      {/* ─────────── HERO ─────────── */}
       <section className="relative max-w-6xl mx-auto px-6 pt-12 md:pt-20 pb-20 grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card text-xs font-medium mb-6 shadow-sm">
-            <Sparkle /> New · AI Reply Agent in beta
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card text-xs font-medium mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+            <span className="text-muted-foreground">Now in public beta</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
-            Cold email that{" "}
-            <span className="text-primary">actually lands.</span>
+            Cold email infrastructure that <span className="text-primary">delivers.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">
-            Connect unlimited mailboxes. Warm them up automatically. Send AI-personalized sequences that get real replies — not spam folder views.
+            Unlimited inboxes. Automatic warmup. AI sequences. One inbox for every reply. Built for the operators who send for a living.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="rounded-full text-base h-12 px-6 shadow-lg shadow-primary/30" onClick={() => navigate({ to: "/login" })}>
-              Start free <ArrowRight className="w-4 h-4 ml-1" />
+            <Button size="lg" className="rounded-full text-base h-12 px-6" onClick={() => navigate({ to: "/login" })}>
+              Start free <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
             </Button>
-            <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-6" onClick={() => navigate({ to: "/features" })}>
-              See features
+            <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-6" asChild>
+              <a href="#playbook">Get the free playbook</a>
             </Button>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> No credit card</span>
-            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Unlimited mailboxes</span>
-            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Free warmup</span>
-          </div>
-          <div className="mt-8 flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {["from-primary to-primary", "from-primary to-primary", "from-primary to-primary", "from-primary to-primary", "from-primary to-primary"].map((c, i) => (
-                <div key={i} className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} border-2 border-background`} />
-              ))}
-            </div>
-            <div>
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-warning text-warning" />)}
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">4.9 from 2,400+ teams</div>
-            </div>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> No credit card</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Unlimited mailboxes</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Free warmup forever</span>
           </div>
         </div>
         <HeroVisual />
       </section>
 
-      {/* Logos */}
-      <section className="max-w-5xl mx-auto px-6 pb-24 border-y border-border py-10">
-        <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-6">Trusted by outbound teams at</p>
+      {/* ─────────── LOGO BAR ─────────── */}
+      <section className="max-w-5xl mx-auto px-6 pb-20 border-y border-border/60 py-10">
+        <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground mb-6">Built by operators. Used by teams sending</p>
         <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
           {["Northwind", "Acme Co", "Helios", "Quanta", "Lumen", "Vertex"].map((b) => (
             <div key={b} className="text-xl font-bold tracking-tight text-muted-foreground/70 hover:text-foreground transition-colors">{b}</div>
@@ -82,14 +72,45 @@ function Landing() {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* ─────────── PROBLEM ─────────── */}
+      <section className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="text-xs font-bold uppercase tracking-widest text-primary mb-3">The cold email tax</div>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            Stop paying $400/mo for tools that <span className="text-primary">throttle you.</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">
+            Per-mailbox pricing. Hidden warmup limits. Reply detection that misses half your wins. The category is broken — we rebuilt it.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { p: "Per-inbox pricing", s: "Unlimited inboxes — every plan, every tier." },
+            { p: "Warmup that hurts you", s: "Conversation-style warmup tuned for real engagement signals." },
+            { p: "Replies in 8 dashboards", s: "One unified inbox. Every account. Sorted by intent." },
+          ].map((x) => (
+            <div key={x.p} className="bg-card border border-border rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <X className="w-4 h-4 text-destructive" />
+                <span className="text-sm text-muted-foreground line-through">{x.p}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
+                <span className="font-semibold">{x.s}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─────────── STATS ─────────── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
         <div className="grid md:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden">
           {[
             { n: "12M+", l: "Emails sent monthly" },
             { n: "38%", l: "Avg reply rate" },
             { n: "99.2%", l: "Inbox placement" },
-            { n: "2,400+", l: "Active teams" },
+            { n: "< 5 min", l: "Time to first send" },
           ].map((s) => (
             <div key={s.l} className="bg-card p-8 text-center">
               <div className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">{s.n}</div>
@@ -99,86 +120,65 @@ function Landing() {
         </div>
       </section>
 
-      {/* Section header */}
+      {/* ─────────── SECTION HEADER ─────────── */}
       <section className="max-w-3xl mx-auto px-6 text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-semibold mb-4">
-          <Zap className="w-3 h-3" /> Built for serious outbound
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border text-xs font-semibold mb-4">
+          <Zap className="w-3 h-3 text-primary" /> Everything in one workspace
         </div>
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-          Replace 6 tools with <span className="text-primary">one workspace.</span>
+          Replace 6 tools with <span className="text-primary">one stack.</span>
         </h2>
-        <p className="mt-4 text-muted-foreground text-lg">From the first send to the booked meeting — everything you need, nothing you don't.</p>
+        <p className="mt-4 text-muted-foreground text-lg">From the first send to the booked meeting — no duct tape, no missing pieces.</p>
       </section>
 
-      {/* Alternating feature blocks */}
-      <FeatureBlock
-        eyebrow="Sending infrastructure"
-        title="Unlimited mailboxes. Smart rotation."
-        desc="Connect Google, Microsoft, or any SMTP. EmailSend automatically rotates sends across your inboxes with daily caps and randomized delays — so you scale without burning a single domain."
-        bullets={["Connect mailboxes in 30 seconds", "Per-mailbox daily caps", "Smart sending windows by timezone", "Auto-pause on bounce spikes"]}
-        visual={<MailboxRotationVisual />}
-      />
+      {/* ─────────── FEATURE BLOCKS ─────────── */}
+      <FeatureBlock eyebrow="Sending infrastructure" title="Unlimited inboxes. Smart rotation."
+        desc="Connect Google, Microsoft, or any SMTP. EmailSend rotates sends across your inboxes with daily caps and randomized delays. Scale without burning a single domain."
+        bullets={["Connect a mailbox in 30 seconds", "Per-inbox daily caps", "Sending windows by timezone", "Auto-pause on bounce spikes"]}
+        visual={<MailboxRotationVisual />} />
 
-      <FeatureBlock
-        reverse
-        eyebrow="AI Copilot"
-        title="Write a campaign in 30 seconds."
-        desc="Describe your ICP and offer. The Copilot writes the full sequence — subject lines, opens, follow-ups, breakup emails — in your voice, ready to send."
-        bullets={["Trained on 10M+ replied emails", "First-line personalization at scale", "AI Reply Agent drafts responses for you", "Spam-word linter built in"]}
-        visual={<AIComposeVisual />}
-      />
+      <FeatureBlock reverse eyebrow="AI Copilot" title="A campaign in 30 seconds."
+        desc="Describe your ICP and offer. The Copilot writes the full sequence — subject lines, opens, follow-ups, breakup emails — in your voice. Launch-ready."
+        bullets={["Trained on millions of replied emails", "First-line personalization at scale", "AI Reply Agent drafts every response", "Spam-word linter built in"]}
+        visual={<AIComposeVisual />} />
 
-      <FeatureBlock
-        eyebrow="Sequences"
-        title="Multi-step flows that actually convert."
-        desc="Build branching sequences in a clean editor. Trigger different paths on opens, clicks, and replies. Use spintax and merge tags to keep every send unique."
-        bullets={["Drag-and-drop step builder", "Conditional branching", "Spintax + dynamic variables", "A/B test subject lines and bodies"]}
-        visual={<SequenceVisual />}
-      />
+      <FeatureBlock eyebrow="Sequences" title="Multi-step flows that actually convert."
+        desc="A clean step builder. Branch on opens, clicks, and replies. Spintax and merge tags keep every send unique. A/B test anything."
+        bullets={["Drag-and-drop step builder", "Conditional branching", "Spintax + dynamic variables", "A/B test subjects and bodies"]}
+        visual={<SequenceVisual />} />
 
-      <FeatureBlock
-        reverse
-        eyebrow="Unified inbox"
-        title="Every reply, in one place."
-        desc="Stop juggling 8 inboxes. See every reply across every mailbox in a single feed — sorted by intent so positive responses bubble to the top."
-        bullets={["Cross-mailbox inbox", "Auto-categorized by intent", "Reply from any sender address", "Out-of-office detection"]}
-        visual={<InboxVisual />}
-      />
+      <FeatureBlock reverse eyebrow="Unified inbox" title="Every reply, in one feed."
+        desc="Stop juggling 8 inboxes. Every reply across every mailbox in a single place — sorted by intent so positives bubble to the top."
+        bullets={["Cross-mailbox unified inbox", "Auto-categorized by intent", "Reply from any sender", "Out-of-office detection"]}
+        visual={<InboxVisual />} />
 
-      <FeatureBlock
-        eyebrow="Pipeline"
-        title="From cold email to closed deal."
-        desc="When someone replies positive, they auto-move to your pipeline. Drag them through stages, log notes, and track every opportunity to revenue."
+      <FeatureBlock eyebrow="Pipeline" title="From cold email to closed deal."
+        desc="Positive replies auto-create deals. Drag through stages, log notes, forecast revenue. The CRM that lives where your pipeline is born."
         bullets={["Auto-create deals from replies", "Custom stages and fields", "Forecast by stage value", "Notes, tasks, and reminders"]}
-        visual={<PipelineVisual />}
-      />
+        visual={<PipelineVisual />} />
 
-      <FeatureBlock
-        reverse
-        eyebrow="Analytics"
-        title="Know exactly what's working."
-        desc="Track sends, opens, clicks, replies, and meetings — per mailbox, per campaign, per step. Spot what to scale and what to kill."
+      <FeatureBlock reverse eyebrow="Analytics" title="Know exactly what's working."
+        desc="Sends, opens, clicks, replies, and meetings — sliced by mailbox, campaign, and step. Spot what to scale and what to kill."
         bullets={["Real-time dashboards", "Cohort and funnel views", "Per-step performance", "Export to CSV or webhook"]}
-        visual={<AnalyticsVisual />}
-      />
+        visual={<AnalyticsVisual />} />
 
-      {/* Bento grid for remaining features */}
+      {/* ─────────── BENTO ─────────── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight">And a whole lot more.</h2>
-          <p className="mt-3 text-muted-foreground">Every feature you'd expect from a modern outbound platform.</p>
+          <p className="mt-3 text-muted-foreground">Every feature a serious outbound team needs.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { icon: Flame, title: "Free warmup network", desc: "Conversation-style warmup that keeps your sender reputation strong from day one." },
-            { icon: Shield, title: "Deliverability suite", desc: "SPF / DKIM / DMARC checks, spam-word linter, and suppression lists." },
+            { icon: Flame, title: "Free warmup network", desc: "Conversation-style warmup that builds and protects sender reputation." },
+            { icon: Shield, title: "Deliverability suite", desc: "SPF / DKIM / DMARC checks, spam-word linter, suppression lists." },
             { icon: Calendar, title: "Built-in meetings", desc: "Native scheduler that books straight into Google or Outlook calendars." },
-            { icon: Globe, title: "Visitor tracking", desc: "Know when prospects visit your site — with optional reverse-IP enrichment." },
-            { icon: Webhook, title: "Webhooks & API", desc: "Push events to your CRM, Slack, or anywhere. Full REST API included." },
-            { icon: Users, title: "Team workspaces", desc: "Invite teammates with roles, share campaigns, and split mailboxes by user." },
+            { icon: Globe, title: "Visitor identification", desc: "Know which prospects visit your site — with optional reverse-IP enrichment." },
+            { icon: Webhook, title: "Webhooks & REST API", desc: "Push events to your CRM, Slack, or anywhere. Full API included." },
+            { icon: Users, title: "Team workspaces", desc: "Roles, shared campaigns, mailbox-by-user assignment." },
           ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="group bg-card border border-border rounded-2xl p-6 hover:border-primary hover:shadow-[0_20px_40px_-20px_rgba(80,40,180,0.25)] hover:-translate-y-0.5 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+            <div key={title} className="group bg-card border border-border rounded-2xl p-6 hover:border-primary/60 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 <Icon className="w-5 h-5" />
               </div>
               <h3 className="font-semibold mb-1">{title}</h3>
@@ -188,22 +188,60 @@ function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* ─────────── COMPARISON ─────────── */}
+      <section className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="text-xs font-bold uppercase tracking-widest text-primary mb-3">vs. the others</div>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            Why teams switch from <span className="text-muted-foreground line-through decoration-destructive/60">Instantly</span> & <span className="text-muted-foreground line-through decoration-destructive/60">Smartlead</span>.
+          </h2>
+        </div>
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-4 text-xs uppercase tracking-widest font-bold border-b border-border bg-muted/30">
+            <div className="p-4">Feature</div>
+            <div className="p-4 text-center text-primary">EmailSend</div>
+            <div className="p-4 text-center text-muted-foreground">Instantly</div>
+            <div className="p-4 text-center text-muted-foreground">Smartlead</div>
+          </div>
+          {[
+            { f: "Unlimited inboxes (all plans)", e: true, i: false, s: false },
+            { f: "Free conversation warmup", e: true, i: false, s: true },
+            { f: "AI Copilot for full sequences", e: true, i: true, s: false },
+            { f: "Unified reply inbox + intent sorting", e: true, i: true, s: true },
+            { f: "Built-in pipeline / CRM", e: true, i: false, s: false },
+            { f: "Lead database + verification", e: true, i: true, s: false },
+            { f: "Visitor identification pixel", e: true, i: false, s: false },
+            { f: "Transparent flat pricing", e: true, i: false, s: false },
+          ].map((r, i) => (
+            <div key={i} className={`grid grid-cols-4 text-sm border-b border-border/60 last:border-0 ${i % 2 ? "bg-muted/10" : ""}`}>
+              <div className="p-4 font-medium">{r.f}</div>
+              <Cell on={r.e} primary />
+              <Cell on={r.i} />
+              <Cell on={r.s} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─────────── LEAD MAGNET ─────────── */}
+      <LeadMagnet />
+
+      {/* ─────────── TESTIMONIALS ─────────── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Loved by outbound teams.</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Operators trust the stack.</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { q: "We ditched 4 tools and replaced them with EmailSend. Reply rates jumped 2.3x in the first month.", n: "Sarah Chen", r: "Head of Growth, Helios" },
-            { q: "The warmup is the real deal. Our domain reputation has never been healthier and we're sending 5x more.", n: "Marcus Webb", r: "Founder, Quanta" },
-            { q: "Setup took 10 minutes. The AI Copilot writes better subject lines than my team. This is the future.", n: "Priya Patel", r: "VP Sales, Lumen" },
+            { q: "We replaced 4 tools with EmailSend. Reply rate jumped 2.3x in the first month, and our domain health is the best it's ever been.", n: "Sarah Chen", r: "Head of Growth, Helios" },
+            { q: "The warmup is the real deal. We're sending 5x more without a single placement issue. Worth it for that alone.", n: "Marcus Webb", r: "Founder, Quanta" },
+            { q: "Setup was 10 minutes. The Copilot writes better subject lines than my team. Honestly the future of outbound.", n: "Priya Patel", r: "VP Sales, Lumen" },
           ].map((t, i) => (
             <div key={i} className="bg-card border border-border rounded-2xl p-6 flex flex-col">
-              <Quote className="w-6 h-6 text-primary/30 mb-3" />
+              <Quote className="w-6 h-6 text-primary/40 mb-3" />
               <p className="text-sm leading-relaxed flex-1">"{t.q}"</p>
               <div className="mt-5 pt-5 border-t border-border flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary" />
+                <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary font-bold text-sm">{t.n[0]}</div>
                 <div>
                   <div className="text-sm font-semibold">{t.n}</div>
                   <div className="text-xs text-muted-foreground">{t.r}</div>
@@ -214,16 +252,19 @@ function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ─────────── FAQ ─────────── */}
+      <FAQ />
+
+      {/* ─────────── FINAL CTA ─────────── */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="relative rounded-3xl bg-primary p-12 md:p-16 text-primary-foreground overflow-hidden text-center">
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+          <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
           <div className="relative">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">Ready to fill your pipeline?</h2>
-            <p className="mt-4 text-lg opacity-90 max-w-xl mx-auto">Start sending in under 5 minutes. No credit card. Cancel anytime.</p>
-            <div className="mt-8 flex justify-center gap-3">
-              <Button size="lg" className="rounded-full h-12 px-7 bg-white text-primary hover:bg-white/90 shadow-xl" onClick={() => navigate({ to: "/login" })}>
-                Get started free <ArrowRight className="w-4 h-4 ml-1" />
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">Start filling your pipeline today.</h2>
+            <p className="mt-4 text-lg opacity-90 max-w-xl mx-auto">First send in under 5 minutes. No credit card. Cancel any time.</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button size="lg" className="rounded-full h-12 px-7 bg-white text-primary hover:bg-white/90" onClick={() => navigate({ to: "/login" })}>
+                Get started free <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
               </Button>
               <Link to="/pricing">
                 <Button size="lg" variant="outline" className="rounded-full h-12 px-7 bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white">View pricing</Button>
@@ -236,8 +277,16 @@ function Landing() {
   );
 }
 
-function Sparkle() {
-  return <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />;
+function Cell({ on, primary }: { on: boolean; primary?: boolean }) {
+  return (
+    <div className="p-4 flex items-center justify-center">
+      {on ? (
+        <CheckCircle2 className={`w-5 h-5 ${primary ? "text-primary" : "text-success"}`} />
+      ) : (
+        <X className="w-5 h-5 text-muted-foreground/40" />
+      )}
+    </div>
+  );
 }
 
 function FeatureBlock({
@@ -259,6 +308,146 @@ function FeatureBlock({
         </ul>
       </div>
       <div className={reverse ? "lg:order-1" : ""}>{visual}</div>
+    </section>
+  );
+}
+
+function LeadMagnet() {
+  const submit = useServerFn(captureLead);
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setState("loading");
+    setErrorMsg(null);
+    try {
+      await submit({ data: { email, source: "landing_playbook" } });
+      setState("done");
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Something went wrong");
+      setState("error");
+    }
+  };
+
+  return (
+    <section id="playbook" className="max-w-6xl mx-auto px-6 pb-24 scroll-mt-24">
+      <div className="grid lg:grid-cols-5 gap-0 rounded-3xl border border-border bg-card overflow-hidden">
+        {/* Left: copy + form */}
+        <div className="lg:col-span-3 p-8 md:p-12">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-bold uppercase tracking-widest mb-4">
+            <Download className="w-3 h-3" /> Free playbook
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+            The Cold Email Deliverability <span className="text-primary">Playbook.</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
+            42 pages. Zero fluff. Everything we learned sending 12M+ cold emails — domain setup, SPF/DKIM/DMARC, warmup tuning, sending windows, and the exact send patterns that hit inboxes in 2026.
+          </p>
+          <ul className="mt-6 space-y-2.5 text-sm">
+            {[
+              "DNS-record templates for Google, Microsoft, and SMTP",
+              "Warmup ramp curve (week 1 → week 6)",
+              "Spam trigger checklist + 200 words to avoid",
+              "Send-window heatmap by timezone",
+              "Reply-rate benchmark by industry",
+            ].map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+
+          {state === "done" ? (
+            <div className="mt-8 rounded-xl border border-success/40 bg-success/10 p-4 flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
+              <div>
+                <div className="font-semibold">Check your inbox.</div>
+                <div className="text-sm text-muted-foreground">The playbook is on its way to <span className="font-mono">{email}</span>.</div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={onSubmit} className="mt-8 flex flex-col sm:flex-row gap-2">
+              <Input
+                type="email"
+                required
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 text-base bg-background"
+                aria-label="Work email"
+              />
+              <Button type="submit" disabled={state === "loading"} size="lg" className="h-12 px-6 rounded-md whitespace-nowrap">
+                {state === "loading" ? "Sending…" : <>Send me the playbook <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} /></>}
+              </Button>
+            </form>
+          )}
+          {state === "error" && (
+            <div className="mt-3 text-sm text-destructive">{errorMsg}</div>
+          )}
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Lock className="w-3 h-3" /> No spam. Unsubscribe anytime. We never share your email.
+          </div>
+        </div>
+
+        {/* Right: stylized "book" */}
+        <div className="lg:col-span-2 relative bg-background border-l border-border flex items-center justify-center p-8 min-h-[300px]">
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, var(--color-primary) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+          <div className="relative w-48 md:w-56 aspect-[3/4] rounded-lg bg-card border border-border shadow-2xl rotate-[-4deg] hover:rotate-0 transition-transform duration-500">
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
+            <div className="relative h-full p-5 flex flex-col">
+              <div className="text-[10px] font-mono text-muted-foreground">EMAILSEND.AI · 2026 ED.</div>
+              <div className="mt-4 text-xs uppercase tracking-widest text-primary font-bold">Playbook</div>
+              <div className="mt-1 text-xl font-extrabold leading-tight">Cold Email Deliverability</div>
+              <div className="mt-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <Inbox className="w-3 h-3" /> 42 pages · PDF
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  const items = [
+    { q: "Do I need to bring my own email accounts?", a: "Yes — you connect your own Google, Microsoft, or SMTP mailboxes. EmailSend never sends through shared infrastructure, which is why deliverability stays in your control." },
+    { q: "How is pricing structured?", a: "Flat monthly plans based on email volume and contacts. Unlimited inboxes on every plan. No per-user, per-mailbox, or per-warmup fees. See the pricing page for details." },
+    { q: "Will this damage my domain reputation?", a: "The opposite. Built-in conversation-style warmup, randomized sending delays, per-inbox caps, and auto-pause on bounce spikes are all designed to protect your sender reputation." },
+    { q: "Can I import from Instantly or Smartlead?", a: "Yes. CSV imports for leads and campaigns work out of the box. Most teams migrate in under an hour." },
+    { q: "Do AI features cost extra?", a: "AI Copilot, Reply Agent, and personalization run on a credit system included with paid plans. You can also bring your own OpenAI or Anthropic key with zero markup." },
+    { q: "Is there a free trial?", a: "Yes — start free, no credit card. The free tier includes one connected mailbox, free warmup, and the full Copilot." },
+  ];
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <section className="max-w-3xl mx-auto px-6 pb-24">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Questions, answered.</h2>
+      </div>
+      <div className="divide-y divide-border border border-border rounded-2xl bg-card overflow-hidden">
+        {items.map((item, i) => {
+          const isOpen = open === i;
+          return (
+            <div key={i}>
+              <button
+                onClick={() => setOpen(isOpen ? null : i)}
+                className="w-full text-left flex items-center justify-between gap-4 p-5 hover:bg-muted/30 transition-colors"
+                aria-expanded={isOpen}
+              >
+                <span className="font-semibold">{item.q}</span>
+                {isOpen ? <Minus className="w-4 h-4 text-primary shrink-0" /> : <Plus className="w-4 h-4 text-muted-foreground shrink-0" />}
+              </button>
+              {isOpen && (
+                <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">{item.a}</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
