@@ -60,8 +60,22 @@ function Wizard() {
   const [body, setBody] = useState("Hi {{first_name}},\n\nNoticed {{company}} and wanted to reach out…\n\nWorth a quick chat?\n\n— Me");
   const [saving, setSaving] = useState(false);
 
+  const testSmtp = useServerFn(testSmtpCredentials);
+
   const saveMailbox = useCallback(async () => {
     const preset = SMTP_PRESETS[provider];
+    // Verify SMTP credentials BEFORE saving the mailbox.
+    try {
+      await testSmtp({ data: {
+        smtp_host: preset.host,
+        smtp_port: preset.port,
+        smtp_secure: preset.secure,
+        smtp_username: fromEmail,
+        smtp_password: smtpPassword,
+      }});
+    } catch (e: any) {
+      throw new Error(e?.message || "Could not connect — check your app password and try again.");
+    }
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("mailboxes").insert({
       user_id: u.user!.id,
