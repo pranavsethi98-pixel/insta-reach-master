@@ -249,6 +249,7 @@ export const grantRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: z.enum(["super_admin","billing_admin","support_admin","read_only_admin"]) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
+    if (data.role === "super_admin") await assertSuperAdminEmail(data.userId);
     const { error } = await supabaseAdmin.from("user_roles").upsert({
       user_id: data.userId, role: data.role, granted_by: context.userId,
     });
@@ -274,6 +275,9 @@ export const inviteAdmin = createServerFn({ method: "POST" })
     z.object({ email: z.string().email(), role: z.enum(["super_admin","billing_admin","support_admin","read_only_admin"]) }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, SUPER);
+    if (data.role === "super_admin" && data.email.toLowerCase() !== SUPER_ADMIN_EMAIL) {
+      throw new Error("Super admin is restricted to pranav@insanex.io");
+    }
     const { data: inv, error } = await supabaseAdmin
       .from("admin_invites")
       .insert({ email: data.email, role: data.role, invited_by: context.userId })
@@ -302,6 +306,7 @@ export const acceptAdminInvite = createServerFn({ method: "POST" })
     if (!user || user.email?.toLowerCase() !== inv.email.toLowerCase()) {
       throw new Error("Invite is for a different email");
     }
+    if (inv.role === "super_admin") await assertSuperAdminEmail(context.userId);
     await supabaseAdmin.from("user_roles").upsert({ user_id: context.userId, role: inv.role, granted_by: inv.invited_by });
     await supabaseAdmin.from("admin_invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
     return { ok: true, role: inv.role };
