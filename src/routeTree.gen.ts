@@ -76,6 +76,7 @@ import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl
 import { Route as AdminViewAsUserIdRouteImport } from './routes/admin.view-as.$userId'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin.users.$userId'
 import { Route as AdminIntegrationsGhlRouteImport } from './routes/admin.integrations.ghl'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicUnsubscribeLeadIdRouteImport } from './routes/api/public/unsubscribe.$leadId'
 import { Route as ApiPublicInboundSecretRouteImport } from './routes/api/public/inbound.$secret'
 import { Route as ApiPublicTrackOpenTrackingIdRouteImport } from './routes/api/public/track.open.$trackingId'
@@ -416,6 +417,12 @@ const AdminIntegrationsGhlRoute = AdminIntegrationsGhlRouteImport.update({
   path: '/ghl',
   getParentRoute: () => AdminIntegrationsRoute,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicUnsubscribeLeadIdRoute =
   ApiPublicUnsubscribeLeadIdRouteImport.update({
     id: '/api/public/unsubscribe/$leadId',
@@ -510,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -582,6 +590,7 @@ export interface FileRoutesByTo {
   '/admin/integrations': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -656,6 +665,7 @@ export interface FileRoutesById {
   '/admin/integrations/': typeof AdminIntegrationsIndexRoute
   '/api/public/inbound/$secret': typeof ApiPublicInboundSecretRoute
   '/api/public/unsubscribe/$leadId': typeof ApiPublicUnsubscribeLeadIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/api/public/track/click/$trackingId': typeof ApiPublicTrackClickTrackingIdRoute
   '/api/public/track/open/$trackingId': typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/lovable/email/queue/process'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesByTo: FileRoutesByTo
@@ -803,6 +814,7 @@ export interface FileRouteTypes {
     | '/admin/integrations'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/lovable/email/queue/process'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   id:
@@ -876,6 +888,7 @@ export interface FileRouteTypes {
     | '/admin/integrations/'
     | '/api/public/inbound/$secret'
     | '/api/public/unsubscribe/$leadId'
+    | '/lovable/email/queue/process'
     | '/api/public/track/click/$trackingId'
     | '/api/public/track/open/$trackingId'
   fileRoutesById: FileRoutesById
@@ -947,6 +960,7 @@ export interface RootRouteChildren {
   ApiPublicWarmupTickRoute: typeof ApiPublicWarmupTickRoute
   ApiPublicInboundSecretRoute: typeof ApiPublicInboundSecretRoute
   ApiPublicUnsubscribeLeadIdRoute: typeof ApiPublicUnsubscribeLeadIdRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   ApiPublicTrackClickTrackingIdRoute: typeof ApiPublicTrackClickTrackingIdRoute
   ApiPublicTrackOpenTrackingIdRoute: typeof ApiPublicTrackOpenTrackingIdRoute
 }
@@ -1422,6 +1436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIntegrationsGhlRouteImport
       parentRoute: typeof AdminIntegrationsRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/unsubscribe/$leadId': {
       id: '/api/public/unsubscribe/$leadId'
       path: '/api/public/unsubscribe/$leadId'
@@ -1545,6 +1566,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWarmupTickRoute: ApiPublicWarmupTickRoute,
   ApiPublicInboundSecretRoute: ApiPublicInboundSecretRoute,
   ApiPublicUnsubscribeLeadIdRoute: ApiPublicUnsubscribeLeadIdRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   ApiPublicTrackClickTrackingIdRoute: ApiPublicTrackClickTrackingIdRoute,
   ApiPublicTrackOpenTrackingIdRoute: ApiPublicTrackOpenTrackingIdRoute,
 }
