@@ -163,6 +163,24 @@ function LoginPage() {
                 <span className="w-6 h-px bg-primary" />
                 {mode === "signin" ? "Sign in" : "Create account"}
               </div>
+              <div className="mt-6 grid grid-cols-2 rounded-lg border border-border bg-card/40 p-1">
+                <button
+                  type="button"
+                  onClick={() => switchMode("signin")}
+                  aria-pressed={mode === "signin"}
+                  className={`h-10 rounded-md text-sm font-medium transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode("signup")}
+                  aria-pressed={mode === "signup"}
+                  className={`h-10 rounded-md text-sm font-medium transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Sign up
+                </button>
+              </div>
               <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
                 {mode === "signin"
                   ? <>Welcome back.</>
@@ -195,6 +213,12 @@ function LoginPage() {
                 </div>
               </div>
 
+              {message && (
+                <div className={`rounded-lg border px-3 py-2 text-sm ${message.type === "error" ? "border-destructive/50 bg-destructive/10 text-destructive" : "border-success/50 bg-success/10 text-success"}`}>
+                  {message.text}
+                </div>
+              )}
+
               {step === "verifyEmail" ? (
                 <div className="space-y-3">
                   <div className="rounded-lg border border-border bg-card/40 px-4 py-4">
@@ -205,7 +229,7 @@ function LoginPage() {
                       Click the verification link sent to <span className="font-mono text-foreground">{email}</span>. After verifying, you'll be sent to onboarding.
                     </p>
                   </div>
-                  <Button type="button" onClick={() => setMode("signin")} className="w-full h-11 group">
+                  <Button type="button" onClick={() => switchMode("signin")} className="w-full h-11 group">
                     Sign in after verifying<ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -289,7 +313,8 @@ function LoginPage() {
               {step === "form" && (
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                   <button
-                    onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                    type="button"
+                    onClick={() => switchMode(mode === "signin" ? "signup" : "signin")}
                     className="hover:text-foreground transition"
                   >
                     {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
