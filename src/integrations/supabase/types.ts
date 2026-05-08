@@ -763,6 +763,60 @@ export type Database = {
         }
         Relationships: []
       }
+      ghl_sync_settings: {
+        Row: {
+          id: boolean
+          log_email_activity: boolean
+          push_leads: boolean
+          push_signups: boolean
+          tag_plan_changes: boolean
+          tag_replies: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          log_email_activity?: boolean
+          push_leads?: boolean
+          push_signups?: boolean
+          tag_plan_changes?: boolean
+          tag_replies?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          log_email_activity?: boolean
+          push_leads?: boolean
+          push_signups?: boolean
+          tag_plan_changes?: boolean
+          tag_replies?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ghl_user_map: {
+        Row: {
+          created_at: string
+          ghl_contact_id: string
+          ghl_location_id: string
+          last_synced_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ghl_contact_id: string
+          ghl_location_id: string
+          last_synced_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ghl_contact_id?: string
+          ghl_location_id?: string
+          last_synced_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       global_blacklist: {
         Row: {
           created_at: string
@@ -1580,6 +1634,7 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          ghl_sync_excluded: boolean
           id: string
           slack_webhook_url: string | null
           website_url: string | null
@@ -1601,6 +1656,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          ghl_sync_excluded?: boolean
           id: string
           slack_webhook_url?: string | null
           website_url?: string | null
@@ -1622,6 +1678,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          ghl_sync_excluded?: boolean
           id?: string
           slack_webhook_url?: string | null
           website_url?: string | null
