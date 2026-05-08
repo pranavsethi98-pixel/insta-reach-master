@@ -1,23 +1,25 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+type Mode = "signin" | "signup";
+
 function LoginPage() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<null | "email" | "google">(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -25,77 +27,302 @@ function LoginPage() {
     });
   }, [navigate]);
 
-  const signIn = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    navigate({ to: "/dashboard" });
-  };
-
-  const signUp = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin + "/dashboard" },
-    });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    if (!data.session) {
-      toast.success("Check your inbox to verify your email before signing in.");
-      return;
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setLoading("email");
+    try {
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate({ to: "/dashboard" });
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { emailRedirectTo: window.location.origin + "/onboarding" },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          toast.success("Check your inbox to verify your email.");
+        } else {
+          navigate({ to: "/onboarding" });
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(null);
     }
-    navigate({ to: "/dashboard" });
   };
 
   const google = async () => {
+    setLoading("google");
     const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) toast.error("Google sign-in failed");
+    if (r.error) { toast.error("Google sign-in failed"); setLoading(null); }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
+    <div className="min-h-screen bg-background text-foreground grid lg:grid-cols-[1.1fr_1fr]">
+      {/* LEFT — form */}
+      <div className="relative flex flex-col px-6 sm:px-10 lg:px-16 py-8 lg:py-10">
+        <header className="flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group">
+            <span className="w-7 h-7 rounded bg-primary text-primary-foreground inline-flex items-center justify-center font-bold transition-transform group-hover:translate-x-0.5">→</span>
+            <span className="font-semibold tracking-tight">EmailSend<span className="text-muted-foreground font-normal">.ai</span></span>
+          </Link>
+          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition">← back to site</Link>
+        </header>
+
+        <div className="flex-1 flex items-center">
+          <div className="w-full max-w-md mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" />
+                {mode === "signin" ? "Sign in" : "Create account"}
+              </div>
+              <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
+                {mode === "signin"
+                  ? <>Welcome back.</>
+                  : <>Start sending in <span className="text-primary">5 minutes</span>.</>}
+              </h1>
+              <p className="mt-3 text-muted-foreground">
+                {mode === "signin"
+                  ? "Pick up where you left off. Your warmup never sleeps."
+                  : "Free for 14 days. No credit card. Real inbox placement from day one."}
+              </p>
+            </motion.div>
+
+            <div className="mt-8 space-y-3">
+              <Button
+                variant="outline"
+                onClick={google}
+                disabled={!!loading}
+                className="w-full h-11 justify-center gap-3 border-border hover:bg-card"
+              >
+                {loading === "google"
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <GoogleGlyph />}
+                Continue with Google
+              </Button>
+
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-mono">
+                  <span className="bg-background px-3 text-muted-foreground">or with email</span>
+                </div>
+              </div>
+
+              <form onSubmit={submit} className="space-y-3">
+                <FieldIcon icon={<Mail className="w-4 h-4" />}>
+                  <Input
+                    type="email" autoComplete="email" required
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@company.com"
+                    className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                  />
+                </FieldIcon>
+                <FieldIcon icon={<Lock className="w-4 h-4" />}>
+                  <Input
+                    type="password" required minLength={6}
+                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    placeholder={mode === "signin" ? "Your password" : "Create a strong password"}
+                    className="h-11 border-0 bg-transparent focus-visible:ring-0 pl-0"
+                  />
+                </FieldIcon>
+
+                <Button type="submit" disabled={!!loading} className="w-full h-11 group">
+                  {loading === "email"
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <>{mode === "signin" ? "Sign in" : "Create account"}<ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" /></>}
+                </Button>
+              </form>
+
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                <button
+                  onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                  className="hover:text-foreground transition"
+                >
+                  {mode === "signin" ? "Don't have an account? Sign up" : "Already have one? Sign in"}
+                </button>
+                {mode === "signin" && (
+                  <span className="font-mono">Forgot? <span className="text-foreground/60">support@emailsend.ai</span></span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-10 flex items-center gap-2 text-[11px] font-mono text-muted-foreground">
+              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+              SOC 2 ready · Encrypted at rest · GDPR
+            </div>
           </div>
-          <span className="font-bold text-xl">EmailSend<span className="text-muted-foreground font-normal">.ai</span></span>
         </div>
-        <div className="bg-card border rounded-xl p-6 shadow-sm">
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Sign up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin" className="space-y-4 mt-4">
-              <Field label="Email" value={email} onChange={setEmail} type="email" />
-              <Field label="Password" value={password} onChange={setPassword} type="password" />
-              <Button className="w-full" onClick={signIn} disabled={loading}>Sign in</Button>
-            </TabsContent>
-            <TabsContent value="signup" className="space-y-4 mt-4">
-              <Field label="Email" value={email} onChange={setEmail} type="email" />
-              <Field label="Password" value={password} onChange={setPassword} type="password" />
-              <Button className="w-full" onClick={signUp} disabled={loading}>Create account</Button>
-            </TabsContent>
-          </Tabs>
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">or</span></div>
-          </div>
-          <Button variant="outline" className="w-full" onClick={google}>Continue with Google</Button>
-        </div>
+
+        <footer className="text-[11px] font-mono text-muted-foreground flex items-center justify-between">
+          <span>© {new Date().getFullYear()} EmailSend.ai</span>
+          <span className="flex items-center gap-3">
+            <Link to="/pricing" className="hover:text-foreground">pricing</Link>
+            <Link to="/about" className="hover:text-foreground">about</Link>
+            <Link to="/contact" className="hover:text-foreground">contact</Link>
+          </span>
+        </footer>
+      </div>
+
+      {/* RIGHT — infrastructure visual */}
+      <div className="hidden lg:block relative overflow-hidden border-l border-border bg-card/30">
+        <AmbientGrid />
+        <SendPulsePanel />
       </div>
     </div>
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (s: string) => void; type?: string }) {
+function FieldIcon({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} />
+    <div className="flex items-center gap-3 px-3 rounded-lg border border-border bg-card/40 focus-within:border-primary transition">
+      <span className="text-muted-foreground">{icon}</span>
+      <div className="flex-1">{children}</div>
     </div>
+  );
+}
+
+function GoogleGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.3 0-9.7-3.1-11.3-7.6l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.6l6.2 5.2C41 35.5 44 30.2 44 24c0-1.2-.1-2.4-.4-3.5z"/>
+    </svg>
+  );
+}
+
+function AmbientGrid() {
+  return (
+    <>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage: "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
+      <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-primary/15 blur-[120px]" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[100px]" />
+    </>
+  );
+}
+
+function SendPulsePanel() {
+  // Tiny live-feel sparkline + streaming feed (deterministic seed for SSR).
+  const bars = useMemo(() => Array.from({ length: 28 }, (_, i) => 18 + Math.round(Math.abs(Math.sin(i * 0.7)) * 60 + (i % 5) * 4)), []);
+  const feed = [
+    { t: "now",    e: "j.kim@northwind.io",    s: "delivered" as const },
+    { t: "0:02",   e: "ops@globex.com",         s: "opened" as const },
+    { t: "0:04",   e: "harlan@acme.co",         s: "replied" as const },
+    { t: "0:09",   e: "p.wells@initech.io",     s: "delivered" as const },
+    { t: "0:12",   e: "sales@hooli.com",        s: "opened" as const },
+    { t: "0:18",   e: "mira@stark-ind.co",      s: "delivered" as const },
+  ];
+
+  return (
+    <div className="relative h-full flex items-center justify-center p-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md"
+      >
+        {/* Console card */}
+        <div className="rounded-xl border border-border bg-background/70 backdrop-blur-xl shadow-2xl overflow-hidden">
+          {/* header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/40">
+            <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              live · iad-1
+            </div>
+            <div className="font-mono text-[11px] text-muted-foreground">v2.0</div>
+          </div>
+
+          {/* stats */}
+          <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+            {[
+              { k: "Sent today", v: "12,847", d: "+18%" },
+              { k: "Inbox rate",  v: "99.2%",  d: "stable" },
+              { k: "Reply rate",  v: "38.4%",  d: "+4.2pt" },
+            ].map((s) => (
+              <div key={s.k} className="px-4 py-3">
+                <div className="text-[10px] uppercase tracking-widest font-mono text-muted-foreground">{s.k}</div>
+                <div className="font-mono text-xl mt-1 tabular-nums">{s.v}</div>
+                <div className="text-[10px] font-mono text-success mt-0.5">{s.d}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* sparkline */}
+          <div className="px-4 pt-4 pb-2">
+            <div className="flex items-end gap-[3px] h-20">
+              {bars.map((h, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ delay: 0.3 + i * 0.012, duration: 0.4, ease: "easeOut" }}
+                  style={{ height: `${h}%`, transformOrigin: "bottom" }}
+                  className={`flex-1 rounded-sm ${i === bars.length - 1 ? "bg-primary" : "bg-primary/30"}`}
+                />
+              ))}
+            </div>
+            <div className="flex items-center justify-between mt-1 text-[10px] font-mono text-muted-foreground">
+              <span>last 24h sends</span>
+              <span className="tabular-nums">peak 1,204/h</span>
+            </div>
+          </div>
+
+          {/* feed */}
+          <div className="border-t border-border">
+            {feed.map((row, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.08 }}
+                className="flex items-center justify-between px-4 py-2 text-[12px] font-mono border-b border-border/60 last:border-0"
+              >
+                <span className="text-muted-foreground tabular-nums w-10">{row.t}</span>
+                <span className="flex-1 truncate text-foreground/80">{row.e}</span>
+                <StatusPill kind={row.s} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* tagline */}
+        <div className="mt-8 px-1">
+          <div className="text-xs font-mono uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5" /> trusted by 4,200+ operators
+          </div>
+          <p className="text-foreground/80 text-sm leading-relaxed">
+            Cold email infrastructure that delivers. Warmup, sending, and reply detection on one console — built for teams that send to win.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function StatusPill({ kind }: { kind: "delivered" | "opened" | "replied" }) {
+  const map = {
+    delivered: { c: "text-muted-foreground border-border", l: "delivered" },
+    opened:    { c: "text-primary border-primary/40 bg-primary/5", l: "opened" },
+    replied:   { c: "text-success border-success/40 bg-success/5", l: "replied" },
+  } as const;
+  const m = map[kind];
+  return (
+    <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${m.c}`}>
+      {m.l}
+    </span>
   );
 }
