@@ -16,7 +16,10 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as SuppressionsRouteImport } from './routes/suppressions'
 import { Route as SubsequencesRouteImport } from './routes/subsequences'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SequenceBlueprintRouteImport } from './routes/sequence-blueprint'
 import { Route as SalesflowsRouteImport } from './routes/salesflows'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ReplyRateFormulaRouteImport } from './routes/reply-rate-formula'
 import { Route as ReplyAgentRouteImport } from './routes/reply-agent'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
@@ -29,11 +32,13 @@ import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as DeliverabilityBibleRouteImport } from './routes/deliverability-bible'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CopilotRouteImport } from './routes/copilot'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as R47TemplatesRouteImport } from './routes/47-templates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -104,9 +109,24 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SequenceBlueprintRoute = SequenceBlueprintRouteImport.update({
+  id: '/sequence-blueprint',
+  path: '/sequence-blueprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SalesflowsRoute = SalesflowsRouteImport.update({
   id: '/salesflows',
   path: '/salesflows',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReplyRateFormulaRoute = ReplyRateFormulaRouteImport.update({
+  id: '/reply-rate-formula',
+  path: '/reply-rate-formula',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReplyAgentRoute = ReplyAgentRouteImport.update({
@@ -169,6 +189,11 @@ const FeaturesRoute = FeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeliverabilityBibleRoute = DeliverabilityBibleRouteImport.update({
+  id: '/deliverability-bible',
+  path: '/deliverability-bible',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -192,6 +217,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R47TemplatesRoute = R47TemplatesRouteImport.update({
+  id: '/47-templates',
+  path: '/47-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -370,11 +400,13 @@ const ApiPublicTrackClickTrackingIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/deliverability-bible': typeof DeliverabilityBibleRoute
   '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
@@ -387,7 +419,10 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
+  '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
+  '/sequence-blueprint': typeof SequenceBlueprintRoute
   '/settings': typeof SettingsRoute
   '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
@@ -431,11 +466,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/deliverability-bible': typeof DeliverabilityBibleRoute
   '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
@@ -448,7 +485,10 @@ export interface FileRoutesByTo {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
+  '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
+  '/sequence-blueprint': typeof SequenceBlueprintRoute
   '/settings': typeof SettingsRoute
   '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
@@ -493,11 +533,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
   '/dashboard': typeof DashboardRoute
+  '/deliverability-bible': typeof DeliverabilityBibleRoute
   '/features': typeof FeaturesRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
@@ -510,7 +552,10 @@ export interface FileRoutesById {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/reply-agent': typeof ReplyAgentRoute
+  '/reply-rate-formula': typeof ReplyRateFormulaRoute
+  '/resources': typeof ResourcesRoute
   '/salesflows': typeof SalesflowsRoute
+  '/sequence-blueprint': typeof SequenceBlueprintRoute
   '/settings': typeof SettingsRoute
   '/subsequences': typeof SubsequencesRoute
   '/suppressions': typeof SuppressionsRoute
@@ -556,11 +601,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/47-templates'
     | '/about'
     | '/analytics'
     | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/deliverability-bible'
     | '/features'
     | '/goals'
     | '/inbox'
@@ -573,7 +620,10 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/reply-agent'
+    | '/reply-rate-formula'
+    | '/resources'
     | '/salesflows'
+    | '/sequence-blueprint'
     | '/settings'
     | '/subsequences'
     | '/suppressions'
@@ -617,11 +667,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/47-templates'
     | '/about'
     | '/analytics'
     | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/deliverability-bible'
     | '/features'
     | '/goals'
     | '/inbox'
@@ -634,7 +686,10 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/reply-agent'
+    | '/reply-rate-formula'
+    | '/resources'
     | '/salesflows'
+    | '/sequence-blueprint'
     | '/settings'
     | '/subsequences'
     | '/suppressions'
@@ -678,11 +733,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/47-templates'
     | '/about'
     | '/analytics'
     | '/contact'
     | '/copilot'
     | '/dashboard'
+    | '/deliverability-bible'
     | '/features'
     | '/goals'
     | '/inbox'
@@ -695,7 +752,10 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/reply-agent'
+    | '/reply-rate-formula'
+    | '/resources'
     | '/salesflows'
+    | '/sequence-blueprint'
     | '/settings'
     | '/subsequences'
     | '/suppressions'
@@ -740,11 +800,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R47TemplatesRoute: typeof R47TemplatesRoute
   AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ContactRoute: typeof ContactRoute
   CopilotRoute: typeof CopilotRoute
   DashboardRoute: typeof DashboardRoute
+  DeliverabilityBibleRoute: typeof DeliverabilityBibleRoute
   FeaturesRoute: typeof FeaturesRoute
   GoalsRoute: typeof GoalsRoute
   InboxRoute: typeof InboxRoute
@@ -757,7 +819,10 @@ export interface RootRouteChildren {
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
   ReplyAgentRoute: typeof ReplyAgentRoute
+  ReplyRateFormulaRoute: typeof ReplyRateFormulaRoute
+  ResourcesRoute: typeof ResourcesRoute
   SalesflowsRoute: typeof SalesflowsRoute
+  SequenceBlueprintRoute: typeof SequenceBlueprintRoute
   SettingsRoute: typeof SettingsRoute
   SubsequencesRoute: typeof SubsequencesRoute
   SuppressionsRoute: typeof SuppressionsRoute
@@ -850,11 +915,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sequence-blueprint': {
+      id: '/sequence-blueprint'
+      path: '/sequence-blueprint'
+      fullPath: '/sequence-blueprint'
+      preLoaderRoute: typeof SequenceBlueprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/salesflows': {
       id: '/salesflows'
       path: '/salesflows'
       fullPath: '/salesflows'
       preLoaderRoute: typeof SalesflowsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reply-rate-formula': {
+      id: '/reply-rate-formula'
+      path: '/reply-rate-formula'
+      fullPath: '/reply-rate-formula'
+      preLoaderRoute: typeof ReplyRateFormulaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reply-agent': {
@@ -941,6 +1027,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deliverability-bible': {
+      id: '/deliverability-bible'
+      path: '/deliverability-bible'
+      fullPath: '/deliverability-bible'
+      preLoaderRoute: typeof DeliverabilityBibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -974,6 +1067,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/47-templates': {
+      id: '/47-templates'
+      path: '/47-templates'
+      fullPath: '/47-templates'
+      preLoaderRoute: typeof R47TemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1231,11 +1331,13 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R47TemplatesRoute: R47TemplatesRoute,
   AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
   ContactRoute: ContactRoute,
   CopilotRoute: CopilotRoute,
   DashboardRoute: DashboardRoute,
+  DeliverabilityBibleRoute: DeliverabilityBibleRoute,
   FeaturesRoute: FeaturesRoute,
   GoalsRoute: GoalsRoute,
   InboxRoute: InboxRoute,
@@ -1248,7 +1350,10 @@ const rootRouteChildren: RootRouteChildren = {
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
   ReplyAgentRoute: ReplyAgentRoute,
+  ReplyRateFormulaRoute: ReplyRateFormulaRoute,
+  ResourcesRoute: ResourcesRoute,
   SalesflowsRoute: SalesflowsRoute,
+  SequenceBlueprintRoute: SequenceBlueprintRoute,
   SettingsRoute: SettingsRoute,
   SubsequencesRoute: SubsequencesRoute,
   SuppressionsRoute: SuppressionsRoute,
