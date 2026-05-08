@@ -6,7 +6,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { platformAnalytics } from "@/lib/admin.functions";
 import { Globe, Webhook, Calendar, MessageSquare, Plug, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/admin/integrations")({
+export const Route = createFileRoute("/admin/integrations/")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
 });
 function Page() {
