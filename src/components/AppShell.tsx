@@ -5,9 +5,6 @@ import {
   ShieldCheck, Search, Command, ChevronDown, Activity,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { getMyAdminRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -66,10 +63,8 @@ const groups: NavGroup[] = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { location } = useRouterState();
-  const fetchRoles = useServerFn(getMyAdminRoles);
-  const { data: roleData } = useQuery({ queryKey: ["my-admin-roles"], queryFn: () => fetchRoles() });
-  const isAdmin = (roleData?.roles?.length ?? 0) > 0;
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
+  const isAdmin = user?.email?.toLowerCase() === "pranav@insanex.io";
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
