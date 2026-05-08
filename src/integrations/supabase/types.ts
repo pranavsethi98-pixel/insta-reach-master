@@ -1146,6 +1146,36 @@ export type Database = {
           },
         ]
       }
+      marketing_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           calendly_event_uri: string | null
