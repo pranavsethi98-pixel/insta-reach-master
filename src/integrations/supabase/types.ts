@@ -1626,6 +1626,8 @@ export type Database = {
           ai_reply_trigger_labels: string[] | null
           ai_reply_used_this_month: number | null
           business_context: string | null
+          business_name: string | null
+          business_type: string | null
           calendar_link: string | null
           calendly_event_uri: string | null
           calendly_token: string | null
@@ -1636,6 +1638,7 @@ export type Database = {
           full_name: string | null
           ghl_sync_excluded: boolean
           id: string
+          phone: string | null
           slack_webhook_url: string | null
           website_url: string | null
         }
@@ -1648,6 +1651,8 @@ export type Database = {
           ai_reply_trigger_labels?: string[] | null
           ai_reply_used_this_month?: number | null
           business_context?: string | null
+          business_name?: string | null
+          business_type?: string | null
           calendar_link?: string | null
           calendly_event_uri?: string | null
           calendly_token?: string | null
@@ -1658,6 +1663,7 @@ export type Database = {
           full_name?: string | null
           ghl_sync_excluded?: boolean
           id: string
+          phone?: string | null
           slack_webhook_url?: string | null
           website_url?: string | null
         }
@@ -1670,6 +1676,8 @@ export type Database = {
           ai_reply_trigger_labels?: string[] | null
           ai_reply_used_this_month?: number | null
           business_context?: string | null
+          business_name?: string | null
+          business_type?: string | null
           calendar_link?: string | null
           calendly_event_uri?: string | null
           calendly_token?: string | null
@@ -1680,6 +1688,7 @@ export type Database = {
           full_name?: string | null
           ghl_sync_excluded?: boolean
           id?: string
+          phone?: string | null
           slack_webhook_url?: string | null
           website_url?: string | null
         }
