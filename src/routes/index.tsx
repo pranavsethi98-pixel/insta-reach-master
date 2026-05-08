@@ -11,9 +11,9 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Outreachly — Cold email outreach that lands in inboxes" },
+      { title: "EmailSend — Cold email outreach that lands in inboxes" },
       { name: "description", content: "Send cold email at scale across unlimited mailboxes. Built-in warmup, AI personalization, and reply detection. The modern alternative to Instantly." },
-      { property: "og:title", content: "Outreachly — Cold email outreach that lands in inboxes" },
+      { property: "og:title", content: "EmailSend — Cold email outreach that lands in inboxes" },
       { property: "og:description", content: "Unlimited mailboxes, AI personalization, warmup, and reply detection — in one clean workspace." },
     ],
   }),
@@ -114,7 +114,7 @@ function Landing() {
       <FeatureBlock
         eyebrow="Sending infrastructure"
         title="Unlimited mailboxes. Smart rotation."
-        desc="Connect Google, Microsoft, or any SMTP. Outreachly automatically rotates sends across your inboxes with daily caps and randomized delays — so you scale without burning a single domain."
+        desc="Connect Google, Microsoft, or any SMTP. EmailSend automatically rotates sends across your inboxes with daily caps and randomized delays — so you scale without burning a single domain."
         bullets={["Connect mailboxes in 30 seconds", "Per-mailbox daily caps", "Smart sending windows by timezone", "Auto-pause on bounce spikes"]}
         visual={<MailboxRotationVisual />}
       />
@@ -195,7 +195,7 @@ function Landing() {
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { q: "We ditched 4 tools and replaced them with Outreachly. Reply rates jumped 2.3x in the first month.", n: "Sarah Chen", r: "Head of Growth, Helios" },
+            { q: "We ditched 4 tools and replaced them with EmailSend. Reply rates jumped 2.3x in the first month.", n: "Sarah Chen", r: "Head of Growth, Helios" },
             { q: "The warmup is the real deal. Our domain reputation has never been healthier and we're sending 5x more.", n: "Marcus Webb", r: "Founder, Quanta" },
             { q: "Setup took 10 minutes. The AI Copilot writes better subject lines than my team. This is the future.", n: "Priya Patel", r: "VP Sales, Lumen" },
           ].map((t, i) => (

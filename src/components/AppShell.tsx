@@ -50,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg text-white">Outreachly</span>
+          <span className="font-bold text-lg text-white">EmailSend</span>
         </div>
         <nav className="flex-1 space-y-1">
           {nav.map(({ to, label, icon: Icon }) => {

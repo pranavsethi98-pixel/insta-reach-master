@@ -25,7 +25,7 @@ export function MarketingHeader() {
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_4px_0_0_oklch(0.32_0.15_270)]">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-extrabold text-lg tracking-tight">Outreachly</span>
+          <span className="font-extrabold text-lg tracking-tight">EmailSend</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1">
           {nav.map((n) => (
@@ -64,7 +64,7 @@ export function MarketingFooter() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Zap className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-bold">Outreachly</span>
+            <span className="font-bold">EmailSend</span>
           </div>
           <p className="text-sm text-muted-foreground">Cold outreach that lands in inboxes — and gets replies.</p>
           <div className="flex gap-3 mt-4 text-muted-foreground">
@@ -97,7 +97,7 @@ export function MarketingFooter() {
         </div>
       </div>
       <div className="border-t border-border/60 py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Outreachly. All rights reserved.
+        © {new Date().getFullYear()} EmailSend. All rights reserved.
       </div>
     </footer>
   );

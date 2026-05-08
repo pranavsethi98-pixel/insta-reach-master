@@ -27,8 +27,8 @@ export async function fireWebhook(
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Outreachly-Event": event,
-            "X-Outreachly-Signature": `sha256=${sig}`,
+            "X-EmailSend-Event": event,
+            "X-EmailSend-Signature": `sha256=${sig}`,
           },
           body,
           signal: AbortSignal.timeout(8000),
