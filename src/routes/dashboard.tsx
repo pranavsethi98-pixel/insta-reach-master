@@ -173,18 +173,23 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Recent activity" desc="Latest sends across your mailboxes" actions={<StatusPill tone="ok">Streaming</StatusPill>}>
+        <Panel title="Recent activity" desc="Latest sends across your mailboxes — click to open in Inbox" actions={<StatusPill tone="ok">Streaming</StatusPill>}>
           {data?.recent?.length ? (
             <div className="-mx-1 divide-y divide-border/60">
               {data.recent.map((r: any, i: number) => {
                 const tone = r.replied_at ? "ok" : r.opened_at ? "warn" : r.status === "sent" ? "neutral" : "bad";
                 const label = r.replied_at ? "replied" : r.opened_at ? "opened" : r.status;
                 return (
-                  <div key={i} className="px-1 py-2.5 flex items-center gap-2 text-xs">
+                  <Link
+                    key={i}
+                    to="/inbox"
+                    search={{ q: r.to_email } as any}
+                    className="px-1 py-2.5 flex items-center gap-2 text-xs hover:bg-accent/40 rounded transition-colors"
+                  >
                     <Send className="w-3 h-3 text-muted-foreground/60 shrink-0" />
                     <span className="font-mono truncate flex-1">{r.to_email}</span>
                     <StatusPill tone={tone as any}>{label}</StatusPill>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -203,7 +208,7 @@ function Dashboard() {
                 const score = m.health_score ?? 100;
                 const tone = score >= 90 ? "ok" : score >= 70 ? "warn" : "bad";
                 return (
-                  <div key={m.id} className="flex items-center gap-3">
+                  <Link key={m.id} to="/mailboxes" className="flex items-center gap-3 -mx-2 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-bold">
                       {m.from_email?.[0]?.toUpperCase() ?? "?"}
                     </div>
@@ -214,7 +219,7 @@ function Dashboard() {
                       </div>
                     </div>
                     <div className="text-xs font-mono text-muted-foreground w-10 text-right">{score}%</div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
