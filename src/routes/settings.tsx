@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CheckCircle2, AlertCircle, Globe, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertCircle, Globe, Trash2, Pencil } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
 import { connectCalendly, disconnectCalendly, setCalendlyEvent } from "@/lib/calendly.functions";
 
