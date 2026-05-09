@@ -56,7 +56,7 @@ function VisitorsPage() {
               </div>
               <div className="flex gap-2">
                 <Input readOnly value={snippet} className="font-mono text-xs" />
-                <Button variant="outline" onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Copied snippet"); }}><Copy className="w-4 h-4" /></Button>
+                <Button variant="outline" type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigator.clipboard?.writeText(snippet).then(() => toast.success("Copied snippet")).catch(() => toast.error("Copy failed")); }}><Copy className="w-4 h-4" /></Button>
               </div>
               <p className="text-xs text-muted-foreground">Paste before <code>&lt;/body&gt;</code> on Webflow, WordPress, Wix, or any custom site.</p>
             </div>
