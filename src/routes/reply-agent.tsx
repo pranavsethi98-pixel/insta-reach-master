@@ -42,8 +42,7 @@ function ReplyAgentPage() {
   });
 
   return (
-    <AppShell>
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2"><Bot className="w-7 h-7"/> AI Reply Agent — Live Feed</h1>
           <p className="text-muted-foreground">Approve, edit, or reject AI-drafted replies before they send. Switch to Autopilot in Settings to skip approval.</p>
