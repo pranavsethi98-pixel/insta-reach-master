@@ -128,7 +128,7 @@ function AnalyticsPage() {
           </thead>
           <tbody>
             {byCampaign.map(c => (
-              <tr key={c.id} className="border-t border-border/60 hover:bg-muted/20 transition-colors">
+              <tr key={c.id} onClick={() => navigate({ to: "/campaigns/$id", params: { id: c.id } })} className="border-t border-border/60 hover:bg-muted/30 cursor-pointer transition-colors">
                 <td className="p-3.5 font-medium">{c.name}</td>
                 <td className="p-3.5 text-right font-mono">{c.sent}</td>
                 <td className="p-3.5 text-right font-mono">{c.opened}</td>
