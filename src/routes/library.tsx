@@ -68,8 +68,8 @@ function LibraryPage() {
       </div>
 
       <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit">
-        {(["all", "template", "sop"] as const).map(t => (
-          <button key={t} onClick={() => setFilter(t)} className={`px-3 py-1 text-sm rounded-md capitalize ${filter === t ? "bg-background shadow-sm" : "text-muted-foreground"}`}>{t}</button>
+        {([["all","All"],["template","Templates"],["sop","SOPs"]] as const).map(([t,label]) => (
+          <button key={t} onClick={() => setFilter(t as any)} className={`px-3 py-1 text-sm rounded-md ${filter === t ? "bg-background shadow-sm" : "text-muted-foreground"}`}>{label}</button>
         ))}
       </div>
 
