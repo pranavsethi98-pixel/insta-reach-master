@@ -51,6 +51,7 @@ function GoalsPage() {
   const refresh = () => { qc.invalidateQueries({ queryKey: ["goals"] }); };
 
   const create = async () => {
+    if (!draft.target || draft.target <= 0) { toast.error("Target must be greater than 0"); return; }
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
     const { error } = await supabase.from("goals").insert({ ...draft, user_id: u.user.id });
