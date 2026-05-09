@@ -7,6 +7,7 @@ import {
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 type NavItem = { to: string; label: string; icon: any };
@@ -64,6 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { location } = useRouterState();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const isAdmin = user?.email?.toLowerCase() === "pranav@insanex.io";
 
   useEffect(() => {
@@ -72,6 +74,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       const { data: p } = await supabase.from("profiles").select("full_name,email").eq("id", data.user.id).maybeSingle();
       setUser({ email: data.user.email, full_name: p?.full_name ?? data.user.email ?? "" });
     });
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const logout = async () => {
@@ -101,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Search hint */}
         <div className="px-3 pb-2">
-          <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-accent/40 hover:bg-sidebar-accent text-sidebar-foreground/70 text-[12px] transition-colors border border-sidebar-border/50">
+          <button onClick={() => setPaletteOpen(true)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-accent/40 hover:bg-sidebar-accent text-sidebar-foreground/70 text-[12px] transition-colors border border-sidebar-border/50">
             <Search className="w-3.5 h-3.5" />
             <span className="flex-1 text-left">Search…</span>
             <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-sidebar/80 border border-sidebar-border flex items-center gap-0.5">
@@ -194,6 +207,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="max-w-7xl mx-auto p-8">{children}</div>
       </main>
+
+      <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
+        <CommandInput placeholder="Jump to a page…" />
+        <CommandList>
+          <CommandEmpty>No matches.</CommandEmpty>
+          {groups.map((g) => (
+            <CommandGroup key={g.title} heading={g.title}>
+              {g.items.map((it) => (
+                <CommandItem key={it.to} value={`${it.label} ${it.to}`} onSelect={() => { setPaletteOpen(false); navigate({ to: it.to as any }); }}>
+                  <it.icon className="w-4 h-4 mr-2" /> {it.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }
