@@ -38,7 +38,14 @@ function TeamPage() {
   const { data: members } = useQuery({
     queryKey: ["members", ws?.id],
     enabled: !!ws,
-    queryFn: async () => (await supabase.from("workspace_members").select("*").eq("workspace_id", ws!.id)).data ?? [],
+    queryFn: async () => {
+      const { data: rows } = await supabase.from("workspace_members").select("*").eq("workspace_id", ws!.id);
+      const ids = (rows ?? []).map((m: any) => m.user_id);
+      if (!ids.length) return [];
+      const { data: profs } = await supabase.from("profiles").select("id, full_name, email").in("id", ids);
+      const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      return (rows ?? []).map((m: any) => ({ ...m, profile: byId.get(m.user_id) ?? null }));
+    },
   });
   const { data: invites } = useQuery({
     queryKey: ["invites", ws?.id],
@@ -104,12 +111,19 @@ function TeamPage() {
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-2 mb-4 font-semibold"><Users className="w-4 h-4" />Members ({members?.length ?? 0})</div>
         <div className="space-y-2">
-          {(members ?? []).map(m => (
-            <div key={m.user_id} className="flex items-center justify-between py-2 border-b last:border-0">
-              <span className="text-sm font-mono">{m.user_id.slice(0, 8)}…</span>
-              <Badge>{m.role}</Badge>
-            </div>
-          ))}
+          {(members ?? []).map((m: any) => {
+            const name = m.profile?.full_name?.trim();
+            const email = m.profile?.email;
+            return (
+              <div key={m.user_id} className="flex items-center justify-between py-2 border-b last:border-0">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{name || email || `User ${m.user_id.slice(0, 8)}…`}</div>
+                  {name && email && <div className="text-xs text-muted-foreground truncate">{email}</div>}
+                </div>
+                <Badge>{m.role}</Badge>
+              </div>
+            );
+          })}
         </div>
       </Card>
 
