@@ -79,7 +79,8 @@ function SubsequencesPage() {
               <Button variant="ghost" size="icon" onClick={() => delMut.mutate(s.id)}><Trash2 className="w-4 h-4"/></Button>
             </Card>
           ))}
-          {!data?.items.length && <p className="text-muted-foreground text-sm">No subsequences yet.</p>}
+          {error && <Card className="p-4 border-destructive text-sm text-destructive">Failed to load: {(error as any)?.message ?? "unknown error"}</Card>}
+          {!error && !isLoading && !data?.items.length && <p className="text-muted-foreground text-sm">No subsequences yet.</p>}
         </div>
       </div>
     </AppShell>
