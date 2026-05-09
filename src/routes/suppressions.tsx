@@ -18,7 +18,7 @@ export const Route = createFileRoute("/suppressions")({
 function Page() {
   const qc = useQueryClient();
   const [val, setVal] = useState("");
-  const { data: rows } = useQuery({
+  const { data: rows, isLoading } = useQuery({
     queryKey: ["suppressions"],
     queryFn: async () => (await supabase.from("suppressions").select("*").order("created_at", { ascending: false })).data ?? [],
   });
@@ -66,6 +66,7 @@ function Page() {
         <Button onClick={add}><Plus className="w-4 h-4 mr-2" /> Add</Button>
       </div>
       <div className="bg-card border rounded-xl divide-y">
+        {isLoading && [1,2,3].map(i => <div key={i} className="p-4 h-12 animate-pulse bg-muted/30" />)}
         {(rows ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No suppressions.</div>}
         {rows?.map(r => (
           <div key={r.id} className="p-3 flex items-center justify-between">

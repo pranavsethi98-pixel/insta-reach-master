@@ -16,7 +16,7 @@ export const Route = createFileRoute("/warmup")({
 
 function WarmupPage() {
   const qc = useQueryClient();
-  const { data: mailboxes } = useQuery({
+  const { data: mailboxes, isLoading } = useQuery({
     queryKey: ["mailboxes-warmup"],
     queryFn: async () => (await supabase.from("mailboxes").select("*").order("created_at")).data ?? [],
   });
@@ -57,6 +57,9 @@ function WarmupPage() {
         </div>
       )}
 
+      {isLoading && (
+        <div className="grid gap-3">{[1,2,3].map(i => <div key={i} className="h-32 rounded-xl bg-muted/40 animate-pulse" />)}</div>
+      )}
       <div className="grid gap-3">
         {mailboxes?.map((m) => {
           const startedDays = m.warmup_started_at
