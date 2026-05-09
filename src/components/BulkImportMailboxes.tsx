@@ -27,14 +27,18 @@ export function BulkImportMailboxes({ onImported }: { onImported: () => void }) 
     } catch (e: any) { toast.error(e.message); }
   };
   const onPaste = () => {
+    if (!pasted.trim()) { toast.error("Paste CSV text first (with a header row)."); return; }
     try {
       const parsed = parseCsvText(pasted);
+      if (!parsed.length) { toast.error("No accounts found — check that you included email and password columns."); return; }
       setRows(parsed);
       toast.success(`Parsed ${parsed.length} rows`);
     } catch (e: any) { toast.error(e.message); }
   };
   const onPairs = () => {
+    if (!pairs.trim()) { toast.error("Paste email,password pairs first (one per line)."); return; }
     const parsed = parsePastedPairs(pairs);
+    if (!parsed.length) { toast.error("No accounts found — paste lines like: me@gmail.com,app-password"); return; }
     setRows(parsed);
     toast.success(`Parsed ${parsed.length} accounts`);
   };

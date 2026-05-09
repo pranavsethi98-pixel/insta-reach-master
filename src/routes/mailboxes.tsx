@@ -244,7 +244,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
             {Object.keys(PRESETS).map(p => (
               <Button key={p} type="button" size="sm" variant={preset === p ? "default" : "outline"} onClick={() => applyPreset(p)}>{p}</Button>
             ))}
-            <Button type="button" size="sm" variant={preset === "Custom" ? "default" : "outline"} onClick={() => setPreset("Custom")}>Custom</Button>
+            <Button type="button" size="sm" variant={preset === "Custom" ? "default" : "outline"} onClick={() => { setPreset("Custom"); setForm(f => ({ ...f, smtp_host: "", smtp_port: 587, smtp_secure: false, imap_host: "", imap_port: 993, imap_secure: true })); }}>Custom</Button>
           </div>
           {preset === "Gmail" && (
             <p className="text-xs text-muted-foreground mt-2">For Gmail you need an <a className="underline" target="_blank" href="https://myaccount.google.com/apppasswords">App Password</a> (regular password won't work).</p>

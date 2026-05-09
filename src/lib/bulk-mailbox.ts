@@ -100,7 +100,7 @@ export function parsePastedPairs(text: string): BulkRow[] {
     .map(l => l.trim())
     .filter(Boolean)
     .map(line => {
-      const parts = line.split(/[,;|\t]| {2,}/).map(s => s.trim()).filter(Boolean);
+      const parts = line.split(/[,;|\t ]+/).map(s => s.trim()).filter(Boolean);
       if (parts.length < 2) return null;
       return normalizeRow({ email: parts[0], password: parts.slice(1).join(" ") });
     })
