@@ -25,7 +25,7 @@ const STARTER = [
 
 function LibraryPage() {
   const qc = useQueryClient();
-  const [filter, setFilter] = useState<"all" | "template" | "sop">("all");
+  const [filter, setFilter] = useState<"all" | "template" | "sop" | "snippet">("all");
   const [editing, setEditing] = useState<any>(null);
 
   const { data: items } = useQuery({
@@ -68,7 +68,7 @@ function LibraryPage() {
       </div>
 
       <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit">
-        {([["all","All"],["template","Templates"],["sop","SOPs"]] as const).map(([t,label]) => (
+        {([["all","All"],["template","Templates"],["sop","SOPs"],["snippet","Snippets"]] as const).map(([t,label]) => (
           <button key={t} onClick={() => setFilter(t as any)} className={`px-3 py-1 text-sm rounded-md ${filter === t ? "bg-background shadow-sm" : "text-muted-foreground"}`}>{label}</button>
         ))}
       </div>

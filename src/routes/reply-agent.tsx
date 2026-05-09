@@ -49,11 +49,11 @@ function ReplyAgentPage() {
         </div>
 
         {isLoading && <p>Loading…</p>}
-        {!isLoading && data?.items.length === 0 && (
+        {!isLoading && (data?.items?.length ?? 0) === 0 && (
           <Card className="p-8 text-center">
             <Sparkles className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
             <p className="font-medium">Nothing to review</p>
-            <p className="text-sm text-muted-foreground">When a prospect replies, the AI will draft a response here.</p>
+            <p className="text-sm text-muted-foreground">When a prospect replies, the AI will draft a response here. Switch the mode in <a className="underline" href="/settings">Settings</a>.</p>
           </Card>
         )}
 

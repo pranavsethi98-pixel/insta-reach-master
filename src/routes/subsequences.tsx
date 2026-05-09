@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, GitBranch } from "lucide-react";
+import { Plus, Trash2, GitBranch, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { listSubsequences, upsertSubsequence, deleteSubsequence } from "@/lib/subsequences.functions";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ function SubsequencesPage() {
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
   const { data: campaigns } = useQuery({
     queryKey: ["campaigns-list"],
     queryFn: async () => (await supabase.from("campaigns").select("id, name")).data ?? [],
@@ -35,13 +36,17 @@ function SubsequencesPage() {
 
   const saveMut = useMutation({
     mutationFn: (v: any) => save({ data: v }),
-    onSuccess: () => { toast.success("Saved"); setOpen(false); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
+    onSuccess: () => { toast.success("Saved"); setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
     onError: (e: any) => toast.error(e?.message ?? "Failed to save subsequence"),
   });
   const delMut = useMutation({
     mutationFn: (id: string) => del({ data: { id } }),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
   });
+
+  const confirmDelete = (id: string, name: string) => {
+    if (window.confirm(`Delete subsequence "${name}"? This cannot be undone.`)) delMut.mutate(id);
+  };
 
   return (
     <AppShell>
@@ -51,11 +56,11 @@ function SubsequencesPage() {
             <h1 className="text-3xl font-bold flex items-center gap-2"><GitBranch className="w-7 h-7"/> Subsequences</h1>
             <p className="text-muted-foreground">Behavior-branched follow-ups. Trigger separate sequences when a lead opens, clicks, replies — or doesn't.</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
+          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
+            <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined} onClick={() => setEditing(null)}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
-              <DialogHeader><DialogTitle>New subsequence</DialogTitle></DialogHeader>
-              <SubseqForm campaigns={campaigns ?? []} onSave={(v) => saveMut.mutate(v)} />
+              <DialogHeader><DialogTitle>{editing ? "Edit subsequence" : "New subsequence"}</DialogTitle></DialogHeader>
+              <SubseqForm campaigns={campaigns ?? []} initial={editing} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -68,15 +73,18 @@ function SubsequencesPage() {
         <div className="grid gap-3">
           {data?.items.map((s: any) => (
             <Card key={s.id} className="p-4 flex items-center justify-between">
-              <div>
+              <button className="flex-1 text-left" onClick={() => { setEditing(s); setOpen(true); }}>
                 <div className="font-semibold flex items-center gap-2">
                   {s.name}
                   <Badge variant="outline">{s.trigger_event.replace("_", " ")}</Badge>
                   {!s.is_active && <Badge variant="secondary">Paused</Badge>}
                 </div>
                 <p className="text-sm text-muted-foreground">{s.steps?.length ?? 0} steps · triggers {s.trigger_after_days}d after parent</p>
+              </button>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => { setEditing(s); setOpen(true); }} title="Edit"><Pencil className="w-4 h-4"/></Button>
+                <Button variant="ghost" size="icon" onClick={() => confirmDelete(s.id, s.name)} title="Delete"><Trash2 className="w-4 h-4"/></Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => delMut.mutate(s.id)}><Trash2 className="w-4 h-4"/></Button>
             </Card>
           ))}
           {error && <Card className="p-4 border-destructive text-sm text-destructive">Failed to load: {(error as any)?.message ?? "unknown error"}</Card>}
@@ -87,15 +95,20 @@ function SubsequencesPage() {
   );
 }
 
-function SubseqForm({ campaigns, onSave }: { campaigns: any[]; onSave: (v: any) => void }) {
+function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?: any; onSave: (v: any) => void }) {
   const [form, setForm] = useState({
-    parent_campaign_id: campaigns[0]?.id ?? "",
-    name: "",
-    trigger_event: "opened" as const,
-    trigger_after_days: 1,
-    is_active: true,
+    parent_campaign_id: initial?.parent_campaign_id ?? campaigns[0]?.id ?? "",
+    name: initial?.name ?? "",
+    trigger_event: (initial?.trigger_event ?? "opened") as "opened" | "clicked" | "replied" | "not_opened" | "not_replied",
+    trigger_after_days: initial?.trigger_after_days ?? 1,
+    is_active: initial?.is_active ?? true,
   });
-  const [steps, setSteps] = useState([{ step_order: 0, delay_days: 0, subject: "", body: "" }]);
+  type Step = { step_order: number; delay_days: number; subject: string; body: string };
+  const [steps, setSteps] = useState<Step[]>(
+    initial?.steps?.length
+      ? initial.steps.map((s: any, i: number) => ({ step_order: i, delay_days: s.delay_days ?? 0, subject: s.subject ?? "", body: s.body ?? "" }))
+      : [{ step_order: 0, delay_days: 0, subject: "", body: "" }]
+  );
 
   return (
     <div className="space-y-4">
