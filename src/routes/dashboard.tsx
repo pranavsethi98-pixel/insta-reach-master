@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -249,6 +249,7 @@ function Dashboard() {
 }
 
 function StepCard({ num, title, desc, to, done, disabled }: any) {
+  const navigate = useNavigate();
   const inner = (
     <div className={`relative rounded-xl bg-card/80 border p-4 h-full transition-all ${done ? "border-success/40 opacity-80" : "border-border hover:border-primary/50"} ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
       <div className="flex items-center gap-2.5 mb-2">
@@ -265,5 +266,10 @@ function StepCard({ num, title, desc, to, done, disabled }: any) {
       )}
     </div>
   );
-  return disabled ? inner : <Link to={to}>{inner}</Link>;
+  if (disabled) return inner;
+  return (
+    <a href={to} onClick={(e) => { e.preventDefault(); navigate({ to: to as any }); }} className="block">
+      {inner}
+    </a>
+  );
 }
