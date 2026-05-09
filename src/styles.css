@@ -77,6 +77,38 @@
   --sidebar-border: oklch(0.22 0.03 260);
 }
 
+/* Light mode — applied when <html class="light"> */
+.light {
+  --background: oklch(0.99 0.003 250);
+  --foreground: oklch(0.18 0.025 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.025 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.025 260);
+  --primary: oklch(0.55 0.22 263);
+  --primary-foreground: oklch(0.99 0.003 250);
+  --secondary: oklch(0.96 0.008 250);
+  --secondary-foreground: oklch(0.18 0.025 260);
+  --muted: oklch(0.96 0.008 250);
+  --muted-foreground: oklch(0.45 0.02 260);
+  --accent: oklch(0.55 0.22 263);
+  --accent-foreground: oklch(0.99 0.003 250);
+  --destructive: oklch(0.62 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.55 0.16 162);
+  --success-foreground: oklch(0.99 0.003 250);
+  --warning: oklch(0.66 0.16 70);
+  --warning-foreground: oklch(0.18 0.025 260);
+  --border: oklch(0.9 0.008 250);
+  --input: oklch(0.94 0.008 250);
+  --ring: oklch(0.55 0.22 263);
+  --sidebar: oklch(0.13 0.018 260);
+  --sidebar-foreground: oklch(0.85 0.015 250);
+  --sidebar-accent: oklch(0.22 0.03 260);
+  --sidebar-accent-foreground: oklch(0.98 0.005 250);
+  --sidebar-border: oklch(0.22 0.03 260);
+}
+
 @layer base {
   * { border-color: var(--color-border); }
   html { scroll-behavior: smooth; }
