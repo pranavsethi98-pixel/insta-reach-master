@@ -60,7 +60,6 @@ function GoalsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Delete this goal?")) return;
     const { error } = await supabase.from("goals").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Goal deleted");
