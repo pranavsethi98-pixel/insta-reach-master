@@ -26,9 +26,17 @@ function Page() {
   const add = async () => {
     const v = val.trim().toLowerCase();
     if (!v) return;
+    const isDomain = !v.includes("@");
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const domainRe = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+    if (isDomain ? !domainRe.test(v) : !emailRe.test(v)) {
+      return toast.error("Enter a valid email or domain");
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const isDomain = !v.includes("@");
+    // Duplicate check
+    const dup = (rows ?? []).find((r: any) => (isDomain ? r.domain === v : r.email === v));
+    if (dup) return toast.error("Already suppressed");
     const { error } = await supabase.from("suppressions").insert({
       user_id: user.id,
       ...(isDomain ? { domain: v } : { email: v }),
@@ -41,6 +49,7 @@ function Page() {
   };
   const remove = async (id: string) => {
     await supabase.from("suppressions").delete().eq("id", id);
+    toast.success("Removed");
     qc.invalidateQueries({ queryKey: ["suppressions"] });
   };
 

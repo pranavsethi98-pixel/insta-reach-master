@@ -47,16 +47,17 @@ function TeamPage() {
   });
 
   const sendInvite = async () => {
-    if (!ws || !email) return;
+    if (!ws) return toast.error("No workspace");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email");
     try {
       const res = await inviteFn({ data: { workspaceId: ws.id, email, role } });
-      await navigator.clipboard.writeText(res.inviteUrl);
+      try { await navigator.clipboard?.writeText(res.inviteUrl); } catch {}
       toast.success("Invite created — link copied to clipboard");
       setEmail("");
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["invites", ws.id] });
     } catch (e: any) {
-      toast.error(e.message ?? "Failed");
+      toast.error(e?.message ?? "Failed to create invite");
     }
   };
 

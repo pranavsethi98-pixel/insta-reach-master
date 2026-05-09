@@ -110,10 +110,21 @@ function LeadsPage() {
           return true;
         });
         if (rows.length === 0) return toast.error("No valid rows. CSV must have an 'email' column.");
-        // Upsert to handle duplicates
-        const { error, count } = await supabase.from("leads").upsert(rows, { onConflict: "user_id,email", ignoreDuplicates: true, count: "exact" });
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const valid = rows.filter(r => emailRe.test(r.email));
+        const skippedInvalid = rows.length - valid.length;
+        if (valid.length === 0) return toast.error("No valid email addresses found in CSV.");
+        // De-dupe against existing leads (unique index is on lower(email), so onConflict can't be used)
+        const { data: existing } = await supabase.from("leads").select("email").in("email", valid.map(r => r.email));
+        const existingSet = new Set((existing ?? []).map((r: any) => r.email.toLowerCase()));
+        const toInsert = valid.filter(r => !existingSet.has(r.email));
+        if (toInsert.length === 0) {
+          toast.success(`No new leads — all ${valid.length} already exist${skippedInvalid ? `, ${skippedInvalid} invalid skipped` : ""}.`);
+          return;
+        }
+        const { error } = await supabase.from("leads").insert(toInsert);
         if (error) return toast.error(error.message);
-        toast.success(`Imported ${count ?? rows.length} leads (duplicates skipped)`);
+        toast.success(`Imported ${toInsert.length} leads${valid.length - toInsert.length ? `, ${valid.length - toInsert.length} duplicates skipped` : ""}${skippedInvalid ? `, ${skippedInvalid} invalid skipped` : ""}.`);
         qc.invalidateQueries({ queryKey: ["leads"] });
       },
     });
@@ -189,9 +200,11 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "" });
   const save = async () => {
+    const email = form.email.toLowerCase().trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("leads").insert({ ...form, email: form.email.toLowerCase().trim(), user_id: user.id });
+    const { error } = await supabase.from("leads").insert({ ...form, email, user_id: user.id });
     if (error) return toast.error(error.message);
     toast.success("Lead added");
     setOpen(false);

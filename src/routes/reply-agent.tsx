@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { listReplyQueue, approveReply, rejectReply } from "@/lib/reply-agent.fun
 import { toast } from "sonner";
 import { Bot, Check, X, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/reply-agent")({ component: () => (<AppShell><ReplyAgentPage /></AppShell>) });
+export const Route = createFileRoute("/reply-agent")({ component: () => (<RequireAuth><AppShell><ReplyAgentPage /></AppShell></RequireAuth>) });
 
 const labelColor: Record<string, string> = {
   interested: "bg-emerald-500/10 text-emerald-600",
@@ -41,8 +42,7 @@ function ReplyAgentPage() {
   });
 
   return (
-    <AppShell>
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2"><Bot className="w-7 h-7"/> AI Reply Agent — Live Feed</h1>
           <p className="text-muted-foreground">Approve, edit, or reject AI-drafted replies before they send. Switch to Autopilot in Settings to skip approval.</p>
@@ -66,7 +66,6 @@ function ReplyAgentPage() {
           />
         ))}
       </div>
-    </AppShell>
   );
 }
 
