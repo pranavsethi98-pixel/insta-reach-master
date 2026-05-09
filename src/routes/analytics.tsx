@@ -13,10 +13,11 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
+  const [days, setDays] = (require("react") as typeof import("react")).useState(30);
   const { data } = useQuery({
-    queryKey: ["analytics"],
+    queryKey: ["analytics", days],
     queryFn: async () => {
-      const since = new Date(Date.now() - 30 * 86400000).toISOString();
+      const since = new Date(Date.now() - days * 86400000).toISOString();
       const [{ data: log }, { data: events }, { data: campaigns }] = await Promise.all([
         supabase.from("send_log").select("*").gte("sent_at", since).limit(5000),
         supabase.from("email_events").select("*").gte("created_at", since).limit(5000),
