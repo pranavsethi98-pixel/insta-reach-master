@@ -103,7 +103,8 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
     trigger_after_days: initial?.trigger_after_days ?? 1,
     is_active: initial?.is_active ?? true,
   });
-  const [steps, setSteps] = useState(
+  type Step = { step_order: number; delay_days: number; subject: string; body: string };
+  const [steps, setSteps] = useState<Step[]>(
     initial?.steps?.length
       ? initial.steps.map((s: any, i: number) => ({ step_order: i, delay_days: s.delay_days ?? 0, subject: s.subject ?? "", body: s.body ?? "" }))
       : [{ step_order: 0, delay_days: 0, subject: "", body: "" }]
