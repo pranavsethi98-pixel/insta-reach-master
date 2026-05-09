@@ -45,6 +45,8 @@ function SalesflowsPage() {
   const save = useServerFn(saveSalesflow);
   const run = useServerFn(runSalesflows);
   const [editing, setEditing] = useState<any>(null);
+  const [running, setRunning] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { data: flows } = useQuery({
     queryKey: ["salesflows"],
@@ -55,19 +57,32 @@ function SalesflowsPage() {
 
   const onSave = async () => {
     if (!editing?.name) return toast.error("Name required");
-    await save({ data: editing });
-    toast.success("Saved");
-    setEditing(null); refresh();
+    setSaving(true);
+    try {
+      await save({ data: editing });
+      toast.success("Flow saved");
+      setEditing(null); refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    } finally { setSaving(false); }
   };
 
-  const remove = async (id: string) => {
-    await supabase.from("salesflows").delete().eq("id", id);
+  const remove = async (id: string, name: string) => {
+    if (!window.confirm(`Delete salesflow "${name}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("salesflows").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted");
     refresh();
   };
 
   const triggerRun = async () => {
-    const { matched } = await run({});
-    toast.success(`Matched ${matched} new leads`);
+    setRunning(true);
+    try {
+      const { matched } = await run({});
+      toast.success(`Matched ${matched} new lead${matched === 1 ? "" : "s"}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Run failed");
+    } finally { setRunning(false); }
   };
 
   return (
@@ -78,7 +93,7 @@ function SalesflowsPage() {
           <p className="text-muted-foreground mt-1">Behavior-triggered automations. "If lead opens 3x in 7 days but no reply → mark Interested."</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={triggerRun}><Play className="w-4 h-4 mr-2" /> Run now</Button>
+          <Button variant="outline" onClick={triggerRun} disabled={running}><Play className="w-4 h-4 mr-2" /> {running ? "Running…" : "Run now"}</Button>
           <Button onClick={() => setEditing({ name: "", conditions: [{ field: "opened_count", op: "gte", value: 1 }], actions: [], is_active: true })}>
             <Plus className="w-4 h-4 mr-2" /> New flow
           </Button>
@@ -153,7 +168,7 @@ function SalesflowsPage() {
             ))}
           </div>
 
-          <div className="flex gap-2"><Button onClick={onSave}>Save flow</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
+          <div className="flex gap-2"><Button onClick={onSave} disabled={saving}>{saving ? "Saving…" : "Save flow"}</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
         </div>
       )}
 
@@ -167,7 +182,7 @@ function SalesflowsPage() {
             </div>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => setEditing(f)}>Edit</Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(f.id)}><Trash2 className="w-4 h-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(f.id, f.name)}><Trash2 className="w-4 h-4" /></Button>
             </div>
           </div>
         ))}
