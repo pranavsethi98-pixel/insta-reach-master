@@ -106,7 +106,7 @@ function GoalsPage() {
                   <div className="text-xs uppercase text-muted-foreground">{g.period}</div>
                   <div className="font-semibold">{label}</div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => supabase.from("goals").delete().eq("id", g.id).then(refresh)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => remove(g.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
               <div className="mt-3 text-2xl font-bold">{cur} <span className="text-sm font-normal text-muted-foreground">/ {g.target}</span></div>
               <div className="h-2 bg-muted rounded-full mt-2 overflow-hidden">
