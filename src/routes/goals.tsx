@@ -53,8 +53,18 @@ function GoalsPage() {
   const create = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    await supabase.from("goals").insert({ ...draft, user_id: u.user.id });
+    const { error } = await supabase.from("goals").insert({ ...draft, user_id: u.user.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Goal created");
     setAdding(false); refresh();
+  };
+
+  const remove = async (id: string) => {
+    if (!window.confirm("Delete this goal?")) return;
+    const { error } = await supabase.from("goals").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Goal deleted");
+    refresh();
   };
 
   return (
