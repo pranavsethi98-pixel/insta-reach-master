@@ -63,7 +63,7 @@ function AnalyticsPage() {
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Reporting · 30 days"
+        eyebrow={`Reporting · ${periodDays} days`}
         title="Analytics"
         desc="Sends, opens, replies, and bounces — sliced by campaign and day."
         meta={
@@ -71,6 +71,17 @@ function AnalyticsPage() {
             <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> auto-refresh · 15s</span>
             <span>{sent.toLocaleString()} sent</span>
             <span>{replyRate}% reply rate</span>
+            <select
+              value={periodDays}
+              onChange={(e) => setPeriodDays(Number(e.target.value))}
+              className="h-7 rounded-md border bg-background px-2 text-[11px] font-mono"
+              aria-label="Reporting period"
+            >
+              <option value={7}>7 days</option>
+              <option value={14}>14 days</option>
+              <option value={30}>30 days</option>
+              <option value={90}>90 days</option>
+            </select>
           </>
         }
       />
