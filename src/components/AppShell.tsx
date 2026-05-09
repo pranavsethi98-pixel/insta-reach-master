@@ -2,12 +2,13 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Mail, Users, Send, Inbox, LogOut, ArrowRight, Flame, BarChart3, Ban, KanbanSquare,
   UsersRound, Settings, Webhook, Sparkles, Workflow, Globe, BookOpen, Target, Bot, GitBranch, Calendar,
-  ShieldCheck, Search, Command, ChevronDown, Activity,
+  ShieldCheck, Search, Command, ChevronDown, Activity, Sun, Moon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
 type NavItem = { to: string; label: string; icon: any };
@@ -64,6 +65,7 @@ const groups: NavGroup[] = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { location } = useRouterState();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const isAdmin = user?.email?.toLowerCase() === "pranav@insanex.io";
@@ -193,6 +195,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="text-foreground font-semibold">{currentLabel}</span>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                title={theme === "dark" ? "Light mode" : "Dark mode"}
+              >
+                {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </Button>
               <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-muted-foreground" onClick={() => navigate({ to: "/analytics" })}>
                 <Activity className="w-3.5 h-3.5" /> Live
               </Button>
