@@ -38,6 +38,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CopilotRouteImport } from './routes/copilot'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AiCopilotRouteImport } from './routes/ai-copilot'
 import { Route as AdminnRouteImport } from './routes/adminn'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as R47TemplatesRouteImport } from './routes/47-templates'
@@ -226,6 +227,11 @@ const ContactRoute = ContactRouteImport.update({
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotRoute = AiCopilotRouteImport.update({
+  id: '/ai-copilot',
+  path: '/ai-copilot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminnRoute = AdminnRouteImport.update({
@@ -458,6 +464,7 @@ export interface FileRoutesByFullPath {
   '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/adminn': typeof AdminnRoute
+  '/ai-copilot': typeof AiCopilotRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
@@ -533,6 +540,7 @@ export interface FileRoutesByTo {
   '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/adminn': typeof AdminnRoute
+  '/ai-copilot': typeof AiCopilotRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
@@ -608,6 +616,7 @@ export interface FileRoutesById {
   '/47-templates': typeof R47TemplatesRoute
   '/about': typeof AboutRoute
   '/adminn': typeof AdminnRoute
+  '/ai-copilot': typeof AiCopilotRoute
   '/analytics': typeof AnalyticsRoute
   '/contact': typeof ContactRoute
   '/copilot': typeof CopilotRoute
@@ -685,6 +694,7 @@ export interface FileRouteTypes {
     | '/47-templates'
     | '/about'
     | '/adminn'
+    | '/ai-copilot'
     | '/analytics'
     | '/contact'
     | '/copilot'
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/47-templates'
     | '/about'
     | '/adminn'
+    | '/ai-copilot'
     | '/analytics'
     | '/contact'
     | '/copilot'
@@ -834,6 +845,7 @@ export interface FileRouteTypes {
     | '/47-templates'
     | '/about'
     | '/adminn'
+    | '/ai-copilot'
     | '/analytics'
     | '/contact'
     | '/copilot'
@@ -910,6 +922,7 @@ export interface RootRouteChildren {
   R47TemplatesRoute: typeof R47TemplatesRoute
   AboutRoute: typeof AboutRoute
   AdminnRoute: typeof AdminnRoute
+  AiCopilotRoute: typeof AiCopilotRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ContactRoute: typeof ContactRoute
   CopilotRoute: typeof CopilotRoute
@@ -1181,6 +1194,13 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot': {
+      id: '/ai-copilot'
+      path: '/ai-copilot'
+      fullPath: '/ai-copilot'
+      preLoaderRoute: typeof AiCopilotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adminn': {
@@ -1524,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   R47TemplatesRoute: R47TemplatesRoute,
   AboutRoute: AboutRoute,
   AdminnRoute: AdminnRoute,
+  AiCopilotRoute: AiCopilotRoute,
   AnalyticsRoute: AnalyticsRoute,
   ContactRoute: ContactRoute,
   CopilotRoute: CopilotRoute,

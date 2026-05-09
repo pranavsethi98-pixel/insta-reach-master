@@ -5,6 +5,10 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -17,12 +21,13 @@ export const Route = createFileRoute("/pipeline")({
 function PipelinePage() {
   const qc = useQueryClient();
   const [dragId, setDragId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<any>(null);
 
-  const { data: stages } = useQuery({
+  const { data: stages, isLoading: l1 } = useQuery({
     queryKey: ["pipeline_stages"],
     queryFn: async () => (await supabase.from("pipeline_stages").select("*").order("sort_order")).data ?? [],
   });
-  const { data: leads } = useQuery({
+  const { data: leads, isLoading: l2 } = useQuery({
     queryKey: ["pipeline_leads"],
     queryFn: async () => (await supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(500)).data ?? [],
   });
@@ -41,11 +46,26 @@ function PipelinePage() {
   const totalValue = (key: string) =>
     (leads ?? []).filter(l => (l.pipeline_stage ?? "new") === key).reduce((s, l) => s + Number(l.deal_value || 0), 0);
 
+  const saveEdit = async () => {
+    if (!editing) return;
+    await supabase.from("leads").update({ deal_value: Number(editing.deal_value || 0), notes: editing.notes ?? null }).eq("id", editing.id);
+    setEditing(null);
+    qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
+    toast.success("Deal updated");
+  };
+
+  const loading = l1 || l2;
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-1">Pipeline</h1>
-      <p className="text-muted-foreground mb-6">Drag deals between stages. Won/Lost auto-records the close date.</p>
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <p className="text-muted-foreground mb-6">Drag deals between stages. Scroll horizontally to see all stages. Click a card to edit deal value.</p>
+      {loading ? (
+        <div className="flex gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] flex-1 h-64 rounded-lg bg-muted/30 animate-pulse" />)}
+        </div>
+      ) : (
+      <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:thin]" style={{ scrollbarColor: "hsl(var(--muted-foreground) / 0.3) transparent" }}>
         {(stages ?? []).map(stage => {
           const items = (leads ?? []).filter(l => (l.pipeline_stage ?? "new") === stage.key);
           return (
@@ -71,7 +91,8 @@ function PipelinePage() {
                     key={lead.id}
                     draggable
                     onDragStart={() => setDragId(lead.id)}
-                    className="p-3 cursor-grab active:cursor-grabbing hover:border-primary transition-colors"
+                    onClick={() => setEditing({ ...lead })}
+                    className="p-3 cursor-pointer hover:border-primary transition-colors"
                   >
                     <div className="font-medium text-sm truncate">
                       {lead.first_name || lead.last_name
@@ -92,6 +113,26 @@ function PipelinePage() {
           );
         })}
       </div>
+      )}
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit deal</DialogTitle></DialogHeader>
+          {editing && (
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground">{editing.email}</div>
+              <div>
+                <Label>Deal value ($)</Label>
+                <Input type="number" min={0} value={editing.deal_value ?? 0} onChange={(e) => setEditing({ ...editing, deal_value: e.target.value })} />
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <textarea className="w-full min-h-24 rounded-md border bg-background p-2 text-sm" value={editing.notes ?? ""} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
+              </div>
+              <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={saveEdit}>Save</Button></div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
