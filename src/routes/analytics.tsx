@@ -87,7 +87,7 @@ function AnalyticsPage() {
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Sent · 30d" value={sent.toLocaleString()} sub={`${failed} failed`} icon={Mail} />
+        <StatCard label={`Sent · ${periodDays}d`} value={sent.toLocaleString()} sub={`${failed} failed`} icon={Mail} />
         <StatCard label="Open rate" value={`${openRate}%`} sub={`${opened} opens`} icon={Eye} accent />
         <StatCard label="Reply rate" value={`${replyRate}%`} sub={`${replied} replies`} icon={Reply} accent />
         <StatCard label="Bounces" value={bounced} sub="Auto-suppressed" icon={AlertTriangle} />
