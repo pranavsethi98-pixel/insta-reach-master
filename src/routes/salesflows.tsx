@@ -182,7 +182,7 @@ function SalesflowsPage() {
             </div>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => setEditing(f)}>Edit</Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(f.id)}><Trash2 className="w-4 h-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(f.id, f.name)}><Trash2 className="w-4 h-4" /></Button>
             </div>
           </div>
         ))}
