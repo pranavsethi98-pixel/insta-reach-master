@@ -265,5 +265,5 @@ function StepCard({ num, title, desc, to, done, disabled }: any) {
       )}
     </div>
   );
-  return disabled ? inner : <Link to={to}>{inner}</Link>;
+  return disabled ? inner : <a href={to} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", to); window.dispatchEvent(new PopStateEvent("popstate")); }}>{inner}</a>;
 }
