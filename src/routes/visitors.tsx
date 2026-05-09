@@ -26,9 +26,11 @@ function VisitorsPage() {
   });
 
   const create = async () => {
+    const label = window.prompt("Pixel name (e.g. Marketing site)", "")?.trim();
+    if (!label) return;
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const { error } = await supabase.from("visitor_pixels").insert({ user_id: u.user.id, label: "My Website" });
+    const { error } = await supabase.from("visitor_pixels").insert({ user_id: u.user.id, label });
     if (error) return toast.error(error.message);
     toast.success("Pixel created");
     qc.invalidateQueries({ queryKey: ["pixels"] });
