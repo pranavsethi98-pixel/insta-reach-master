@@ -184,7 +184,7 @@ function SetupPanel() {
         </p>
       </div>
       <div className="flex gap-2">
-        <input readOnly value={url} className="flex-1 bg-muted rounded px-3 py-2 text-sm font-mono" />
+        <input readOnly value={url} className="flex-1 bg-muted text-foreground rounded px-3 py-2 text-sm font-mono" />
         <Button variant="outline" onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied"); }}>
           <Copy className="w-4 h-4" />
         </Button>

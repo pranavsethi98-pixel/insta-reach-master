@@ -171,9 +171,9 @@ export const Route = createFileRoute("/api/public/process-queue")({
             const bodyTpl = bodyVariants[variantIdx % bodyVariants.length] ?? "";
 
             // Apply merge tags incl. calendar_link from sender's profile + unsubscribe url
-            const { data: prof } = await supabase.from("profiles").select("calendar_link").eq("id", camp.user_id).maybeSingle();
+            const { data: prof } = await supabase.from("profiles").select("calendar_link, full_name, company_name").eq("id", camp.user_id).maybeSingle();
             const unsubscribeUrl = `${origin}/unsubscribe/${cl.lead_id}`;
-            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "", calendar_link: prof?.calendar_link || "", unsubscribe_url: unsubscribeUrl };
+            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "", calendar_link: prof?.calendar_link || "", unsubscribe_url: unsubscribeUrl, sender_name: prof?.full_name || mb.from_name || "", sender_company: prof?.company_name || "" };
             const subject = renderEmail(subjectTpl, leadForRender);
             const body = renderEmail(bodyTpl, leadForRender);
 

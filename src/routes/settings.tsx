@@ -33,7 +33,11 @@ function SettingsPage() {
 
   const add = async () => {
     if (!domain) return;
-    const { error } = await supabase.from("tracking_domains").insert({ domain: domain.trim().toLowerCase() } as any);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return toast.error("Not signed in");
+    const clean = domain.trim().toLowerCase();
+    if (!/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain like track.yourbrand.com");
+    const { error } = await supabase.from("tracking_domains").insert({ domain: clean, user_id: user.id } as any);
     if (error) return toast.error(error.message);
     setDomain("");
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
@@ -204,10 +208,19 @@ function ReplyAgentCard() {
       </div>
       <div className="mt-3">
         <Label className="text-xs">Slack webhook (escalations)</Label>
-        <Input placeholder="https://hooks.slack.com/services/..." defaultValue={profile?.slack_webhook_url ?? ""}
-          onBlur={(e) => update({ slack_webhook_url: e.target.value || null })} />
+        <SlackWebhookField initial={profile?.slack_webhook_url ?? ""} onSave={(v) => update({ slack_webhook_url: v || null })} />
       </div>
     </Card>
+  );
+}
+
+function SlackWebhookField({ initial, onSave }: { initial: string; onSave: (v: string) => void }) {
+  const [val, setVal] = useState(initial);
+  return (
+    <div className="flex gap-2">
+      <Input placeholder="https://hooks.slack.com/services/..." value={val} onChange={(e) => setVal(e.target.value)} />
+      <Button onClick={() => { if (val && !/^https:\/\/hooks\.slack\.com\//.test(val)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(val); }}>Save</Button>
+    </div>
   );
 }
 

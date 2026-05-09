@@ -230,11 +230,15 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "" });
   const save = async () => {
     const email = form.email.toLowerCase().trim();
+    if (!email) return toast.error("Email is required");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { error } = await supabase.from("leads").insert({ ...form, email, user_id: user.id });
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (/duplicate|unique/i.test(error.message)) return toast.error("This email already exists in your leads");
+      return toast.error(error.message);
+    }
     toast.success("Lead added");
     setOpen(false);
     onCreated();
