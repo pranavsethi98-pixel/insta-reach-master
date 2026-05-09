@@ -99,7 +99,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
   const [form, setForm] = useState({
     parent_campaign_id: initial?.parent_campaign_id ?? campaigns[0]?.id ?? "",
     name: initial?.name ?? "",
-    trigger_event: (initial?.trigger_event ?? "opened") as const,
+    trigger_event: (initial?.trigger_event ?? "opened") as "opened" | "clicked" | "replied" | "not_opened" | "not_replied",
     trigger_after_days: initial?.trigger_after_days ?? 1,
     is_active: initial?.is_active ?? true,
   });
