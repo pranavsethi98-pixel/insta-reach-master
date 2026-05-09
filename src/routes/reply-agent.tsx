@@ -12,7 +12,7 @@ import { listReplyQueue, approveReply, rejectReply } from "@/lib/reply-agent.fun
 import { toast } from "sonner";
 import { Bot, Check, X, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/reply-agent")({ component: ReplyAgentPage });
+export const Route = createFileRoute("/reply-agent")({ component: () => (<AppShell><ReplyAgentPage /></AppShell>) });
 
 const labelColor: Record<string, string> = {
   interested: "bg-emerald-500/10 text-emerald-600",
