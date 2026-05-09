@@ -5,7 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Globe, Copy, Plus } from "lucide-react";
+import { Globe, Copy, Plus, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/visitors")({
@@ -50,12 +51,18 @@ function VisitorsPage() {
           const snippet = `<script async src="${origin}/api/public/visitor.js?k=${p.pixel_key}"></script>`;
           return (
             <div key={p.id} className="bg-card border rounded-xl p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <Input className="max-w-xs" defaultValue={p.label} onBlur={(e) => supabase.from("visitor_pixels").update({ label: e.target.value }).eq("id", p.id)} />
-                <span className="text-xs text-muted-foreground">{p.is_active ? "Active" : "Paused"}</span>
+              <div className="flex items-center justify-between gap-2">
+                <Input className="max-w-xs" defaultValue={p.label} onBlur={(e) => supabase.from("visitor_pixels").update({ label: e.target.value }).eq("id", p.id).then(() => qc.invalidateQueries({ queryKey: ["pixels"] }))} />
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <Switch checked={!!p.is_active} onCheckedChange={async (v) => { await supabase.from("visitor_pixels").update({ is_active: v }).eq("id", p.id); qc.invalidateQueries({ queryKey: ["pixels"] }); }} />
+                    {p.is_active ? "Active" : "Paused"}
+                  </label>
+                  <Button size="icon" variant="ghost" onClick={async () => { if (!confirm("Delete this pixel?")) return; await supabase.from("visitor_pixels").delete().eq("id", p.id); toast.success("Pixel deleted"); qc.invalidateQueries({ queryKey: ["pixels"] }); }}><Trash2 className="w-4 h-4" /></Button>
+                </div>
               </div>
               <div className="flex gap-2">
-                <Input readOnly value={snippet} className="font-mono text-xs" />
+                <Input readOnly value={snippet} className="font-mono text-xs" onClick={(e) => (e.target as HTMLInputElement).select()} />
                 <Button variant="outline" type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigator.clipboard?.writeText(snippet).then(() => toast.success("Copied snippet")).catch(() => toast.error("Copy failed")); }}><Copy className="w-4 h-4" /></Button>
               </div>
               <p className="text-xs text-muted-foreground">Paste before <code>&lt;/body&gt;</code> on Webflow, WordPress, Wix, or any custom site.</p>

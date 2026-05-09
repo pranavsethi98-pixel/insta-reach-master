@@ -54,7 +54,14 @@ function MeetingsPage() {
               </div>
             </Card>
           ))}
-          {!data?.items.length && <p className="text-muted-foreground text-sm">No meetings yet.</p>}
+          {!data?.items.length && (
+            <Card className="p-10 text-center space-y-3">
+              <Calendar className="w-10 h-10 text-muted-foreground mx-auto" />
+              <p className="font-medium">No meetings yet</p>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">Meetings appear here automatically when a prospect books via your calendar link, or when the AI Reply Agent detects a confirmed booking. Connect Calendly under Settings → Integrations.</p>
+              <Button onClick={() => location.assign("/settings")}>Open settings</Button>
+            </Card>
+          )}
         </div>
       </div>
     </AppShell>
