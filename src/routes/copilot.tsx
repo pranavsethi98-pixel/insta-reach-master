@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
@@ -29,7 +29,13 @@ function CopilotPage() {
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
   const gen = useServerFn(generateCampaign);
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (result) outputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [result]);
 
   const { data: prof } = useQuery({
     queryKey: ["profile-context"],
@@ -47,7 +53,7 @@ function CopilotPage() {
 
   const run = async (save: boolean) => {
     if (prompt.trim().length < 5) return toast.error("Describe your campaign goal first");
-    setBusy(true);
+    if (save) setSaving(true); else setBusy(true);
     try {
       const r = await gen({ data: { prompt, saveAsCampaign: save } });
       setResult(r);
@@ -57,7 +63,7 @@ function CopilotPage() {
       }
     } catch (e: any) {
       toast.error(e.message ?? "AI failed");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setSaving(false); }
   };
 
   return (
@@ -89,18 +95,19 @@ function CopilotPage() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => run(false)} disabled={busy} variant="outline">
+          <Button onClick={() => run(false)} disabled={busy || saving} variant="outline">
             {busy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
             Generate preview
           </Button>
-          <Button onClick={() => run(true)} disabled={busy}>
-            <Save className="w-4 h-4 mr-2" /> Generate & save as campaign
+          <Button onClick={() => run(true)} disabled={busy || saving}>
+            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Generate & save as campaign
           </Button>
         </div>
       </div>
 
       {result && (
-        <div className="space-y-4">
+        <div ref={outputRef} className="space-y-4 scroll-mt-6">
           <div className="bg-card border rounded-xl p-5">
             <h2 className="font-semibold mb-2">ICP</h2>
             <div className="grid sm:grid-cols-2 gap-3 text-sm">
@@ -121,6 +128,13 @@ function CopilotPage() {
               <pre className="text-sm whitespace-pre-wrap mt-2 font-sans">{s.body}</pre>
             </div>
           ))}
+          <div className="flex justify-end gap-2 sticky bottom-2 bg-background/80 backdrop-blur p-2 rounded-lg border">
+            <Button variant="outline" onClick={() => { setResult(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Discard</Button>
+            <Button onClick={() => run(true)} disabled={saving || busy}>
+              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save as campaign
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -36,6 +36,7 @@ function SubsequencesPage() {
   const saveMut = useMutation({
     mutationFn: (v: any) => save({ data: v }),
     onSuccess: () => { toast.success("Saved"); setOpen(false); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to save subsequence"),
   });
   const delMut = useMutation({
     mutationFn: (id: string) => del({ data: { id } }),
@@ -158,7 +159,13 @@ function SubseqForm({ campaigns, onSave }: { campaigns: any[]; onSave: (v: any) 
         ))}
       </div>
 
-      <Button className="w-full" onClick={() => onSave({ ...form, steps })} disabled={!form.parent_campaign_id || !form.name}>
+      <Button className="w-full" onClick={() => {
+        if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
+        if (!form.name.trim()) return toast.error("Name is required");
+        const bad = steps.find(s => !s.subject.trim() || !s.body.trim());
+        if (bad) return toast.error("Every step needs a subject and body");
+        onSave({ ...form, steps });
+      }}>
         Save subsequence
       </Button>
     </div>

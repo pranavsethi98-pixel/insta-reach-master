@@ -122,11 +122,14 @@ function AddWebhookDialog({ onCreated }: { onCreated: () => void }) {
 
   const save = async () => {
     if (!/^https?:\/\//.test(url)) return toast.error("Enter a valid URL starting with http(s)://");
+    if (events.length === 0) return toast.error("Pick at least one event");
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) return toast.error("You must be signed in");
     const { error } = await supabase.from("webhooks").insert({ user_id: user.id, url: url.trim(), events } as any);
     if (error) return toast.error(error.message);
-    toast.success("Webhook added"); setOpen(false); setUrl(""); onCreated();
+    toast.success("Webhook added");
+    setOpen(false); setUrl(""); setEvents([...ALL_EVENTS]);
+    onCreated();
   };
 
   return (
