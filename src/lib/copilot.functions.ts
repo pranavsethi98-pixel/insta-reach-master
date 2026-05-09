@@ -94,6 +94,15 @@ export const generateCampaign = createServerFn({ method: "POST" })
     const call = json?.choices?.[0]?.message?.tool_calls?.[0];
     if (!call) throw new Error("AI did not return a campaign");
     const result = JSON.parse(call.function.arguments);
+    // Normalize single-brace merge tags like {CompanyName} → {{company_name}} (canonicalize known vars)
+    const KNOWN = ["first_name","last_name","email","company","title","website","linkedin","sender_name","sender_company","icebreaker"];
+    const normalize = (s: string) => (s ?? "").replace(/(?<!\{)\{([A-Za-z][\w]*)\}(?!\})/g, (_m, name: string) => {
+      const snake = name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+      const k = KNOWN.find(v => v === snake) ?? snake;
+      return `{{${k}}}`;
+    });
+    result.subject_variants = (result.subject_variants ?? []).map(normalize);
+    result.steps = (result.steps ?? []).map((s: any) => ({ ...s, subject: normalize(s.subject), body: normalize(s.body) }));
 
     let campaign_id: string | null = null;
     if (data.saveAsCampaign) {
