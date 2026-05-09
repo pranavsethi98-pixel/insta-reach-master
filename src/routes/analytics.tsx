@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,10 +14,11 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
+  const [periodDays, setPeriodDays] = useState(30);
   const { data } = useQuery({
-    queryKey: ["analytics"],
+    queryKey: ["analytics", periodDays],
     queryFn: async () => {
-      const since = new Date(Date.now() - 30 * 86400000).toISOString();
+      const since = new Date(Date.now() - periodDays * 86400000).toISOString();
       const [{ data: log }, { data: events }, { data: campaigns }] = await Promise.all([
         supabase.from("send_log").select("*").gte("sent_at", since).limit(5000),
         supabase.from("email_events").select("*").gte("created_at", since).limit(5000),
@@ -61,7 +63,7 @@ function AnalyticsPage() {
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Reporting · 30 days"
+        eyebrow={`Reporting · ${periodDays} days`}
         title="Analytics"
         desc="Sends, opens, replies, and bounces — sliced by campaign and day."
         meta={
@@ -69,12 +71,23 @@ function AnalyticsPage() {
             <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> auto-refresh · 15s</span>
             <span>{sent.toLocaleString()} sent</span>
             <span>{replyRate}% reply rate</span>
+            <select
+              value={periodDays}
+              onChange={(e) => setPeriodDays(Number(e.target.value))}
+              className="h-7 rounded-md border bg-background px-2 text-[11px] font-mono"
+              aria-label="Reporting period"
+            >
+              <option value={7}>7 days</option>
+              <option value={14}>14 days</option>
+              <option value={30}>30 days</option>
+              <option value={90}>90 days</option>
+            </select>
           </>
         }
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Sent · 30d" value={sent.toLocaleString()} sub={`${failed} failed`} icon={Mail} />
+        <StatCard label={`Sent · ${periodDays}d`} value={sent.toLocaleString()} sub={`${failed} failed`} icon={Mail} />
         <StatCard label="Open rate" value={`${openRate}%`} sub={`${opened} opens`} icon={Eye} accent />
         <StatCard label="Reply rate" value={`${replyRate}%`} sub={`${replied} replies`} icon={Reply} accent />
         <StatCard label="Bounces" value={bounced} sub="Auto-suppressed" icon={AlertTriangle} />
