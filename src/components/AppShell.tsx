@@ -119,9 +119,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {g.items.map(({ to, label, icon: Icon }) => {
                   const active = location.pathname === to || (to !== "/dashboard" && location.pathname.startsWith(to));
                   return (
-                    <Link
+                    <a
                       key={to}
-                      to={to}
+                      href={to}
+                      onClick={(e) => { e.preventDefault(); navigate({ to: to as any }); }}
                       className={cn(
                         "relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] transition-all group",
                         active
@@ -131,7 +132,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     >
                       <Icon className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{label}</span>
-                    </Link>
+                    </a>
                   );
                 })}
               </div>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Target, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/goals")({
   component: () => (<RequireAuth><AppShell><GoalsPage /></AppShell></RequireAuth>),
@@ -52,8 +53,18 @@ function GoalsPage() {
   const create = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    await supabase.from("goals").insert({ ...draft, user_id: u.user.id });
+    const { error } = await supabase.from("goals").insert({ ...draft, user_id: u.user.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Goal created");
     setAdding(false); refresh();
+  };
+
+  const remove = async (id: string) => {
+    if (!window.confirm("Delete this goal?")) return;
+    const { error } = await supabase.from("goals").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Goal deleted");
+    refresh();
   };
 
   return (
@@ -95,7 +106,7 @@ function GoalsPage() {
                   <div className="text-xs uppercase text-muted-foreground">{g.period}</div>
                   <div className="font-semibold">{label}</div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => supabase.from("goals").delete().eq("id", g.id).then(refresh)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => remove(g.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
               <div className="mt-3 text-2xl font-bold">{cur} <span className="text-sm font-normal text-muted-foreground">/ {g.target}</span></div>
               <div className="h-2 bg-muted rounded-full mt-2 overflow-hidden">
