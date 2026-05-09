@@ -14,6 +14,7 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
+  const navigate = useNavigate();
   const [periodDays, setPeriodDays] = useState(30);
   const { data } = useQuery({
     queryKey: ["analytics", periodDays],
