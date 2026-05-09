@@ -39,7 +39,9 @@ function CopilotPage() {
   const saveContext = async (patch: any) => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    await supabase.from("profiles").update(patch).eq("id", u.user.id);
+    const { error } = await supabase.from("profiles").update(patch).eq("id", u.user.id);
+    if (error) return toast.error(error.message);
+    toast.success("Memory saved");
     qc.invalidateQueries({ queryKey: ["profile-context"] });
   };
 

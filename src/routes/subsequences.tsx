@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/AuthGate";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { listSubsequences, upsertSubsequence, deleteSubsequence } from "@/lib/subsequences.functions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/subsequences")({ component: SubsequencesPage });
+export const Route = createFileRoute("/subsequences")({ component: () => (<RequireAuth><SubsequencesPage /></RequireAuth>) });
 
 function SubsequencesPage() {
   const list = useServerFn(listSubsequences);
@@ -50,13 +51,18 @@ function SubsequencesPage() {
             <p className="text-muted-foreground">Behavior-branched follow-ups. Trigger separate sequences when a lead opens, clicks, replies — or doesn't.</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
+            <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
               <DialogHeader><DialogTitle>New subsequence</DialogTitle></DialogHeader>
               <SubseqForm campaigns={campaigns ?? []} onSave={(v) => saveMut.mutate(v)} />
             </DialogContent>
           </Dialog>
         </div>
+        {!campaigns?.length && (
+          <div className="bg-card border rounded-xl p-4 text-sm text-muted-foreground">
+            Subsequences attach to a parent campaign. <a href="/campaigns" className="text-primary underline">Create a campaign</a> first, then come back here.
+          </div>
+        )}
 
         <div className="grid gap-3">
           {data?.items.map((s: any) => (

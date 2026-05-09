@@ -43,6 +43,7 @@ function InboxPage() {
   });
 
   const markReplied = async (id: string) => {
+    qc.setQueryData(["send-log"], (prev: any) => (prev ?? []).map((l: any) => l.id === id ? { ...l, replied_at: new Date().toISOString() } : l));
     await supabase.from("send_log").update({ replied_at: new Date().toISOString() }).eq("id", id);
     toast.success("Marked as replied. Campaign will pause for this lead.");
     qc.invalidateQueries({ queryKey: ["send-log"] });
@@ -111,19 +112,24 @@ function ActivityPanel({ log, onMarkReplied }: { log: any[]; onMarkReplied: (id:
       <p className="text-muted-foreground">No activity yet.</p>
     </div>
   );
+  const [expanded, setExpanded] = useState<string | null>(null);
   return (
     <div className="bg-card border rounded-xl divide-y">
-      {log.map((l) => (
+      {log.map((l) => {
+        const isOpen = expanded === l.id;
+        return (
         <div key={l.id} className="p-4 flex items-start gap-3">
           {l.bounced_at ? <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
             : l.status === "sent" ? <CheckCircle2 className="w-5 h-5 text-success mt-0.5" />
             : <XCircle className="w-5 h-5 text-destructive mt-0.5" />}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <div className="font-medium truncate">{l.subject || "(no subject)"}</div>
-              <div className="text-xs text-muted-foreground whitespace-nowrap">{new Date(l.sent_at).toLocaleString()}</div>
-            </div>
-            <div className="text-sm text-muted-foreground">To: {l.to_email} · Step {l.step_order}</div>
+            <button className="w-full text-left" onClick={() => setExpanded(isOpen ? null : l.id)}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="font-medium truncate">{l.subject || "(no subject)"}</div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">{new Date(l.sent_at).toLocaleString()}</div>
+              </div>
+              <div className="text-sm text-muted-foreground">To: {l.to_email} · Step {l.step_order}</div>
+            </button>
             <div className="flex gap-2 mt-2 items-center flex-wrap">
               {l.opened_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-600"><Eye className="w-3 h-3" /> Opened</span>}
               {l.clicked_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-500/15 text-purple-600"><MousePointerClick className="w-3 h-3" /> {l.click_count} click{l.click_count > 1 ? "s" : ""}</span>}
@@ -135,11 +141,15 @@ function ActivityPanel({ log, onMarkReplied }: { log: any[]; onMarkReplied: (id:
                 </Button>
               )}
             </div>
+            {isOpen && (l.body || l.html) && (
+              <pre className="text-xs whitespace-pre-wrap bg-muted/40 rounded p-3 mt-3 max-h-72 overflow-auto">{l.body || (l.html ? l.html.replace(/<[^>]+>/g, "") : "")}</pre>
+            )}
             {l.error && <div className="text-xs text-destructive mt-1">{l.error}</div>}
             {l.bounce_reason && <div className="text-xs text-destructive mt-1">{l.bounce_reason}</div>}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

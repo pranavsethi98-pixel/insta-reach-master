@@ -26,6 +26,7 @@ function LeadsPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [detail, setDetail] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
   const genFn = useServerFn(generateIcebreakers);
   const verifyFn = useServerFn(verifyLeads);
@@ -175,13 +176,13 @@ function LeadsPage() {
             </thead>
             <tbody>
               {leads?.map((l) => (
-                <tr key={l.id} className="border-t">
-                  <td className="p-3"><Checkbox checked={selected.has(l.id)} onCheckedChange={() => toggle(l.id)} /></td>
+                <tr key={l.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={(e) => { if ((e.target as HTMLElement).closest('button,input,[role=checkbox]')) return; setDetail(l); }}>
+                  <td className="p-3" onClick={(e) => e.stopPropagation()}><Checkbox checked={selected.has(l.id)} onCheckedChange={() => toggle(l.id)} /></td>
                   <td className="p-3 font-medium">{l.email}</td>
                   <td className="p-3">{[l.first_name, l.last_name].filter(Boolean).join(" ")}</td>
                   <td className="p-3">{l.company}</td>
                   <td className="p-3 max-w-xs truncate text-muted-foreground" title={l.icebreaker ?? ""}>{l.icebreaker || <span className="text-xs italic">—</span>}</td>
-                  <td className="p-3 text-right"><Button size="icon" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4" /></Button></td>
+                  <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}><Button size="icon" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4" /></Button></td>
                 </tr>
               ))}
             </tbody>
@@ -192,6 +193,34 @@ function LeadsPage() {
       <div className="text-xs text-muted-foreground">
         Tip: use <code className="bg-muted px-1 rounded">{"{{icebreaker}}"}</code> in your campaign body to inject AI-generated openers.
       </div>
+
+      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit lead</DialogTitle></DialogHeader>
+          {detail && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2"><Label>Email</Label><Input value={detail.email ?? ""} onChange={(e) => setDetail({ ...detail, email: e.target.value })} /></div>
+              <div><Label>First name</Label><Input value={detail.first_name ?? ""} onChange={(e) => setDetail({ ...detail, first_name: e.target.value })} /></div>
+              <div><Label>Last name</Label><Input value={detail.last_name ?? ""} onChange={(e) => setDetail({ ...detail, last_name: e.target.value })} /></div>
+              <div><Label>Company</Label><Input value={detail.company ?? ""} onChange={(e) => setDetail({ ...detail, company: e.target.value })} /></div>
+              <div><Label>Title</Label><Input value={detail.title ?? ""} onChange={(e) => setDetail({ ...detail, title: e.target.value })} /></div>
+              <div className="col-span-2"><Label>Icebreaker</Label><Input value={detail.icebreaker ?? ""} onChange={(e) => setDetail({ ...detail, icebreaker: e.target.value })} /></div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDetail(null)}>Cancel</Button>
+            <Button onClick={async () => {
+              if (!detail) return;
+              const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
+              const { error } = await supabase.from("leads").update(patch).eq("id", id);
+              if (error) return toast.error(error.message);
+              toast.success("Lead updated");
+              setDetail(null);
+              qc.invalidateQueries({ queryKey: ["leads"] });
+            }}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
