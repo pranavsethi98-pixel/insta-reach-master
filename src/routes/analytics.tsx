@@ -14,7 +14,7 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
-  const [days, setDays] = (require("react") as typeof import("react")).useState(30);
+  const [periodDays, setPeriodDays] = useState(30);
   const { data } = useQuery({
     queryKey: ["analytics", days],
     queryFn: async () => {
