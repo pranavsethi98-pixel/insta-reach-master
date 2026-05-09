@@ -124,6 +124,7 @@ function AnalyticsPage() {
               <th className="text-right p-3.5 font-semibold">Open %</th>
               <th className="text-right p-3.5 font-semibold">Replies</th>
               <th className="text-right p-3.5 font-semibold">Reply %</th>
+              <th className="text-right p-3.5 font-semibold w-12"></th>
             </tr>
           </thead>
           <tbody>
@@ -135,10 +136,11 @@ function AnalyticsPage() {
                 <td className="p-3.5 text-right font-mono text-foreground/80">{c.openRate}%</td>
                 <td className="p-3.5 text-right font-mono text-success">{c.replied}</td>
                 <td className="p-3.5 text-right font-mono text-success">{c.replyRate}%</td>
+                <td className="p-3.5 text-right text-muted-foreground">→</td>
               </tr>
             ))}
             {byCampaign.length === 0 && (
-              <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">
+              <tr><td colSpan={7} className="p-12 text-center text-muted-foreground">
                 <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-40" />
                 No campaign data yet.
               </td></tr>
