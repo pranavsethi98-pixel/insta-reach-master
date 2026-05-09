@@ -38,15 +38,18 @@ export const upsertSubsequence = createServerFn({ method: "POST" })
     const { steps, id, ...payload } = data;
     let subId = id;
     if (subId) {
-      await supabase.from("subsequences").update(payload).eq("id", subId);
-      await supabase.from("subsequence_steps").delete().eq("subsequence_id", subId);
+      const { error: uErr } = await supabase.from("subsequences").update(payload).eq("id", subId);
+      if (uErr) throw uErr;
+      const { error: dErr } = await supabase.from("subsequence_steps").delete().eq("subsequence_id", subId);
+      if (dErr) throw dErr;
     } else {
       const { data: created, error } = await supabase.from("subsequences").insert({ ...payload, user_id: userId }).select().single();
       if (error) throw error;
       subId = created.id;
     }
     if (steps.length) {
-      await supabase.from("subsequence_steps").insert(steps.map(s => ({ ...s, subsequence_id: subId })));
+      const { error: sErr } = await supabase.from("subsequence_steps").insert(steps.map((s, i) => ({ ...s, step_order: i, subsequence_id: subId })));
+      if (sErr) throw sErr;
     }
     return { id: subId };
   });
