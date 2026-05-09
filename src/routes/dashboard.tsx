@@ -1,11 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, Users, Send, CheckCircle2, Eye, Reply, Flame, ArrowRight, Inbox, Activity, TrendingUp, Sparkles, Zap } from "lucide-react";
+import { Mail, Users, Send, CheckCircle2, Reply, Flame, ArrowRight, Activity, Sparkles, ChevronDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatCard, Panel, EmptyState, StatusPill } from "@/components/app/PageHeader";
 import { ensureSelfSyncedToGhl } from "@/lib/ghl-sync.functions";
@@ -19,6 +19,14 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const ensureSync = useServerFn(ensureSelfSyncedToGhl);
   useEffect(() => { ensureSync({}).catch(() => {}); }, [ensureSync]);
+
+  const [showMore, setShowMore] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("dashboard-show-more") === "1";
+  });
+  useEffect(() => {
+    try { window.localStorage.setItem("dashboard-show-more", showMore ? "1" : "0"); } catch {}
+  }, [showMore]);
 
   const { data } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -130,125 +138,134 @@ function Dashboard() {
         </div>
       )}
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      {/* KPIs — focused on outcomes */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Link to="/mailboxes"><StatCard label="Mailboxes" value={data?.mailboxes ?? 0} sub={`${data?.warming ?? 0} warming`} icon={Mail} /></Link>
         <Link to="/leads"><StatCard label="Leads" value={data?.leads ?? 0} sub="In your CRM" icon={Users} /></Link>
-        <Link to="/campaigns"><StatCard label="Campaigns" value={data?.campaigns ?? 0} sub={`${data?.active ?? 0} active`} icon={Send} /></Link>
-        <Link to="/analytics"><StatCard label="Sent" value={data?.sent ?? 0} sub="All-time" icon={CheckCircle2} /></Link>
-        <Link to="/inbox"><StatCard label="Replies" value={data?.replies ?? 0} sub={`${data?.replyRate ?? 0}% reply rate`} icon={Reply} accent /></Link>
-        <Link to="/analytics"><StatCard label="Opens" value={data?.opens ?? 0} sub="Last 14 days" icon={Eye} /></Link>
+        <Link to="/inbox"><StatCard label="Replies" value={data?.replies ?? 0} sub="Last 14 days" icon={Reply} accent /></Link>
+        <Link to="/analytics"><StatCard label="Reply rate" value={`${data?.replyRate ?? 0}%`} sub={`${data?.sent ?? 0} sent · all-time`} icon={TrendingUp} /></Link>
       </div>
 
-      {/* Chart + Activity */}
-      <div className="grid lg:grid-cols-3 gap-5">
-        <Panel
-          className="lg:col-span-2"
-          title="Send volume · 14 days"
-          desc="Daily sends and replies"
-          actions={<StatusPill tone="primary">Live</StatusPill>}
-        >
-          {days.length > 0 && days.some(d => d.sent > 0) ? (
-            <div>
-              <div className="flex items-end gap-1.5 h-44">
-                {days.map((d) => (
-                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-                    <div className="relative w-full flex-1 flex flex-col-reverse">
-                      <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60 transition-all group-hover:from-primary group-hover:to-primary" style={{ height: `${(d.sent / maxSent) * 100}%` }} title={`${d.sent} sent · ${d.replies} replies`} />
-                      {d.replies > 0 && (
-                        <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${(d.replies / maxSent) * 100}%` }} />
-                      )}
-                    </div>
-                    <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>
+      {/* Chart */}
+      <Panel
+        title="Send volume · 14 days"
+        desc="Daily sends and replies"
+        actions={<StatusPill tone="primary">Live</StatusPill>}
+      >
+        {days.length > 0 && days.some(d => d.sent > 0) ? (
+          <div>
+            <div className="flex items-end gap-1.5 h-44">
+              {days.map((d) => (
+                <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
+                  <div className="relative w-full flex-1 flex flex-col-reverse">
+                    <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60 transition-all" style={{ height: `${(d.sent / maxSent) * 100}%` }} title={`${d.sent} sent · ${d.replies} replies`} />
+                    {d.replies > 0 && (
+                      <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${(d.replies / maxSent) * 100}%` }} />
+                    )}
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-4 mt-4 text-[11px] text-muted-foreground font-mono">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-primary" /> Sent</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-success" /> Replies</span>
-              </div>
+                  <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="h-44 flex items-center justify-center text-sm text-muted-foreground">No send activity yet.</div>
-          )}
-        </Panel>
+            <div className="flex gap-4 mt-4 text-[11px] text-muted-foreground font-mono">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-primary" /> Sent</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-success" /> Replies</span>
+            </div>
+          </div>
+        ) : (
+          <div className="h-44 flex items-center justify-center text-sm text-muted-foreground">No send activity yet.</div>
+        )}
+      </Panel>
 
-        <Panel title="Recent activity" desc="Latest sends across your mailboxes — click to open in Inbox" actions={<StatusPill tone="ok">Streaming</StatusPill>}>
-          {data?.recent?.length ? (
-            <div className="-mx-1 divide-y divide-border/60">
-              {data.recent.map((r: any, i: number) => {
-                const tone = r.replied_at ? "ok" : r.opened_at ? "warn" : r.status === "sent" ? "neutral" : "bad";
-                const label = r.replied_at ? "replied" : r.opened_at ? "opened" : r.status;
-                return (
-                  <Link
-                    key={i}
-                    to="/inbox"
-                    search={{ q: r.to_email } as any}
-                    className="px-1 py-2.5 flex items-center gap-2 text-xs hover:bg-accent/40 rounded transition-colors"
-                  >
-                    <Send className="w-3 h-3 text-muted-foreground/60 shrink-0" />
-                    <span className="font-mono truncate flex-1">{r.to_email}</span>
-                    <StatusPill tone={tone as any}>{label}</StatusPill>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground py-6 text-center">No sends yet.</div>
-          )}
-        </Panel>
+      {/* Show more toggle */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => setShowMore((v) => !v)}
+          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-full border border-border hover:border-primary/40 transition-colors"
+        >
+          {showMore ? "Hide details" : "Show more details"}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showMore ? "rotate-180" : ""}`} />
+        </button>
       </div>
 
-      {/* Mailbox health + campaigns */}
-      <div className="grid lg:grid-cols-2 gap-5">
-        <Panel title="Mailbox health" desc="Top 5 by activity" actions={<Link to="/mailboxes" className="text-xs text-primary hover:underline">View all</Link>}>
-          {data?.topMailboxes?.length ? (
-            <div className="space-y-3">
-              {data.topMailboxes.map((m: any) => {
-                const score = m.health_score ?? 100;
-                const tone = score >= 90 ? "ok" : score >= 70 ? "warn" : "bad";
-                return (
-                  <Link key={m.id} to="/mailboxes" className="flex items-center gap-3 -mx-2 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-bold">
-                      {m.from_email?.[0]?.toUpperCase() ?? "?"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{m.from_email}</div>
-                      <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div className={`h-full ${tone === "ok" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-destructive"}`} style={{ width: `${score}%` }} />
-                      </div>
-                    </div>
-                    <div className="text-xs font-mono text-muted-foreground w-10 text-right">{score}%</div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState icon={Mail} title="No mailboxes" desc="Connect your first mailbox to start sending." action={<Link to="/mailboxes"><Button size="sm">Connect mailbox</Button></Link>} />
-          )}
-        </Panel>
+      {showMore && (
+        <div className="space-y-5">
+          <Panel title="Recent activity" desc="Latest sends across your mailboxes — click to open in Inbox" actions={<StatusPill tone="ok">Streaming</StatusPill>}>
+            {data?.recent?.length ? (
+              <div className="-mx-1 divide-y divide-border/60">
+                {data.recent.map((r: any, i: number) => {
+                  const tone = r.replied_at ? "ok" : r.opened_at ? "warn" : r.status === "sent" ? "neutral" : "bad";
+                  const label = r.replied_at ? "replied" : r.opened_at ? "opened" : r.status;
+                  return (
+                    <Link
+                      key={i}
+                      to="/inbox"
+                      search={{ q: r.to_email } as any}
+                      className="px-1 py-2.5 flex items-center gap-2 text-xs hover:bg-accent/40 rounded transition-colors"
+                    >
+                      <Send className="w-3 h-3 text-muted-foreground/60 shrink-0" />
+                      <span className="font-mono truncate flex-1">{r.to_email}</span>
+                      <StatusPill tone={tone as any}>{label}</StatusPill>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground py-6 text-center">No sends yet.</div>
+            )}
+          </Panel>
 
-        <Panel title="Campaigns" desc="Status across your workspace" actions={<Link to="/campaigns" className="text-xs text-primary hover:underline">View all</Link>}>
-          {data?.topCampaigns?.length ? (
-            <div className="space-y-2">
-              {data.topCampaigns.map((c: any) => {
-                const tone = c.status === "active" ? "ok" : c.status === "paused" ? "warn" : "neutral";
-                return (
-                  <Link key={c.id} to="/campaigns/$id" params={{ id: c.id }} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border hover:border-primary/40 transition-colors">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Activity className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span className="text-sm font-medium truncate">{c.name}</span>
-                    </div>
-                    <StatusPill tone={tone as any}>{c.status}</StatusPill>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState icon={Send} title="No campaigns yet" desc="Build your first sequence in 30 seconds with AI Copilot." action={<Link to="/copilot"><Button size="sm"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Start with Copilot</Button></Link>} />
-          )}
-        </Panel>
-      </div>
+          <div className="grid lg:grid-cols-2 gap-5">
+            <Panel title="Mailbox health" desc="Top 5 by activity" actions={<Link to="/mailboxes" className="text-xs text-primary hover:underline">View all</Link>}>
+              {data?.topMailboxes?.length ? (
+                <div className="space-y-3">
+                  {data.topMailboxes.map((m: any) => {
+                    const score = m.health_score ?? 100;
+                    const tone = score >= 90 ? "ok" : score >= 70 ? "warn" : "bad";
+                    return (
+                      <Link key={m.id} to="/mailboxes" className="flex items-center gap-3 -mx-2 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-bold">
+                          {m.from_email?.[0]?.toUpperCase() ?? "?"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">{m.from_email}</div>
+                          <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div className={`h-full ${tone === "ok" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-destructive"}`} style={{ width: `${score}%` }} />
+                          </div>
+                        </div>
+                        <div className="text-xs font-mono text-muted-foreground w-10 text-right">{score}%</div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <EmptyState icon={Mail} title="No mailboxes" desc="Connect your first mailbox to start sending." action={<Link to="/mailboxes"><Button size="sm">Connect mailbox</Button></Link>} />
+              )}
+            </Panel>
+
+            <Panel title="Campaigns" desc="Status across your workspace" actions={<Link to="/campaigns" className="text-xs text-primary hover:underline">View all</Link>}>
+              {data?.topCampaigns?.length ? (
+                <div className="space-y-2">
+                  {data.topCampaigns.map((c: any) => {
+                    const tone = c.status === "active" ? "ok" : c.status === "paused" ? "warn" : "neutral";
+                    return (
+                      <Link key={c.id} to="/campaigns/$id" params={{ id: c.id }} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border hover:border-primary/40 transition-colors">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Activity className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span className="text-sm font-medium truncate">{c.name}</span>
+                        </div>
+                        <StatusPill tone={tone as any}>{c.status}</StatusPill>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <EmptyState icon={Send} title="No campaigns yet" desc="Build your first sequence in 30 seconds with AI Copilot." action={<Link to="/copilot"><Button size="sm"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Start with Copilot</Button></Link>} />
+              )}
+            </Panel>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
