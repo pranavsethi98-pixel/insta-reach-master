@@ -132,7 +132,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     >
                       <Icon className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{label}</span>
-                    </Link>
+                    </a>
                   );
                 })}
               </div>
