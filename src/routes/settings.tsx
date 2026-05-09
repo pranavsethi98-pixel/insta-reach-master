@@ -103,6 +103,7 @@ function SettingsPage() {
                   <Badge variant="secondary" className="gap-1"><AlertCircle className="w-3 h-3" />Pending</Badge>
                 )}
                 <Button size="sm" variant="outline" onClick={() => verify(d.id)}>Verify</Button>
+                <Button size="sm" variant="ghost" onClick={() => rename(d.id, d.domain)} title="Rename"><Pencil className="w-4 h-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(d.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
