@@ -31,7 +31,7 @@ function SubsequencesPage() {
     queryKey: ["campaigns-list"],
     queryFn: async () => (await supabase.from("campaigns").select("id, name")).data ?? [],
   });
-  const { data } = useQuery({ queryKey: ["subsequences"], queryFn: () => list({ data: {} }) });
+  const { data, error, isLoading } = useQuery({ queryKey: ["subsequences"], queryFn: () => list({ data: {} }), retry: 1 });
 
   const saveMut = useMutation({
     mutationFn: (v: any) => save({ data: v }),
