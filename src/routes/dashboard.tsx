@@ -249,6 +249,7 @@ function Dashboard() {
 }
 
 function StepCard({ num, title, desc, to, done, disabled }: any) {
+  const navigate = useNavigate();
   const inner = (
     <div className={`relative rounded-xl bg-card/80 border p-4 h-full transition-all ${done ? "border-success/40 opacity-80" : "border-border hover:border-primary/50"} ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
       <div className="flex items-center gap-2.5 mb-2">
@@ -265,5 +266,10 @@ function StepCard({ num, title, desc, to, done, disabled }: any) {
       )}
     </div>
   );
-  return disabled ? inner : <a href={to} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", to); window.dispatchEvent(new PopStateEvent("popstate")); }}>{inner}</a>;
+  if (disabled) return inner;
+  return (
+    <a href={to} onClick={(e) => { e.preventDefault(); navigate({ to: to as any }); }} className="block">
+      {inner}
+    </a>
+  );
 }
