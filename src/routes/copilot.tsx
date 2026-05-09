@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
@@ -29,7 +29,13 @@ function CopilotPage() {
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
   const gen = useServerFn(generateCampaign);
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (result) outputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [result]);
 
   const { data: prof } = useQuery({
     queryKey: ["profile-context"],
@@ -47,7 +53,7 @@ function CopilotPage() {
 
   const run = async (save: boolean) => {
     if (prompt.trim().length < 5) return toast.error("Describe your campaign goal first");
-    setBusy(true);
+    if (save) setSaving(true); else setBusy(true);
     try {
       const r = await gen({ data: { prompt, saveAsCampaign: save } });
       setResult(r);
@@ -57,7 +63,7 @@ function CopilotPage() {
       }
     } catch (e: any) {
       toast.error(e.message ?? "AI failed");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setSaving(false); }
   };
 
   return (
