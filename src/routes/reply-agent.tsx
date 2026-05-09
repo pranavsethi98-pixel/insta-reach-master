@@ -66,7 +66,6 @@ function ReplyAgentPage() {
           />
         ))}
       </div>
-    </AppShell>
   );
 }
 
