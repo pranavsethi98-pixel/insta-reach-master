@@ -208,7 +208,7 @@ function Dashboard() {
                 const score = m.health_score ?? 100;
                 const tone = score >= 90 ? "ok" : score >= 70 ? "warn" : "bad";
                 return (
-                  <div key={m.id} className="flex items-center gap-3">
+                  <Link key={m.id} to="/mailboxes" className="flex items-center gap-3 -mx-2 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-bold">
                       {m.from_email?.[0]?.toUpperCase() ?? "?"}
                     </div>
@@ -219,7 +219,7 @@ function Dashboard() {
                       </div>
                     </div>
                     <div className="text-xs font-mono text-muted-foreground w-10 text-right">{score}%</div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
