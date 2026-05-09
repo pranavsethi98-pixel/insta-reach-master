@@ -48,8 +48,9 @@ function AnalyticsPage() {
     return { ...c, sent: s, opened: o, replied: r, openRate: s ? Math.round(o / s * 100) : 0, replyRate: s ? Math.round(r / s * 100) : 0 };
   }).filter(c => c.sent > 0).sort((a, b) => b.sent - a.sent);
 
+  const chartDays = Math.min(periodDays, 30);
   const days: { date: string; sent: number; opened: number; replied: number }[] = [];
-  for (let i = 13; i >= 0; i--) {
+  for (let i = chartDays - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
     const dayLog = data.log.filter(l => l.sent_at.slice(0, 10) === d);
     days.push({
@@ -94,7 +95,7 @@ function AnalyticsPage() {
         <StatCard label="Bounces" value={bounced} sub="Auto-suppressed" icon={AlertTriangle} />
       </div>
 
-      <Panel title="Daily volume · 14d" desc="Sent vs replied" actions={<StatusPill tone="primary">Live</StatusPill>}>
+      <Panel title={`Daily volume · ${chartDays}d`} desc="Sent vs replied" actions={<StatusPill tone="primary">Live</StatusPill>}>
         <div className="flex items-end gap-1.5 h-48">
           {days.map(d => (
             <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
