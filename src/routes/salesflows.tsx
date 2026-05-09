@@ -67,8 +67,7 @@ function SalesflowsPage() {
     } finally { setSaving(false); }
   };
 
-  const remove = async (id: string, name: string) => {
-    if (!window.confirm(`Delete salesflow "${name}"? This cannot be undone.`)) return;
+  const remove = async (id: string, _name: string) => {
     const { error } = await supabase.from("salesflows").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
