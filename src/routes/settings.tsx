@@ -214,6 +214,16 @@ function ReplyAgentCard() {
   );
 }
 
+function SlackWebhookField({ initial, onSave }: { initial: string; onSave: (v: string) => void }) {
+  const [val, setVal] = useState(initial);
+  return (
+    <div className="flex gap-2">
+      <Input placeholder="https://hooks.slack.com/services/..." value={val} onChange={(e) => setVal(e.target.value)} />
+      <Button onClick={() => { if (val && !/^https:\/\/hooks\.slack\.com\//.test(val)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(val); }}>Save</Button>
+    </div>
+  );
+}
+
 function CalendarLinkCard() {
   const { data: profile } = useQuery({
     queryKey: ["profile-cal"],
