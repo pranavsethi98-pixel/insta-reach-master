@@ -168,7 +168,7 @@ function SalesflowsPage() {
             ))}
           </div>
 
-          <div className="flex gap-2"><Button onClick={onSave}>Save flow</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
+          <div className="flex gap-2"><Button onClick={onSave} disabled={saving}>{saving ? "Saving…" : "Save flow"}</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
         </div>
       )}
 
