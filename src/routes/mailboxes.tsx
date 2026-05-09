@@ -164,7 +164,7 @@ function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
       </div>
       <div>
         <Label>Signature</Label>
-        <Textarea value={form.signature ?? ""} onChange={(e) => upd("signature", e.target.value)} rows={3} placeholder="— John Doe&#10;CEO, Acme Inc" />
+        <Textarea value={form.signature ?? ""} onChange={(e) => upd("signature", e.target.value)} rows={3} placeholder="Add a signature (optional)" />
       </div>
       <div><Label>Reply-to (optional)</Label><Input value={form.reply_to ?? ""} onChange={(e) => upd("reply_to", e.target.value)} /></div>
       <Button onClick={save}>Save</Button>
