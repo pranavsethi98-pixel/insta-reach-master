@@ -93,7 +93,7 @@ function SalesflowsPage() {
           <p className="text-muted-foreground mt-1">Behavior-triggered automations. "If lead opens 3x in 7 days but no reply → mark Interested."</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={triggerRun}><Play className="w-4 h-4 mr-2" /> Run now</Button>
+          <Button variant="outline" onClick={triggerRun} disabled={running}><Play className="w-4 h-4 mr-2" /> {running ? "Running…" : "Run now"}</Button>
           <Button onClick={() => setEditing({ name: "", conditions: [{ field: "opened_count", op: "gte", value: 1 }], actions: [], is_active: true })}>
             <Plus className="w-4 h-4 mr-2" /> New flow
           </Button>
