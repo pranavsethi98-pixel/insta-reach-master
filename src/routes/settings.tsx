@@ -33,7 +33,11 @@ function SettingsPage() {
 
   const add = async () => {
     if (!domain) return;
-    const { error } = await supabase.from("tracking_domains").insert({ domain: domain.trim().toLowerCase() } as any);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return toast.error("Not signed in");
+    const clean = domain.trim().toLowerCase();
+    if (!/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain like track.yourbrand.com");
+    const { error } = await supabase.from("tracking_domains").insert({ domain: clean, user_id: user.id } as any);
     if (error) return toast.error(error.message);
     setDomain("");
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
