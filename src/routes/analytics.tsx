@@ -16,9 +16,9 @@ export const Route = createFileRoute("/analytics")({
 function AnalyticsPage() {
   const [periodDays, setPeriodDays] = useState(30);
   const { data } = useQuery({
-    queryKey: ["analytics", days],
+    queryKey: ["analytics", periodDays],
     queryFn: async () => {
-      const since = new Date(Date.now() - days * 86400000).toISOString();
+      const since = new Date(Date.now() - periodDays * 86400000).toISOString();
       const [{ data: log }, { data: events }, { data: campaigns }] = await Promise.all([
         supabase.from("send_log").select("*").gte("sent_at", since).limit(5000),
         supabase.from("email_events").select("*").gte("created_at", since).limit(5000),
