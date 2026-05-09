@@ -45,6 +45,8 @@ function SalesflowsPage() {
   const save = useServerFn(saveSalesflow);
   const run = useServerFn(runSalesflows);
   const [editing, setEditing] = useState<any>(null);
+  const [running, setRunning] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { data: flows } = useQuery({
     queryKey: ["salesflows"],
@@ -55,19 +57,32 @@ function SalesflowsPage() {
 
   const onSave = async () => {
     if (!editing?.name) return toast.error("Name required");
-    await save({ data: editing });
-    toast.success("Saved");
-    setEditing(null); refresh();
+    setSaving(true);
+    try {
+      await save({ data: editing });
+      toast.success("Flow saved");
+      setEditing(null); refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    } finally { setSaving(false); }
   };
 
-  const remove = async (id: string) => {
-    await supabase.from("salesflows").delete().eq("id", id);
+  const remove = async (id: string, name: string) => {
+    if (!window.confirm(`Delete salesflow "${name}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("salesflows").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted");
     refresh();
   };
 
   const triggerRun = async () => {
-    const { matched } = await run({});
-    toast.success(`Matched ${matched} new leads`);
+    setRunning(true);
+    try {
+      const { matched } = await run({});
+      toast.success(`Matched ${matched} new lead${matched === 1 ? "" : "s"}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Run failed");
+    } finally { setRunning(false); }
   };
 
   return (
