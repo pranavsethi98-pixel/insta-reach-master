@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CheckCircle2, AlertCircle, Globe, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertCircle, Globe, Trash2, Pencil } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
 import { connectCalendly, disconnectCalendly, setCalendlyEvent } from "@/lib/calendly.functions";
 
@@ -55,7 +55,19 @@ function SettingsPage() {
   };
 
   const remove = async (id: string) => {
+    if (!window.confirm("Remove this tracking domain?")) return;
     await supabase.from("tracking_domains").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["tracking_domains"] });
+  };
+
+  const rename = async (id: string, current: string) => {
+    const next = window.prompt("Rename tracking domain", current);
+    if (!next) return;
+    const clean = next.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain");
+    const { error } = await supabase.from("tracking_domains").update({ domain: clean, verified: false } as any).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Renamed — re-verify the CNAME");
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
   };
 
@@ -91,6 +103,7 @@ function SettingsPage() {
                   <Badge variant="secondary" className="gap-1"><AlertCircle className="w-3 h-3" />Pending</Badge>
                 )}
                 <Button size="sm" variant="outline" onClick={() => verify(d.id)}>Verify</Button>
+                <Button size="sm" variant="ghost" onClick={() => rename(d.id, d.domain)} title="Rename"><Pencil className="w-4 h-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(d.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>

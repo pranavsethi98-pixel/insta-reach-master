@@ -7,11 +7,19 @@ export const listSubsequences = createServerFn({ method: "GET" })
   .inputValidator((i) => z.object({ campaignId: z.string().uuid().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    let q = supabase.from("subsequences").select("*, steps:subsequence_steps(*)").order("created_at", { ascending: false });
+    let q = supabase.from("subsequences").select("*").order("created_at", { ascending: false });
     if (data.campaignId) q = q.eq("parent_campaign_id", data.campaignId);
     const { data: rows, error } = await q;
     if (error) throw error;
-    return { items: rows ?? [] };
+    const ids = (rows ?? []).map((r: any) => r.id);
+    const stepsByParent: Record<string, any[]> = {};
+    if (ids.length) {
+      const { data: steps, error: sErr } = await supabase
+        .from("subsequence_steps").select("*").in("subsequence_id", ids).order("step_order");
+      if (sErr) throw sErr;
+      for (const s of steps ?? []) (stepsByParent[(s as any).subsequence_id] ||= []).push(s);
+    }
+    return { items: (rows ?? []).map((r: any) => ({ ...r, steps: stepsByParent[r.id] ?? [] })) };
   });
 
 const StepSchema = z.object({

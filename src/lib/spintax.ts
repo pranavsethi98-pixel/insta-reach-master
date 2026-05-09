@@ -7,7 +7,9 @@
 //   {% if not replied %}...{% endif %}
 
 export function spintax(input: string): string {
-  const re = /\{([^{}]+)\}/;
+  // Match a single-brace group, but skip merge tags like {{first_name}} so
+  // spintax never eats placeholders meant for mergeTags().
+  const re = /(?<!\{)\{([^{}]+)\}(?!\})/;
   let s = input;
   let guard = 0;
   while (re.test(s) && guard++ < 50) {
