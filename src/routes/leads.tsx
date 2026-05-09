@@ -56,16 +56,20 @@ function LeadsPage() {
     setSelected(s);
   };
 
-  const remove = async (id: string) => {
+  const remove = async (id: string, email?: string) => {
+    if (!window.confirm(`Delete this lead${email ? ` (${email})` : ""}? This cannot be undone.`)) return;
     await supabase.from("leads").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["leads"] });
+    toast.success("Lead deleted");
   };
 
   const bulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!window.confirm(`Delete ${selected.size} lead${selected.size === 1 ? "" : "s"}? This cannot be undone.`)) return;
     await supabase.from("leads").delete().in("id", Array.from(selected));
     setSelected(new Set());
     qc.invalidateQueries({ queryKey: ["leads"] });
-    toast.success("Deleted");
+    toast.success(`Deleted ${selected.size} lead${selected.size === 1 ? "" : "s"}`);
   };
 
   const generateAI = async () => {
@@ -170,21 +174,29 @@ function LeadsPage() {
                 <th className="text-left p-3">Email</th>
                 <th className="text-left p-3">Name</th>
                 <th className="text-left p-3">Company</th>
+                <th className="text-left p-3">Verify</th>
                 <th className="text-left p-3">Icebreaker</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {leads?.map((l) => (
+              {leads?.map((l) => {
+                const v = (l as any).verification_status as string | null;
+                const vTone = v === "valid" ? "bg-success/15 text-success" : v === "invalid" ? "bg-destructive/15 text-destructive" : v === "risky" ? "bg-warning/15 text-warning-foreground" : "bg-muted text-muted-foreground";
+                return (
                 <tr key={l.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={(e) => { if ((e.target as HTMLElement).closest('button,input,[role=checkbox]')) return; setDetail(l); }}>
                   <td className="p-3" onClick={(e) => e.stopPropagation()}><Checkbox checked={selected.has(l.id)} onCheckedChange={() => toggle(l.id)} /></td>
                   <td className="p-3 font-medium">{l.email}</td>
                   <td className="p-3">{[l.first_name, l.last_name].filter(Boolean).join(" ")}</td>
                   <td className="p-3">{l.company}</td>
+                  <td className="p-3">
+                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono uppercase ${vTone}`}>{v ?? "unverified"}</span>
+                  </td>
                   <td className="p-3 max-w-xs truncate text-muted-foreground" title={l.icebreaker ?? ""}>{l.icebreaker || <span className="text-xs italic">—</span>}</td>
-                  <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}><Button size="icon" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4" /></Button></td>
+                  <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}><Button size="icon" variant="ghost" onClick={() => remove(l.id, l.email)}><Trash2 className="w-4 h-4" /></Button></td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
