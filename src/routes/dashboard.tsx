@@ -132,12 +132,12 @@ function Dashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <StatCard label="Mailboxes" value={data?.mailboxes ?? 0} sub={`${data?.warming ?? 0} warming`} icon={Mail} />
-        <StatCard label="Leads" value={data?.leads ?? 0} sub="In your CRM" icon={Users} />
-        <StatCard label="Campaigns" value={data?.campaigns ?? 0} sub={`${data?.active ?? 0} active`} icon={Send} />
-        <StatCard label="Sent" value={data?.sent ?? 0} sub="All-time" icon={CheckCircle2} />
-        <StatCard label="Replies" value={data?.replies ?? 0} sub={`${data?.replyRate ?? 0}% reply rate`} icon={Reply} accent />
-        <StatCard label="Opens" value={data?.opens ?? 0} sub="Last 14 days" icon={Eye} />
+        <Link to="/mailboxes"><StatCard label="Mailboxes" value={data?.mailboxes ?? 0} sub={`${data?.warming ?? 0} warming`} icon={Mail} /></Link>
+        <Link to="/leads"><StatCard label="Leads" value={data?.leads ?? 0} sub="In your CRM" icon={Users} /></Link>
+        <Link to="/campaigns"><StatCard label="Campaigns" value={data?.campaigns ?? 0} sub={`${data?.active ?? 0} active`} icon={Send} /></Link>
+        <Link to="/analytics"><StatCard label="Sent" value={data?.sent ?? 0} sub="All-time" icon={CheckCircle2} /></Link>
+        <Link to="/inbox"><StatCard label="Replies" value={data?.replies ?? 0} sub={`${data?.replyRate ?? 0}% reply rate`} icon={Reply} accent /></Link>
+        <Link to="/analytics"><StatCard label="Opens" value={data?.opens ?? 0} sub="Last 14 days" icon={Eye} /></Link>
       </div>
 
       {/* Chart + Activity */}
