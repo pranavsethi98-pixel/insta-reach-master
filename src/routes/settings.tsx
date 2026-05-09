@@ -55,7 +55,19 @@ function SettingsPage() {
   };
 
   const remove = async (id: string) => {
+    if (!window.confirm("Remove this tracking domain?")) return;
     await supabase.from("tracking_domains").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["tracking_domains"] });
+  };
+
+  const rename = async (id: string, current: string) => {
+    const next = window.prompt("Rename tracking domain", current);
+    if (!next) return;
+    const clean = next.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain");
+    const { error } = await supabase.from("tracking_domains").update({ domain: clean, verified: false } as any).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Renamed — re-verify the CNAME");
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
   };
 
