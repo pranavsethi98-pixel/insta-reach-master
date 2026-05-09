@@ -208,8 +208,7 @@ function ReplyAgentCard() {
       </div>
       <div className="mt-3">
         <Label className="text-xs">Slack webhook (escalations)</Label>
-        <Input placeholder="https://hooks.slack.com/services/..." defaultValue={profile?.slack_webhook_url ?? ""}
-          onBlur={(e) => update({ slack_webhook_url: e.target.value || null })} />
+        <SlackWebhookField initial={profile?.slack_webhook_url ?? ""} onSave={(v) => update({ slack_webhook_url: v || null })} />
       </div>
     </Card>
   );
