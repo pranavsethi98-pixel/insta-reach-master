@@ -39,28 +39,27 @@ const moreGroups: { title: string; items: NavItem[] }[] = [
     items: [
       { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
       { to: "/meetings", label: "Meetings", icon: Calendar },
-      { to: "/visitors", label: "Visitors", icon: Globe },
     ],
   },
   {
     title: "Infrastructure",
     items: [
       { to: "/warmup", label: "Warmup", icon: Flame },
-      { to: "/suppressions", label: "Suppressions", icon: Ban },
-      { to: "/library", label: "Library", icon: BookOpen },
-    ],
-  },
-  {
-    title: "Account",
-    items: [
-      { to: "/team", label: "Team", icon: UsersRound },
-      { to: "/goals", label: "Goals", icon: Target },
-      { to: "/webhooks", label: "Webhooks", icon: Webhook },
     ],
   },
 ];
 
-const allItems: NavItem[] = [...primary, ...moreGroups.flatMap(g => g.items), { to: "/settings", label: "Settings", icon: Settings }];
+// Reachable only via Cmd+K or direct URL — kept out of sidebar to reduce clutter.
+const hiddenItems: NavItem[] = [
+  { to: "/team", label: "Team", icon: UsersRound },
+  { to: "/webhooks", label: "Webhooks", icon: Webhook },
+  { to: "/suppressions", label: "Suppressions", icon: Ban },
+  { to: "/library", label: "Library", icon: BookOpen },
+  { to: "/goals", label: "Goals", icon: Target },
+  { to: "/visitors", label: "Visitors", icon: Globe },
+];
+
+const allItems: NavItem[] = [...primary, ...moreGroups.flatMap(g => g.items), ...hiddenItems, { to: "/settings", label: "Settings", icon: Settings }];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
