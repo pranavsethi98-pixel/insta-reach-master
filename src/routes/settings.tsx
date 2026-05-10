@@ -192,8 +192,9 @@ function ReplyAgentCard() {
   });
   const update = async (patch: any) => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from("profiles").update(patch).eq("id", user.id);
+    if (!user) return toast.error("Not signed in");
+    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["profile-reply-agent"] });
     toast.success("Saved");
   };
@@ -215,7 +216,10 @@ function ReplyAgentCard() {
         <div>
           <Label className="text-xs">Monthly credit cap</Label>
           <Input type="number" defaultValue={profile?.ai_reply_monthly_cap ?? 500}
-            onBlur={(e) => update({ ai_reply_monthly_cap: Number(e.target.value) })} />
+            onBlur={(e) => {
+              const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
+              update({ ai_reply_monthly_cap: v });
+            }} />
           <div className="text-xs text-muted-foreground mt-1">Used: {profile?.ai_reply_used_this_month ?? 0}</div>
         </div>
       </div>
@@ -232,7 +236,7 @@ function SlackWebhookField({ initial, onSave }: { initial: string; onSave: (v: s
   return (
     <div className="flex gap-2">
       <Input placeholder="https://hooks.slack.com/services/..." value={val} onChange={(e) => setVal(e.target.value)} />
-      <Button onClick={() => { if (val && !/^https:\/\/hooks\.slack\.com\//.test(val)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(val); }}>Save</Button>
+      <Button type="button" onClick={(e) => { e.preventDefault(); if (val && !/^https:\/\/hooks\.slack\.com\//.test(val)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(val); }}>Save</Button>
     </div>
   );
 }
