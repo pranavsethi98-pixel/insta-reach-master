@@ -291,7 +291,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
           </TabsContent>
           <TabsContent value="smtp" className="grid grid-cols-2 gap-3 pt-3">
             <div className="col-span-2"><Label>SMTP host *</Label><Input value={form.smtp_host} onChange={(e) => setForm({ ...form, smtp_host: e.target.value })} /></div>
-            <div><Label>Port</Label><Input type="number" value={form.smtp_port} onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })} /></div>
+            <div><Label>Port</Label><Input type="number" min={1} max={65535} value={form.smtp_port} onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })} /></div>
             <div className="flex items-end gap-2"><Switch checked={form.smtp_secure} onCheckedChange={(v) => setForm({ ...form, smtp_secure: v })} /><span className="text-sm">SSL (port 465)</span></div>
             <div><Label>Username *</Label><Input value={form.smtp_username} onChange={(e) => setForm({ ...form, smtp_username: e.target.value })} /></div>
             <div><Label>Password / App Password *</Label><Input type="password" value={form.smtp_password} onChange={(e) => setForm({ ...form, smtp_password: e.target.value })} /></div>
