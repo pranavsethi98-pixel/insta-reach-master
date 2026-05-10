@@ -245,7 +245,7 @@ function LeadsPage() {
 
 function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "" });
+  const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
   const save = async () => {
     const email = form.email.toLowerCase().trim();
     if (!email) return toast.error("Email is required");
