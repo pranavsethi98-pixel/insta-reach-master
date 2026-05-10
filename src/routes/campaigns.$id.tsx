@@ -19,6 +19,27 @@ import { TEMPLATES } from "@/lib/email-templates";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 
+// Defensive: prevent non-printable key names (e.g. "PageUp", "F5", "ContextMenu")
+// from being inserted into editor fields if a browser extension or accessibility
+// tool dispatches synthetic input events. Native textareas don't insert these,
+// but this guards against external interference.
+const PRINTABLE_ALLOWED = new Set([
+  "Enter", "Tab", "Backspace", "Delete", "Space",
+  "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+  "Home", "End", "Shift", "Control", "Alt", "Meta",
+  "CapsLock", "Escape",
+]);
+function blockNonPrintableInsert(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  if (e.key.length > 1 && !PRINTABLE_ALLOWED.has(e.key)) {
+    // Allow native handling (navigation, modifiers) but stop bubbling so
+    // global handlers can't capture and re-emit the key as text.
+    e.stopPropagation();
+  }
+}
+function stripInjectedKeyNames(s: string): string {
+  return s.replace(/(^|\n)(Page_?Up|Page_?Down|F[1-9]\d?|Insert|ContextMenu|ScrollLock|NumLock|PrintScreen|Pause)(?=\n|$)/g, "$1");
+}
+
 export const Route = createFileRoute("/campaigns/$id")({
   component: () => (
     <RequireAuth><AppShell><CampaignDetail /></AppShell></RequireAuth>
