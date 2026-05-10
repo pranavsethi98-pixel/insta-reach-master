@@ -225,7 +225,11 @@ function LeadsPage() {
             <Button variant="ghost" onClick={() => setDetail(null)}>Cancel</Button>
             <Button onClick={async () => {
               if (!detail) return;
+              const email = String(detail.email ?? "").toLowerCase().trim();
+              if (!email) return toast.error("Email is required");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
+              patch.email = email;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
               if (error) return toast.error(error.message);
               toast.success("Lead updated");
