@@ -65,7 +65,19 @@ function PipelinePage() {
           {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] flex-1 h-64 rounded-lg bg-muted/30 animate-pulse" />)}
         </div>
       ) : (
-      <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:thin]" style={{ scrollbarColor: "hsl(var(--muted-foreground) / 0.3) transparent" }}>
+      <div
+        className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:thin]"
+        style={{ scrollbarColor: "hsl(var(--muted-foreground) / 0.3) transparent" }}
+        onWheel={(e) => {
+          // Translate vertical wheel into horizontal scroll so mouse/trackpad
+          // users can reach the off-screen "Won" / "Lost" stages.
+          if (e.deltaY === 0) return;
+          const el = e.currentTarget;
+          if (el.scrollWidth <= el.clientWidth) return;
+          el.scrollLeft += e.deltaY;
+          e.preventDefault();
+        }}
+      >
         {(stages ?? []).map(stage => {
           const items = (leads ?? []).filter(l => (l.pipeline_stage ?? "new") === stage.key);
           return (

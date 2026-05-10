@@ -274,7 +274,26 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
           </PopoverContent>
         </Popover>
       </div>
-      <Textarea rows={6} placeholder="Body — supports {{first_name}} and {spintax|variations}" value={local.body ?? ""} onChange={(e) => save({ body: e.target.value })} />
+      <Textarea
+        rows={6}
+        placeholder="Body — supports {{first_name}} and {spintax|variations}"
+        value={local.body ?? ""}
+        onChange={(e) => {
+          // Auto-grow so the textarea never traps mouse-wheel scroll
+          // (otherwise users can't scroll past Step 1 to reach Steps 2 & 3).
+          const el = e.currentTarget;
+          el.style.height = "auto";
+          el.style.height = el.scrollHeight + "px";
+          save({ body: e.target.value });
+        }}
+        ref={(el) => {
+          if (el && el.scrollHeight > el.clientHeight) {
+            el.style.height = "auto";
+            el.style.height = el.scrollHeight + "px";
+          }
+        }}
+        className="resize-none overflow-hidden"
+      />
       <SpamPreview subject={local.subject || ""} body={local.body || ""} sample={sample} />
     </div>
   );

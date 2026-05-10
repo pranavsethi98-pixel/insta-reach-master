@@ -77,24 +77,15 @@ export function liquid(input: string, lead: Record<string, any>, flags: Record<s
   return s;
 }
 
-// Convert single-brace {first_name} → {{first_name}} and bare known tokens
-// (first_name, icebreaker, company, etc.) into proper merge tags so emails
-// never go out with raw placeholders.
-const KNOWN_TOKENS = [
-  "first_name","firstname","last_name","lastname","email","company","title",
-  "website","linkedin","calendar_link","icebreaker","unsubscribe","unsubscribe_url",
-  "sender_name","sender_company",
-];
+// Convert single-brace {first_name} → {{first_name}} so users typing the
+// shorter form still get a working merge tag. We deliberately do NOT touch
+// bare words — replacing the literal word "email" or "company" in prose
+// would corrupt sentences like "manual email tasks".
 export function normalizeTemplate(input: string): string {
-  let s = (input ?? "").replace(/(?<!\{)\{([A-Za-z][\w]*)\}(?!\})/g, (_m, name: string) => {
+  return (input ?? "").replace(/(?<!\{)\{([A-Za-z][\w]*)\}(?!\})/g, (_m, name: string) => {
     const snake = name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
     return `{{${snake}}}`;
   });
-  for (const tok of KNOWN_TOKENS) {
-    const re = new RegExp(`(?<![\\w{])${tok}(?![\\w}])`, "gi");
-    s = s.replace(re, `{{${tok}}}`);
-  }
-  return s;
 }
 
 export function renderEmail(template: string, lead: Record<string, any>, flags: Record<string, boolean> = {}): string {

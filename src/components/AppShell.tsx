@@ -247,7 +247,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto p-8">{children}</div>
+        <div key={location.pathname} className="max-w-7xl mx-auto p-8">{children}</div>
       </main>
 
       <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
