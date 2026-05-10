@@ -269,6 +269,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               ))}
             </CommandGroup>
           ))}
+          <CommandGroup heading="More">
+            {hiddenItems.map((it) => (
+              <CommandItem key={it.to} value={`${it.label} ${it.to}`} onSelect={() => { setPaletteOpen(false); navigate({ to: it.to as any }); }}>
+                <it.icon className="w-4 h-4 mr-2" /> {it.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
           <CommandGroup heading="Account">
             <CommandItem value="settings" onSelect={() => { setPaletteOpen(false); navigate({ to: "/settings" as any }); }}>
               <Settings className="w-4 h-4 mr-2" /> Settings
