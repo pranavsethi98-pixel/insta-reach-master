@@ -275,6 +275,7 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
           <div><Label>Title</Label><Input {...f("title")} /></div>
           <div><Label>Website</Label><Input {...f("website")} /></div>
           <div><Label>LinkedIn</Label><Input {...f("linkedin")} /></div>
+          <div className="col-span-2"><Label>Icebreaker</Label><Input {...f("icebreaker")} /></div>
         </div>
         <DialogFooter><Button onClick={save}>Add</Button></DialogFooter>
       </DialogContent>
