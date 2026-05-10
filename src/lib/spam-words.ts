@@ -29,9 +29,13 @@ export function scoreSpam(subject: string, body: string): SpamReport {
   if (exclamations > 2) warnings.push(`${exclamations} exclamation marks — keep ≤1.`);
   if (allCapsWords > 3) warnings.push(`${allCapsWords} ALL-CAPS words — looks shouty.`);
   if (links > 3) warnings.push(`${links} links — keep to 1–2.`);
-  if (words.length < 30) warnings.push("Body is very short; may look low-effort.");
-  if (words.length > 250) warnings.push("Body is long; cold emails do best at 50–125 words.");
-  if (!/\{\{\s*first_name\s*\}\}/i.test(body)) warnings.push("No personalization tag — add {{first_name}}.");
+  // Skip body-shape warnings until the user has actually written something
+  // (otherwise a freshly added blank step screams at them immediately).
+  if (body.trim().length > 0) {
+    if (words.length < 30) warnings.push("Body is very short; may look low-effort.");
+    if (words.length > 250) warnings.push("Body is long; cold emails do best at 50–125 words.");
+    if (!/\{\{\s*first_name\s*\}\}/i.test(body)) warnings.push("No personalization tag — add {{first_name}}.");
+  }
 
   let score = 0;
   score += hits.length * 8;
