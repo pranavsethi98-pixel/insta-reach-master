@@ -29,6 +29,11 @@ function CampaignDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
 
+  // /campaigns/new is reserved for the create flow; redirect to the list
+  // (which exposes the "New campaign" modal) instead of trying to load a
+  // campaign with id="new".
+  if (id === "new") return <Navigate to="/campaigns" />;
+
   const { data: campaign } = useQuery({
     queryKey: ["campaign", id],
     queryFn: async () => {
