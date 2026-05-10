@@ -93,11 +93,21 @@ function WarmupPage() {
                     </div>
                     <div>
                       <Label className="text-xs">Reply rate (0–1)</Label>
-                      <Input type="number" step="0.1" min="0" max="1" defaultValue={m.warmup_reply_rate ?? 0.4} onBlur={(e) => update(m.id, { warmup_reply_rate: Number(e.target.value) })} />
+                      <Input type="number" step="0.1" min="0" max="1" defaultValue={m.warmup_reply_rate ?? 0.4} onBlur={(e) => {
+                        const raw = Number(e.target.value);
+                        const v = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.4;
+                        if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1)`); }
+                        update(m.id, { warmup_reply_rate: v });
+                      }} />
                     </div>
                     <div>
                       <Label className="text-xs">Open rate (0–1)</Label>
-                      <Input type="number" step="0.1" min="0" max="1" defaultValue={(m as any).warmup_open_rate ?? 0.5} onBlur={(e) => update(m.id, { warmup_open_rate: Number(e.target.value) })} />
+                      <Input type="number" step="0.1" min="0" max="1" defaultValue={(m as any).warmup_open_rate ?? 0.5} onBlur={(e) => {
+                        const raw = Number(e.target.value);
+                        const v = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.5;
+                        if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1)`); }
+                        update(m.id, { warmup_open_rate: v });
+                      }} />
                     </div>
                     <div>
                       <Label className="text-xs">Spam protection</Label>
