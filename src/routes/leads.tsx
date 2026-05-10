@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2, Upload, Users, Sparkles, ShieldCheck } from "lucide-react";
@@ -275,7 +276,7 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
           <div><Label>Title</Label><Input {...f("title")} /></div>
           <div><Label>Website</Label><Input {...f("website")} /></div>
           <div><Label>LinkedIn</Label><Input {...f("linkedin")} /></div>
-          <div className="col-span-2"><Label>Icebreaker</Label><Input {...f("icebreaker")} /></div>
+          <div className="col-span-2"><Label>Icebreaker</Label><Textarea rows={3} value={form.icebreaker} onChange={(e) => setForm({ ...form, icebreaker: e.target.value })} /></div>
         </div>
         <DialogFooter><Button onClick={save}>Add</Button></DialogFooter>
       </DialogContent>
