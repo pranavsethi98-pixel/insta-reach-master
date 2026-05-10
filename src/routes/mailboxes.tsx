@@ -142,7 +142,18 @@ function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
 function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
   const [form, setForm] = useState(m);
   const save = async () => {
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const minD = Number(form.min_delay_seconds);
+    const maxD = Number(form.max_delay_seconds);
+    const hourly = Number(form.hourly_limit);
+    const daily = Number(form.daily_limit);
+    if (!Number.isFinite(minD) || !Number.isFinite(maxD) || minD < 0 || maxD < 0) return toast.error("Delays must be non-negative numbers");
+    if (minD >= maxD) return toast.error("Min delay must be less than Max delay");
+    if (!Number.isFinite(hourly) || !Number.isFinite(daily) || hourly < 1 || daily < 1) return toast.error("Limits must be positive numbers");
+    if (hourly > daily) return toast.error("Hourly limit cannot exceed Daily limit");
+    if (form.reply_to && String(form.reply_to).trim() && !emailRe.test(String(form.reply_to).trim())) return toast.error("Reply-to must be a valid email address");
     const { id, created_at, sent_today, sent_this_hour, last_sent_at, last_reset_date, hour_reset_at, warmup_sent_today, ...patch } = form;
+    if (patch.reply_to) patch.reply_to = String(patch.reply_to).trim();
     const { error } = await supabase.from("mailboxes").update(patch).eq("id", m.id);
     if (error) return toast.error(error.message);
     toast.success("Saved");
@@ -166,7 +177,7 @@ function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
         <Label>Signature</Label>
         <Textarea value={form.signature ?? ""} onChange={(e) => upd("signature", e.target.value)} rows={3} placeholder="Add a signature (optional)" />
       </div>
-      <div><Label>Reply-to (optional)</Label><Input value={form.reply_to ?? ""} onChange={(e) => upd("reply_to", e.target.value)} /></div>
+      <div><Label>Reply-to (optional)</Label><Input type="email" value={form.reply_to ?? ""} onChange={(e) => upd("reply_to", e.target.value)} placeholder="replies@example.com" /></div>
       <Button onClick={save}>Save</Button>
     </div>
   );
@@ -198,6 +209,21 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
     setError(null);
     if (!form.label || !form.from_email || !form.smtp_username || !form.smtp_password) {
       setError("Fill in all required fields.");
+      return;
+    }
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(String(form.from_email).trim())) {
+      setError("Invalid email address in From email.");
+      return;
+    }
+    const port = Number(form.smtp_port);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      setError("SMTP port must be between 1 and 65535.");
+      return;
+    }
+    const iport = Number(form.imap_port);
+    if (form.imap_host && (!Number.isInteger(iport) || iport < 1 || iport > 65535)) {
+      setError("IMAP port must be between 1 and 65535.");
       return;
     }
     setTesting(true);
@@ -265,7 +291,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
           </TabsContent>
           <TabsContent value="smtp" className="grid grid-cols-2 gap-3 pt-3">
             <div className="col-span-2"><Label>SMTP host *</Label><Input value={form.smtp_host} onChange={(e) => setForm({ ...form, smtp_host: e.target.value })} /></div>
-            <div><Label>Port</Label><Input type="number" value={form.smtp_port} onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })} /></div>
+            <div><Label>Port</Label><Input type="number" min={1} max={65535} value={form.smtp_port} onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })} /></div>
             <div className="flex items-end gap-2"><Switch checked={form.smtp_secure} onCheckedChange={(v) => setForm({ ...form, smtp_secure: v })} /><span className="text-sm">SSL (port 465)</span></div>
             <div><Label>Username *</Label><Input value={form.smtp_username} onChange={(e) => setForm({ ...form, smtp_username: e.target.value })} /></div>
             <div><Label>Password / App Password *</Label><Input type="password" value={form.smtp_password} onChange={(e) => setForm({ ...form, smtp_password: e.target.value })} /></div>
@@ -273,7 +299,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
           <TabsContent value="imap" className="grid grid-cols-2 gap-3 pt-3">
             <div className="col-span-2 text-xs text-muted-foreground">Used for reply detection. Defaults to your SMTP credentials if blank.</div>
             <div className="col-span-2"><Label>IMAP host</Label><Input value={form.imap_host} onChange={(e) => setForm({ ...form, imap_host: e.target.value })} /></div>
-            <div><Label>Port</Label><Input type="number" value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} /></div>
+            <div><Label>Port</Label><Input type="number" min={1} max={65535} value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} /></div>
             <div className="flex items-end gap-2"><Switch checked={form.imap_secure} onCheckedChange={(v) => setForm({ ...form, imap_secure: v })} /><span className="text-sm">SSL</span></div>
           </TabsContent>
           <TabsContent value="limits" className="grid grid-cols-2 gap-3 pt-3">

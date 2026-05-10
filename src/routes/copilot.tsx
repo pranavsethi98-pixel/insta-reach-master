@@ -43,6 +43,20 @@ function CopilotPage() {
   });
 
   const saveContext = async (patch: any) => {
+    if ("website_url" in patch) {
+      const url = String(patch.website_url ?? "").trim();
+      if (url) {
+        try {
+          const u = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`);
+          if (!u.hostname.includes(".")) throw new Error("invalid");
+          patch.website_url = u.toString();
+        } catch {
+          return toast.error("Enter a valid website URL (e.g. https://example.com)");
+        }
+      } else {
+        patch.website_url = null;
+      }
+    }
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
     const { error } = await supabase.from("profiles").update(patch).eq("id", u.user.id);

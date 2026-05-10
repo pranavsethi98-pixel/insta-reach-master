@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2, Upload, Users, Sparkles, ShieldCheck } from "lucide-react";
@@ -225,7 +226,11 @@ function LeadsPage() {
             <Button variant="ghost" onClick={() => setDetail(null)}>Cancel</Button>
             <Button onClick={async () => {
               if (!detail) return;
+              const email = String(detail.email ?? "").toLowerCase().trim();
+              if (!email) return toast.error("Email is required");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
+              patch.email = email;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
               if (error) return toast.error(error.message);
               toast.success("Lead updated");
@@ -241,7 +246,7 @@ function LeadsPage() {
 
 function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "" });
+  const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
   const save = async () => {
     const email = form.email.toLowerCase().trim();
     if (!email) return toast.error("Email is required");
@@ -271,6 +276,7 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
           <div><Label>Title</Label><Input {...f("title")} /></div>
           <div><Label>Website</Label><Input {...f("website")} /></div>
           <div><Label>LinkedIn</Label><Input {...f("linkedin")} /></div>
+          <div className="col-span-2"><Label>Icebreaker</Label><Textarea rows={3} value={form.icebreaker} onChange={(e) => setForm({ ...form, icebreaker: e.target.value })} /></div>
         </div>
         <DialogFooter><Button onClick={save}>Add</Button></DialogFooter>
       </DialogContent>

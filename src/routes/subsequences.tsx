@@ -79,7 +79,7 @@ function SubsequencesPage() {
                   <Badge variant="outline">{s.trigger_event.replace("_", " ")}</Badge>
                   {!s.is_active && <Badge variant="secondary">Paused</Badge>}
                 </div>
-                <p className="text-sm text-muted-foreground">{s.steps?.length ?? 0} steps · triggers {s.trigger_after_days}d after parent</p>
+                <p className="text-sm text-muted-foreground">{s.steps?.length ?? 0} {(s.steps?.length ?? 0) === 1 ? "step" : "steps"} · triggers {s.trigger_after_days}d after parent</p>
               </button>
               <div className="flex gap-1">
                 <Button variant="ghost" size="icon" onClick={() => { setEditing(s); setOpen(true); }} title="Edit"><Pencil className="w-4 h-4"/></Button>

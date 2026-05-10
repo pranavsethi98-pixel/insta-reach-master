@@ -57,6 +57,7 @@ function SalesflowsPage() {
 
   const onSave = async () => {
     if (!editing?.name?.trim()) return toast.error("Name required");
+    if (!editing?.actions?.length) return toast.error("Add at least one action");
     setSaving(true);
     try {
       // Strip null/empty description so the optional() validator on the server

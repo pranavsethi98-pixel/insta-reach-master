@@ -19,6 +19,27 @@ import { TEMPLATES } from "@/lib/email-templates";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 
+// Defensive: prevent non-printable key names (e.g. "PageUp", "F5", "ContextMenu")
+// from being inserted into editor fields if a browser extension or accessibility
+// tool dispatches synthetic input events. Native textareas don't insert these,
+// but this guards against external interference.
+const PRINTABLE_ALLOWED = new Set([
+  "Enter", "Tab", "Backspace", "Delete", "Space",
+  "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+  "Home", "End", "Shift", "Control", "Alt", "Meta",
+  "CapsLock", "Escape",
+]);
+function blockNonPrintableInsert(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  if (e.key.length > 1 && !PRINTABLE_ALLOWED.has(e.key)) {
+    // Allow native handling (navigation, modifiers) but stop bubbling so
+    // global handlers can't capture and re-emit the key as text.
+    e.stopPropagation();
+  }
+}
+function stripInjectedKeyNames(s: string): string {
+  return s.replace(/(^|\n)(Page_?Up|Page_?Down|F[1-9]\d?|Insert|ContextMenu|ScrollLock|NumLock|PrintScreen|Pause)(?=\n|$)/g, "$1");
+}
+
 export const Route = createFileRoute("/campaigns/$id")({
   component: () => (
     <RequireAuth><AppShell><CampaignDetail /></AppShell></RequireAuth>
@@ -109,13 +130,14 @@ function CampaignDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Link to="/campaigns"><Button variant="ghost" size="icon"><ArrowLeft className="w-4 h-4" /></Button></Link>
-          <div>
+          <div className="min-w-0 flex-1">
             <input
-              className="text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border"
+              className="w-full text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border truncate"
               defaultValue={campaign.name}
+              title={campaign.name}
               onBlur={(e) => updateCampaign({ name: e.target.value })}
             />
             <div className="text-sm text-muted-foreground">Status: {campaign.status}</div>
@@ -276,7 +298,12 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         </div>
       </div>
       <div className="flex gap-2">
-        <Input placeholder="Subject" value={local.subject ?? ""} onChange={(e) => save({ subject: e.target.value })} />
+        <Input
+          placeholder="Subject"
+          value={local.subject ?? ""}
+          onChange={(e) => save({ subject: e.target.value })}
+          onKeyDown={blockNonPrintableInsert}
+        />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" type="button"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Templates</Button>
@@ -297,13 +324,17 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         rows={6}
         placeholder="Body — supports {{first_name}} and {spintax|variations}"
         value={local.body ?? ""}
+        onKeyDown={blockNonPrintableInsert}
         onChange={(e) => {
           // Auto-grow so the textarea never traps mouse-wheel scroll
           // (otherwise users can't scroll past Step 1 to reach Steps 2 & 3).
           const el = e.currentTarget;
           el.style.height = "auto";
           el.style.height = el.scrollHeight + "px";
-          save({ body: e.target.value });
+          // Strip any literal multi-character key names (e.g. "Page_Up",
+          // "PageDown", "F5") that an external tool may have injected.
+          const cleaned = stripInjectedKeyNames(e.target.value);
+          save({ body: cleaned });
         }}
         ref={(el) => {
           if (el && el.scrollHeight > el.clientHeight) {
