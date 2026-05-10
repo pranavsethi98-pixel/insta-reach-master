@@ -211,6 +211,21 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
       setError("Fill in all required fields.");
       return;
     }
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(String(form.from_email).trim())) {
+      setError("Invalid email address in From email.");
+      return;
+    }
+    const port = Number(form.smtp_port);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      setError("SMTP port must be between 1 and 65535.");
+      return;
+    }
+    const iport = Number(form.imap_port);
+    if (form.imap_host && (!Number.isInteger(iport) || iport < 1 || iport > 65535)) {
+      setError("IMAP port must be between 1 and 65535.");
+      return;
+    }
     setTesting(true);
     try {
       await testSmtp({ data: {
