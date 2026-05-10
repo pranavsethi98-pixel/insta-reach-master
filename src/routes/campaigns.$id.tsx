@@ -109,13 +109,14 @@ function CampaignDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Link to="/campaigns"><Button variant="ghost" size="icon"><ArrowLeft className="w-4 h-4" /></Button></Link>
-          <div>
+          <div className="min-w-0 flex-1">
             <input
-              className="text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border"
+              className="w-full text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border truncate"
               defaultValue={campaign.name}
+              title={campaign.name}
               onBlur={(e) => updateCampaign({ name: e.target.value })}
             />
             <div className="text-sm text-muted-foreground">Status: {campaign.status}</div>
