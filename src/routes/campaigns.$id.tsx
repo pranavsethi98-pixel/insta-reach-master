@@ -101,7 +101,7 @@ function CampaignDetail() {
     const rows = unassigned.map((l: any) => ({ campaign_id: id, lead_id: l.id }));
     const { error } = await supabase.from("campaign_leads").insert(rows);
     if (error) return toast.error(error.message);
-    toast.success(`Assigned ${rows.length} leads`);
+    toast.success(`Assigned ${rows.length} lead${rows.length === 1 ? "" : "s"}`);
     qc.invalidateQueries({ queryKey: ["assigned", id] });
   };
 
