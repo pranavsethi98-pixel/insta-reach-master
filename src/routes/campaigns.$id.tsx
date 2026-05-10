@@ -277,7 +277,12 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         </div>
       </div>
       <div className="flex gap-2">
-        <Input placeholder="Subject" value={local.subject ?? ""} onChange={(e) => save({ subject: e.target.value })} />
+        <Input
+          placeholder="Subject"
+          value={local.subject ?? ""}
+          onChange={(e) => save({ subject: e.target.value })}
+          onKeyDown={blockNonPrintableInsert}
+        />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" type="button"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Templates</Button>
@@ -298,13 +303,17 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
         rows={6}
         placeholder="Body — supports {{first_name}} and {spintax|variations}"
         value={local.body ?? ""}
+        onKeyDown={blockNonPrintableInsert}
         onChange={(e) => {
           // Auto-grow so the textarea never traps mouse-wheel scroll
           // (otherwise users can't scroll past Step 1 to reach Steps 2 & 3).
           const el = e.currentTarget;
           el.style.height = "auto";
           el.style.height = el.scrollHeight + "px";
-          save({ body: e.target.value });
+          // Strip any literal multi-character key names (e.g. "Page_Up",
+          // "PageDown", "F5") that an external tool may have injected.
+          const cleaned = stripInjectedKeyNames(e.target.value);
+          save({ body: cleaned });
         }}
         ref={(el) => {
           if (el && el.scrollHeight > el.clientHeight) {
