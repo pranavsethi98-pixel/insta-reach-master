@@ -1,0 +1,1 @@
+UPDATE public.campaign_steps SET body = regexp_replace(body, E'\\n?Page_Up\\n?', E'\n', 'g'), subject = regexp_replace(subject, E'Page_Up', '', 'g') WHERE body ~ 'Page_Up' OR subject ~ 'Page_Up';
