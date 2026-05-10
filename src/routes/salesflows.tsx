@@ -56,14 +56,23 @@ function SalesflowsPage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["salesflows"] });
 
   const onSave = async () => {
-    if (!editing?.name) return toast.error("Name required");
+    if (!editing?.name?.trim()) return toast.error("Name required");
     setSaving(true);
     try {
-      await save({ data: editing });
+      // Strip null/empty description so the optional() validator on the server
+      // doesn't reject it (z.optional() does not accept explicit null).
+      const payload = { ...editing, name: editing.name.trim() };
+      if (payload.description == null || payload.description === "") delete payload.description;
+      await save({ data: payload });
       toast.success("Flow saved");
       setEditing(null); refresh();
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to save");
+      // Never expose raw Zod / API JSON to the user.
+      const raw = e?.message ?? "";
+      const friendly = raw.startsWith("[") || raw.includes('"code"')
+        ? "Couldn't save this flow — please check the fields and try again."
+        : raw || "Failed to save";
+      toast.error(friendly);
     } finally { setSaving(false); }
   };
 

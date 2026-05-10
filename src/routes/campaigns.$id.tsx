@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
@@ -28,6 +28,11 @@ export const Route = createFileRoute("/campaigns/$id")({
 function CampaignDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+
+  // /campaigns/new is reserved for the create flow; redirect to the list
+  // (which exposes the "New campaign" modal) instead of trying to load a
+  // campaign with id="new".
+  if (id === "new") return <Navigate to="/campaigns" />;
 
   const { data: campaign } = useQuery({
     queryKey: ["campaign", id],
@@ -96,7 +101,7 @@ function CampaignDetail() {
     const rows = unassigned.map((l: any) => ({ campaign_id: id, lead_id: l.id }));
     const { error } = await supabase.from("campaign_leads").insert(rows);
     if (error) return toast.error(error.message);
-    toast.success(`Assigned ${rows.length} leads`);
+    toast.success(`Assigned ${rows.length} lead${rows.length === 1 ? "" : "s"}`);
     qc.invalidateQueries({ queryKey: ["assigned", id] });
   };
 
@@ -177,8 +182,22 @@ function CampaignDetail() {
 
         <TabsContent value="settings" className="mt-4">
           <div className="bg-card border rounded-xl p-6 grid grid-cols-2 gap-4 max-w-xl">
-            <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_start ?? 9} onBlur={(e) => updateCampaign({ send_window_start: Number(e.target.value) })} /></div>
-            <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_end ?? 17} onBlur={(e) => updateCampaign({ send_window_end: Number(e.target.value) })} /></div>
+            <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_start ?? 9} onBlur={(e) => {
+              const raw = Number(e.target.value);
+              const v = Math.max(0, Math.min(23, isFinite(raw) ? Math.floor(raw) : 9));
+              if (v !== raw) { e.target.value = String(v); toast.info(`Hour clamped to ${v} (must be 0–23)`); }
+              const end = campaign.send_window_end ?? 17;
+              if (v >= end) return toast.error(`Window start must be before end (${end})`);
+              updateCampaign({ send_window_start: v });
+            }} /></div>
+            <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_end ?? 17} onBlur={(e) => {
+              const raw = Number(e.target.value);
+              const v = Math.max(0, Math.min(23, isFinite(raw) ? Math.floor(raw) : 17));
+              if (v !== raw) { e.target.value = String(v); toast.info(`Hour clamped to ${v} (must be 0–23)`); }
+              const start = campaign.send_window_start ?? 9;
+              if (v <= start) return toast.error(`Window end must be after start (${start})`);
+              updateCampaign({ send_window_end: v });
+            }} /></div>
             <div className="col-span-2 text-xs text-muted-foreground">
               Sending only happens within this window in your server timezone. Days: Mon–Fri by default.
             </div>

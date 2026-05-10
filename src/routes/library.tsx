@@ -44,11 +44,17 @@ function LibraryPage() {
   };
 
   const save = async () => {
-    if (!editing.title || !editing.body) return toast.error("Title and body required");
+    const title = (editing?.title ?? "").trim();
+    const body = (editing?.body ?? "").trim();
+    if (!title || !body) return toast.error("Title and body required");
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    if (editing.id) await supabase.from("resource_library").update(editing).eq("id", editing.id);
-    else await supabase.from("resource_library").insert({ ...editing, user_id: u.user.id });
+    const payload = { ...editing, title, body };
+    const { error } = editing.id
+      ? await supabase.from("resource_library").update(payload).eq("id", editing.id)
+      : await supabase.from("resource_library").insert({ ...payload, user_id: u.user.id });
+    if (error) return toast.error(error.message);
+    toast.success(editing.id ? "Saved" : "Created");
     setEditing(null); refresh();
   };
 

@@ -216,6 +216,8 @@ function LeadsPage() {
               <div><Label>Last name</Label><Input value={detail.last_name ?? ""} onChange={(e) => setDetail({ ...detail, last_name: e.target.value })} /></div>
               <div><Label>Company</Label><Input value={detail.company ?? ""} onChange={(e) => setDetail({ ...detail, company: e.target.value })} /></div>
               <div><Label>Title</Label><Input value={detail.title ?? ""} onChange={(e) => setDetail({ ...detail, title: e.target.value })} /></div>
+              <div><Label>Website</Label><Input value={detail.website ?? ""} onChange={(e) => setDetail({ ...detail, website: e.target.value })} /></div>
+              <div className="col-span-2"><Label>LinkedIn</Label><Input value={detail.linkedin ?? ""} onChange={(e) => setDetail({ ...detail, linkedin: e.target.value })} /></div>
               <div className="col-span-2"><Label>Icebreaker</Label><Input value={detail.icebreaker ?? ""} onChange={(e) => setDetail({ ...detail, icebreaker: e.target.value })} /></div>
             </div>
           )}
