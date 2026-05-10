@@ -7,7 +7,8 @@ const KEY = "es-theme";
 export function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";
   const saved = window.localStorage.getItem(KEY);
-  return saved === "light" ? "light" : "dark";
+  if (saved === "dark") return "dark";
+  return "light";
 }
 
 export function applyTheme(theme: Theme) {
