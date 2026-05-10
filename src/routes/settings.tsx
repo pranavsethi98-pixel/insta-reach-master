@@ -254,8 +254,20 @@ function CalendarLinkCard() {
   const value = link || profile?.calendar_link || "";
   const save = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { error } = await supabase.from("profiles").update({ calendar_link: link.trim() }).eq("id", user.id);
+    if (!user) return toast.error("Not signed in");
+    const trimmed = link.trim();
+    if (!trimmed) {
+      const { error } = await supabase.from("profiles").update({ calendar_link: null }).eq("id", user.id);
+      if (error) return toast.error(error.message);
+      return toast.success("Calendar link cleared");
+    }
+    try {
+      const u = new URL(trimmed);
+      if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error();
+    } catch {
+      return toast.error("Enter a valid URL starting with https:// (e.g. https://cal.com/you/15min)");
+    }
+    const { error } = await supabase.from("profiles").update({ calendar_link: trimmed }).eq("id", user.id);
     if (error) return toast.error(error.message);
     toast.success("Saved — use {{calendar_link}} in your emails");
   };
@@ -267,7 +279,7 @@ function CalendarLinkCard() {
       </p>
       <div className="flex gap-2">
         <Input placeholder="https://cal.com/your-name/15min" defaultValue={value} onChange={e => setLink(e.target.value)} />
-        <Button onClick={save}>Save</Button>
+        <Button type="button" onClick={save}>Save</Button>
       </div>
     </Card>
   );
