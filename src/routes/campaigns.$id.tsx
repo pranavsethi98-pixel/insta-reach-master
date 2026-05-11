@@ -333,7 +333,11 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
             </>
           )}
           <Label className="text-xs">Delay</Label>
-          <Input type="number" className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => save({ delay_days: Number(e.target.value) })} />
+          <Input type="number" min={0} max={365} className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => {
+            const raw = Math.floor(Number(e.target.value));
+            const v = Number.isFinite(raw) ? Math.max(0, Math.min(365, raw)) : 0;
+            save({ delay_days: v });
+          }} />
           <span className="text-sm text-muted-foreground">days</span>
           <Button size="icon" variant="ghost" onClick={remove}><Trash2 className="w-4 h-4" /></Button>
         </div>
