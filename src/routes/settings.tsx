@@ -125,6 +125,7 @@ function SettingsPage() {
       <CalendarLinkCard />
       <CalendlyCard />
       <ReplyAgentCard />
+      {confirmDialog}
     </div>
   );
 }
@@ -223,9 +224,11 @@ function ReplyAgentCard() {
         </div>
         <div>
           <Label className="text-xs">Monthly credit cap</Label>
-          <Input type="number" defaultValue={profile?.ai_reply_monthly_cap ?? 500}
+          <Input type="number" min={0} max={1000000} defaultValue={profile?.ai_reply_monthly_cap ?? 500}
             onBlur={(e) => {
-              const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
+              const raw = Math.floor(Number(e.target.value));
+              const v = Number.isFinite(raw) ? Math.max(0, Math.min(1000000, raw)) : 0;
+              if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1,000,000)`); }
               update({ ai_reply_monthly_cap: v });
             }} />
           <div className="text-xs text-muted-foreground mt-1">Used: {profile?.ai_reply_used_this_month ?? 0}</div>
