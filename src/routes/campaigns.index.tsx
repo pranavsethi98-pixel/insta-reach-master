@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
@@ -151,7 +151,7 @@ function CampaignsList() {
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
+                onClick={(e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
                 title="Delete campaign"
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               >
