@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
@@ -18,6 +18,7 @@ import { scoreSpam } from "@/lib/spam-words";
 import { TEMPLATES } from "@/lib/email-templates";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 // Defensive: prevent non-printable key names (e.g. "PageUp", "F5", "ContextMenu")
 // from being inserted into editor fields if a browser extension or accessibility
@@ -49,6 +50,8 @@ export const Route = createFileRoute("/campaigns/$id")({
 function CampaignDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   // /campaigns/new is reserved for the create flow; redirect to the list
   // (which exposes the "New campaign" modal) instead of trying to load a
@@ -138,7 +141,20 @@ function CampaignDetail() {
               className="w-full text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border truncate"
               defaultValue={campaign.name}
               title={campaign.name}
-              onBlur={(e) => updateCampaign({ name: e.target.value })}
+              onBlur={(e) => {
+                const next = e.target.value.trim();
+                if (!next) {
+                  e.target.value = campaign.name;
+                  toast.error("Campaign name can't be empty");
+                  return;
+                }
+                if (next.length > 120) {
+                  e.target.value = campaign.name;
+                  toast.error("Name must be 120 characters or fewer");
+                  return;
+                }
+                if (next !== campaign.name) updateCampaign({ name: next });
+              }}
             />
             <div className="text-sm text-muted-foreground">Status: {campaign.status}</div>
           </div>
