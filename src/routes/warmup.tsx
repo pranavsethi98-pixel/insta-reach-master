@@ -86,11 +86,21 @@ function WarmupPage() {
                   <div className="grid grid-cols-3 gap-3 pt-2">
                     <div>
                       <Label className="text-xs">Daily target</Label>
-                      <Input type="number" defaultValue={m.warmup_daily_target ?? 40} onBlur={(e) => update(m.id, { warmup_daily_target: Number(e.target.value) })} />
+                      <Input type="number" min={1} max={500} defaultValue={m.warmup_daily_target ?? 40} onBlur={(e) => {
+                        const raw = Math.floor(Number(e.target.value));
+                        const v = Number.isFinite(raw) ? Math.max(1, Math.min(500, raw)) : 40;
+                        if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 1–500)`); }
+                        update(m.id, { warmup_daily_target: v });
+                      }} />
                     </div>
                     <div>
                       <Label className="text-xs">Daily increment</Label>
-                      <Input type="number" defaultValue={m.warmup_increment ?? 2} onBlur={(e) => update(m.id, { warmup_increment: Number(e.target.value) })} />
+                      <Input type="number" min={1} max={50} defaultValue={m.warmup_increment ?? 2} onBlur={(e) => {
+                        const raw = Math.floor(Number(e.target.value));
+                        const v = Number.isFinite(raw) ? Math.max(1, Math.min(50, raw)) : 2;
+                        if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 1–50)`); }
+                        update(m.id, { warmup_increment: v });
+                      }} />
                     </div>
                     <div>
                       <Label className="text-xs">Reply rate (0–1)</Label>
