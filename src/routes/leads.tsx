@@ -249,8 +249,14 @@ function LeadsPage() {
               const email = String(detail.email ?? "").toLowerCase().trim();
               if (!email) return toast.error("Email is required");
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+              const website = String(detail.website ?? "").trim();
+              if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+              const linkedin = String(detail.linkedin ?? "").trim();
+              if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
               patch.email = email;
+              patch.website = website || null;
+              patch.linkedin = linkedin || null;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
               if (error) return toast.error(error.message);
               toast.success("Lead updated");
@@ -260,6 +266,7 @@ function LeadsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {confirmDialog}
     </div>
   );
 }
@@ -271,9 +278,13 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
     const email = form.email.toLowerCase().trim();
     if (!email) return toast.error("Email is required");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+    const website = form.website.trim();
+    if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+    const linkedin = form.linkedin.trim();
+    if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("leads").insert({ ...form, email, user_id: user.id });
+    const { error } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
     if (error) {
       if (/duplicate|unique/i.test(error.message)) return toast.error("This email already exists in your leads");
       return toast.error(error.message);
