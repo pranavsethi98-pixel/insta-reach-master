@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Play, Workflow } from "lucide-react";
 import { saveSalesflow, runSalesflows } from "@/lib/salesflows.functions";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/salesflows")({
   component: () => (<RequireAuth><AppShell><SalesflowsPage /></AppShell></RequireAuth>),
@@ -47,6 +48,7 @@ function SalesflowsPage() {
   const [editing, setEditing] = useState<any>(null);
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: flows } = useQuery({
     queryKey: ["salesflows"],
@@ -77,7 +79,14 @@ function SalesflowsPage() {
     } finally { setSaving(false); }
   };
 
-  const remove = async (id: string, _name: string) => {
+  const remove = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: `Delete salesflow "${name}"?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     const { error } = await supabase.from("salesflows").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
@@ -187,7 +196,7 @@ function SalesflowsPage() {
             <div className="flex-1">
               <div className="font-medium">{f.name}</div>
               {f.description && <div className="text-sm text-muted-foreground">{f.description}</div>}
-              <div className="text-xs text-muted-foreground mt-1">{(f.conditions || []).length} conditions · {(f.actions || []).length} actions · {f.is_active ? "Active" : "Paused"}</div>
+              <div className="text-xs text-muted-foreground mt-1">{(() => { const c = (f.conditions || []).length; const a = (f.actions || []).length; return `${c} ${c === 1 ? "condition" : "conditions"} · ${a} ${a === 1 ? "action" : "actions"} · ${f.is_active ? "Active" : "Paused"}`; })()}</div>
             </div>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => setEditing(f)}>Edit</Button>
@@ -196,6 +205,7 @@ function SalesflowsPage() {
           </div>
         ))}
       </div>
+      {confirmDialog}
     </div>
   );
 }

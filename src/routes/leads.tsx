@@ -16,6 +16,10 @@ import { Plus, Trash2, Upload, Users, Sparkles, ShieldCheck } from "lucide-react
 import { toast } from "sonner";
 import { generateIcebreakers } from "@/lib/ai.functions";
 import { verifyLeads } from "@/lib/verify.functions";
+import { useConfirm } from "@/components/ConfirmDialog";
+
+const URL_RE = /^https?:\/\/[^\s]+\.[^\s]+$/i;
+const LINKEDIN_RE = /^(https?:\/\/)?([a-z0-9-]+\.)?linkedin\.com\/.+/i;
 
 export const Route = createFileRoute("/leads")({
   component: () => (
@@ -32,6 +36,7 @@ function LeadsPage() {
   const genFn = useServerFn(generateIcebreakers);
   const verifyFn = useServerFn(verifyLeads);
   const [verifying, setVerifying] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const runVerify = async () => {
     if (selected.size === 0) return toast.error("Select leads first");
     setVerifying(true);
@@ -58,19 +63,34 @@ function LeadsPage() {
   };
 
   const remove = async (id: string, email?: string) => {
-    if (!window.confirm(`Delete this lead${email ? ` (${email})` : ""}? This cannot be undone.`)) return;
-    await supabase.from("leads").delete().eq("id", id);
+    const ok = await confirm({
+      title: `Delete this lead?`,
+      description: email ? `${email} will be permanently removed. This cannot be undone.` : "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("leads").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["leads"] });
     toast.success("Lead deleted");
   };
 
   const bulkDelete = async () => {
     if (selected.size === 0) return;
-    if (!window.confirm(`Delete ${selected.size} lead${selected.size === 1 ? "" : "s"}? This cannot be undone.`)) return;
-    await supabase.from("leads").delete().in("id", Array.from(selected));
+    const n = selected.size;
+    const ok = await confirm({
+      title: `Delete ${n} lead${n === 1 ? "" : "s"}?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("leads").delete().in("id", Array.from(selected));
+    if (error) return toast.error(error.message);
     setSelected(new Set());
     qc.invalidateQueries({ queryKey: ["leads"] });
-    toast.success(`Deleted ${selected.size} lead${selected.size === 1 ? "" : "s"}`);
+    toast.success(`Deleted ${n} lead${n === 1 ? "" : "s"}`);
   };
 
   const generateAI = async () => {
@@ -229,8 +249,14 @@ function LeadsPage() {
               const email = String(detail.email ?? "").toLowerCase().trim();
               if (!email) return toast.error("Email is required");
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+              const website = String(detail.website ?? "").trim();
+              if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+              const linkedin = String(detail.linkedin ?? "").trim();
+              if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
               patch.email = email;
+              patch.website = website || null;
+              patch.linkedin = linkedin || null;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
               if (error) return toast.error(error.message);
               toast.success("Lead updated");
@@ -240,6 +266,7 @@ function LeadsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {confirmDialog}
     </div>
   );
 }
@@ -251,9 +278,13 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
     const email = form.email.toLowerCase().trim();
     if (!email) return toast.error("Email is required");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+    const website = form.website.trim();
+    if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+    const linkedin = form.linkedin.trim();
+    if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("leads").insert({ ...form, email, user_id: user.id });
+    const { error } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
     if (error) {
       if (/duplicate|unique/i.test(error.message)) return toast.error("This email already exists in your leads");
       return toast.error(error.message);

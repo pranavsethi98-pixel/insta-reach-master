@@ -48,7 +48,10 @@ function PipelinePage() {
 
   const saveEdit = async () => {
     if (!editing) return;
-    await supabase.from("leads").update({ deal_value: Number(editing.deal_value || 0), notes: editing.notes ?? null }).eq("id", editing.id);
+    const raw = Number(editing.deal_value || 0);
+    if (!Number.isFinite(raw) || raw < 0) return toast.error("Deal value must be 0 or greater");
+    if (raw > 1_000_000_000) return toast.error("Deal value can't exceed $1,000,000,000");
+    await supabase.from("leads").update({ deal_value: raw, notes: editing.notes ?? null }).eq("id", editing.id);
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
     toast.success("Deal updated");
@@ -134,7 +137,7 @@ function PipelinePage() {
               <div className="text-sm text-muted-foreground">{editing.email}</div>
               <div>
                 <Label>Deal value ($)</Label>
-                <Input type="number" min={0} value={editing.deal_value ?? 0} onChange={(e) => setEditing({ ...editing, deal_value: e.target.value })} />
+                <Input type="number" min={0} max={1000000000} step="0.01" value={editing.deal_value ?? 0} onChange={(e) => setEditing({ ...editing, deal_value: e.target.value })} />
               </div>
               <div>
                 <Label>Notes</Label>

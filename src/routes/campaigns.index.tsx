@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Send, Clock, Activity } from "lucide-react";
+import { Plus, Send, Clock, Activity, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, EmptyState, StatusPill } from "@/components/app/PageHeader";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/campaigns/")({
   component: () => (
@@ -31,15 +32,36 @@ function CampaignsList() {
   });
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const create = async () => {
+    const trimmed = name.trim();
+    if (!trimmed) return toast.error("Campaign name is required");
+    if (trimmed.length > 120) return toast.error("Name must be 120 characters or fewer");
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !name.trim()) return;
-    const { data, error } = await supabase.from("campaigns").insert({ user_id: user.id, name }).select().single();
+    if (!user) return toast.error("Not signed in");
+    setCreating(true);
+    const { data, error } = await supabase.from("campaigns").insert({ user_id: user.id, name: trimmed }).select().single();
+    setCreating(false);
     if (error) return toast.error(error.message);
     setOpen(false); setName("");
     qc.invalidateQueries({ queryKey: ["campaigns"] });
     navigate({ to: "/campaigns/$id", params: { id: data.id } });
+  };
+
+  const removeCampaign = async (id: string, cName: string) => {
+    const ok = await confirm({
+      title: `Delete campaign "${cName}"?`,
+      description: "All sequence steps, lead assignments, and analytics for this campaign will be permanently removed. This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("campaigns").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["campaigns"] });
+    toast.success("Campaign deleted");
   };
 
   const tone = (s: string) =>
@@ -67,8 +89,24 @@ function CampaignsList() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Create campaign</DialogTitle></DialogHeader>
-              <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Q4 outbound" /></div>
-              <DialogFooter><Button onClick={create} className="rounded-full">Create</Button></DialogFooter>
+              <div className="space-y-2">
+                <Label>Name</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Q4 outbound"
+                  onKeyDown={(e) => { if (e.key === "Enter") create(); }}
+                  autoFocus
+                />
+                {name.length > 0 && !name.trim() && (
+                  <p className="text-xs text-destructive">Name can't be just spaces.</p>
+                )}
+              </div>
+              <DialogFooter>
+                <Button onClick={create} className="rounded-full" disabled={!name.trim() || creating}>
+                  {creating ? "Creating…" : "Create"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         }
@@ -89,27 +127,41 @@ function CampaignsList() {
       ) : (
         <div className="grid gap-3">
           {campaigns?.map((c) => (
-            <Link
+            <div
               key={c.id}
-              to="/campaigns/$id"
-              params={{ id: c.id }}
               className="group bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-all flex items-center gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-glow transition-all">
-                <Activity className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{c.name}</div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
-                  <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
-                  <span>limit · {c.daily_send_limit ?? "—"}/day</span>
+              <Link
+                to="/campaigns/$id"
+                params={{ id: c.id }}
+                className="flex items-center gap-4 flex-1 min-w-0"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-glow transition-all">
+                  <Activity className="w-5 h-5" />
                 </div>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate" title={c.name}>{c.name}</div>
+                  <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
+                    <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
+                    <span>limit · {c.daily_send_limit ?? "—"}/day</span>
+                  </div>
+                </div>
+              </Link>
               <StatusPill tone={tone(c.status) as any}>{c.status}</StatusPill>
-            </Link>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={(e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
+                title="Delete campaign"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           ))}
         </div>
       )}
+      {confirmDialog}
     </div>
   );
 }

@@ -17,6 +17,7 @@ import { Plus, Trash2, GitBranch, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { listSubsequences, upsertSubsequence, deleteSubsequence } from "@/lib/subsequences.functions";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/subsequences")({ component: () => (<RequireAuth><SubsequencesPage /></RequireAuth>) });
 
@@ -25,6 +26,7 @@ function SubsequencesPage() {
   const save = useServerFn(upsertSubsequence);
   const del = useServerFn(deleteSubsequence);
   const qc = useQueryClient();
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
@@ -44,8 +46,14 @@ function SubsequencesPage() {
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
   });
 
-  const confirmDelete = (id: string, name: string) => {
-    if (window.confirm(`Delete subsequence "${name}"? This cannot be undone.`)) delMut.mutate(id);
+  const confirmDelete = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: `Delete subsequence "${name}"?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (ok) delMut.mutate(id);
   };
 
   return (
@@ -91,6 +99,7 @@ function SubsequencesPage() {
           {!error && !isLoading && !data?.items.length && <p className="text-muted-foreground text-sm">No subsequences yet.</p>}
         </div>
       </div>
+      {confirmDialog}
     </AppShell>
   );
 }

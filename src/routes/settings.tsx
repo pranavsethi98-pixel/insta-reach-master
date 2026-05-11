@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { CheckCircle2, AlertCircle, Globe, Trash2, Pencil } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
 import { connectCalendly, disconnectCalendly, setCalendlyEvent } from "@/lib/calendly.functions";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -25,6 +26,7 @@ function SettingsPage() {
   const qc = useQueryClient();
   const verifyFn = useServerFn(verifyTrackingDomain);
   const [domain, setDomain] = useState("");
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: domains } = useQuery({
     queryKey: ["tracking_domains"],
@@ -54,8 +56,14 @@ function SettingsPage() {
     }
   };
 
-  const remove = async (id: string) => {
-    if (!window.confirm("Remove this tracking domain?")) return;
+  const remove = async (id: string, dom: string) => {
+    const ok = await confirm({
+      title: `Remove tracking domain "${dom}"?`,
+      description: "Existing tracking links using this domain will stop working.",
+      confirmLabel: "Remove",
+      destructive: true,
+    });
+    if (!ok) return;
     await supabase.from("tracking_domains").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
   };
@@ -104,7 +112,7 @@ function SettingsPage() {
                 )}
                 <Button size="sm" variant="outline" onClick={() => verify(d.id)}>Verify</Button>
                 <Button size="sm" variant="ghost" onClick={() => rename(d.id, d.domain)} title="Rename"><Pencil className="w-4 h-4" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => remove(d.id)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => remove(d.id, d.domain)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
           ))}
@@ -117,6 +125,7 @@ function SettingsPage() {
       <CalendarLinkCard />
       <CalendlyCard />
       <ReplyAgentCard />
+      {confirmDialog}
     </div>
   );
 }
@@ -215,9 +224,11 @@ function ReplyAgentCard() {
         </div>
         <div>
           <Label className="text-xs">Monthly credit cap</Label>
-          <Input type="number" defaultValue={profile?.ai_reply_monthly_cap ?? 500}
+          <Input type="number" min={0} max={1000000} defaultValue={profile?.ai_reply_monthly_cap ?? 500}
             onBlur={(e) => {
-              const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
+              const raw = Math.floor(Number(e.target.value));
+              const v = Number.isFinite(raw) ? Math.max(0, Math.min(1000000, raw)) : 0;
+              if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1,000,000)`); }
               update({ ai_reply_monthly_cap: v });
             }} />
           <div className="text-xs text-muted-foreground mt-1">Used: {profile?.ai_reply_used_this_month ?? 0}</div>

@@ -18,6 +18,7 @@ import { sendTestEmail } from "@/lib/test-send.functions";
 import { testSmtpCredentials } from "@/lib/test-smtp.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { BulkImportMailboxes } from "@/components/BulkImportMailboxes";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 const PRESETS: Record<string, { smtp_host: string; smtp_port: number; smtp_secure: boolean; imap_host: string; imap_port: number; imap_secure: boolean }> = {
   Gmail: { smtp_host: "smtp.gmail.com", smtp_port: 587, smtp_secure: false, imap_host: "imap.gmail.com", imap_port: 993, imap_secure: true },
@@ -34,13 +35,22 @@ export const Route = createFileRoute("/mailboxes")({
 
 function MailboxesPage() {
   const qc = useQueryClient();
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const { data: mailboxes } = useQuery({
     queryKey: ["mailboxes"],
     queryFn: async () => (await supabase.from("mailboxes").select("*").order("created_at", { ascending: false })).data ?? [],
   });
 
-  const remove = async (id: string) => {
-    await supabase.from("mailboxes").delete().eq("id", id);
+  const remove = async (id: string, label?: string) => {
+    const ok = await confirm({
+      title: `Delete mailbox${label ? ` "${label}"` : ""}?`,
+      description: "Active campaigns will stop sending from this mailbox. This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("mailboxes").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     toast.success("Mailbox removed");
     qc.invalidateQueries({ queryKey: ["mailboxes"] });
   };
@@ -72,9 +82,10 @@ function MailboxesPage() {
 
       <div className="grid gap-3">
         {mailboxes?.map((m) => (
-          <MailboxRow key={m.id} m={m} onToggle={toggle} onRemove={remove} onUpdate={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
+          <MailboxRow key={m.id} m={m} onToggle={toggle} onRemove={() => remove(m.id, m.label)} onUpdate={() => qc.invalidateQueries({ queryKey: ["mailboxes"] })} />
         ))}
       </div>
+      {confirmDialog}
     </div>
   );
 }
@@ -112,7 +123,7 @@ function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
         </button>
         <Switch checked={m.is_active} onCheckedChange={(v) => onToggle(m.id, v)} />
         <Button size="icon" variant="ghost" onClick={() => setEditing(!editing)}><Settings className="w-4 h-4" /></Button>
-        <Button size="icon" variant="ghost" onClick={() => onRemove(m.id)}><Trash2 className="w-4 h-4" /></Button>
+        <Button size="icon" variant="ghost" onClick={() => onRemove()}><Trash2 className="w-4 h-4" /></Button>
       </div>
       {showScore && (
         <div className="mt-4 pt-4 border-t space-y-3">

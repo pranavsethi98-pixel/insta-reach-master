@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
@@ -18,6 +18,7 @@ import { scoreSpam } from "@/lib/spam-words";
 import { TEMPLATES } from "@/lib/email-templates";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 // Defensive: prevent non-printable key names (e.g. "PageUp", "F5", "ContextMenu")
 // from being inserted into editor fields if a browser extension or accessibility
@@ -49,6 +50,8 @@ export const Route = createFileRoute("/campaigns/$id")({
 function CampaignDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   // /campaigns/new is reserved for the create flow; redirect to the list
   // (which exposes the "New campaign" modal) instead of trying to load a
@@ -138,7 +141,20 @@ function CampaignDetail() {
               className="w-full text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border truncate"
               defaultValue={campaign.name}
               title={campaign.name}
-              onBlur={(e) => updateCampaign({ name: e.target.value })}
+              onBlur={(e) => {
+                const next = e.target.value.trim();
+                if (!next) {
+                  e.target.value = campaign.name;
+                  toast.error("Campaign name can't be empty");
+                  return;
+                }
+                if (next.length > 120) {
+                  e.target.value = campaign.name;
+                  toast.error("Name must be 120 characters or fewer");
+                  return;
+                }
+                if (next !== campaign.name) updateCampaign({ name: next });
+              }}
             />
             <div className="text-sm text-muted-foreground">Status: {campaign.status}</div>
           </div>
@@ -223,9 +239,34 @@ function CampaignDetail() {
             <div className="col-span-2 text-xs text-muted-foreground">
               Sending only happens within this window in your server timezone. Days: Mon–Fri by default.
             </div>
+            <div className="col-span-2 border-t pt-4 mt-2">
+              <div className="text-sm font-semibold text-destructive mb-1">Danger zone</div>
+              <p className="text-xs text-muted-foreground mb-3">Deleting a campaign removes all sequence steps, lead assignments, and analytics. This cannot be undone.</p>
+              <Button
+                variant="outline"
+                className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: `Delete campaign "${campaign.name}"?`,
+                    description: "All sequence steps, lead assignments, and analytics will be permanently removed. This cannot be undone.",
+                    confirmLabel: "Delete campaign",
+                    destructive: true,
+                  });
+                  if (!ok) return;
+                  const { error } = await supabase.from("campaigns").delete().eq("id", id);
+                  if (error) return toast.error(error.message);
+                  toast.success("Campaign deleted");
+                  qc.invalidateQueries({ queryKey: ["campaigns"] });
+                  navigate({ to: "/campaigns" });
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" /> Delete campaign
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
+      {confirmDialog}
     </div>
   );
 }
@@ -292,7 +333,11 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
             </>
           )}
           <Label className="text-xs">Delay</Label>
-          <Input type="number" className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => save({ delay_days: Number(e.target.value) })} />
+          <Input type="number" min={0} max={365} className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => {
+            const raw = Math.floor(Number(e.target.value));
+            const v = Number.isFinite(raw) ? Math.max(0, Math.min(365, raw)) : 0;
+            save({ delay_days: v });
+          }} />
           <span className="text-sm text-muted-foreground">days</span>
           <Button size="icon" variant="ghost" onClick={remove}><Trash2 className="w-4 h-4" /></Button>
         </div>
