@@ -99,6 +99,7 @@ function SubsequencesPage() {
           {!error && !isLoading && !data?.items.length && <p className="text-muted-foreground text-sm">No subsequences yet.</p>}
         </div>
       </div>
+      {confirmDialog}
     </AppShell>
   );
 }
