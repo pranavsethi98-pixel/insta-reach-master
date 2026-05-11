@@ -196,7 +196,7 @@ function SalesflowsPage() {
             <div className="flex-1">
               <div className="font-medium">{f.name}</div>
               {f.description && <div className="text-sm text-muted-foreground">{f.description}</div>}
-              <div className="text-xs text-muted-foreground mt-1">{(f.conditions || []).length} conditions · {(f.actions || []).length} actions · {f.is_active ? "Active" : "Paused"}</div>
+              <div className="text-xs text-muted-foreground mt-1">{(() => { const c = (f.conditions || []).length; const a = (f.actions || []).length; return `${c} ${c === 1 ? "condition" : "conditions"} · ${a} ${a === 1 ? "action" : "actions"} · ${f.is_active ? "Active" : "Paused"}`; })()}</div>
             </div>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => setEditing(f)}>Edit</Button>
@@ -205,6 +205,7 @@ function SalesflowsPage() {
           </div>
         ))}
       </div>
+      {confirmDialog}
     </div>
   );
 }
