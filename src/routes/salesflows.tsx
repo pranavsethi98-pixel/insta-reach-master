@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Play, Workflow } from "lucide-react";
 import { saveSalesflow, runSalesflows } from "@/lib/salesflows.functions";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/salesflows")({
   component: () => (<RequireAuth><AppShell><SalesflowsPage /></AppShell></RequireAuth>),
@@ -47,6 +48,7 @@ function SalesflowsPage() {
   const [editing, setEditing] = useState<any>(null);
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: flows } = useQuery({
     queryKey: ["salesflows"],
@@ -77,7 +79,14 @@ function SalesflowsPage() {
     } finally { setSaving(false); }
   };
 
-  const remove = async (id: string, _name: string) => {
+  const remove = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: `Delete salesflow "${name}"?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     const { error } = await supabase.from("salesflows").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
