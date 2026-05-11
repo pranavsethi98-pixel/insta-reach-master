@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Send, Clock, Activity } from "lucide-react";
+import { Plus, Send, Clock, Activity, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, EmptyState, StatusPill } from "@/components/app/PageHeader";
+import { useConfirm } from "@/components/ConfirmDialog";
+import { Button as Btn } from "@/components/ui/button";
 
 export const Route = createFileRoute("/campaigns/")({
   component: () => (
@@ -31,15 +33,36 @@ function CampaignsList() {
   });
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const create = async () => {
+    const trimmed = name.trim();
+    if (!trimmed) return toast.error("Campaign name is required");
+    if (trimmed.length > 120) return toast.error("Name must be 120 characters or fewer");
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !name.trim()) return;
-    const { data, error } = await supabase.from("campaigns").insert({ user_id: user.id, name }).select().single();
+    if (!user) return toast.error("Not signed in");
+    setCreating(true);
+    const { data, error } = await supabase.from("campaigns").insert({ user_id: user.id, name: trimmed }).select().single();
+    setCreating(false);
     if (error) return toast.error(error.message);
     setOpen(false); setName("");
     qc.invalidateQueries({ queryKey: ["campaigns"] });
     navigate({ to: "/campaigns/$id", params: { id: data.id } });
+  };
+
+  const removeCampaign = async (id: string, cName: string) => {
+    const ok = await confirm({
+      title: `Delete campaign "${cName}"?`,
+      description: "All sequence steps, lead assignments, and analytics for this campaign will be permanently removed. This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("campaigns").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["campaigns"] });
+    toast.success("Campaign deleted");
   };
 
   const tone = (s: string) =>
@@ -67,8 +90,24 @@ function CampaignsList() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Create campaign</DialogTitle></DialogHeader>
-              <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Q4 outbound" /></div>
-              <DialogFooter><Button onClick={create} className="rounded-full">Create</Button></DialogFooter>
+              <div className="space-y-2">
+                <Label>Name</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Q4 outbound"
+                  onKeyDown={(e) => { if (e.key === "Enter") create(); }}
+                  autoFocus
+                />
+                {name.length > 0 && !name.trim() && (
+                  <p className="text-xs text-destructive">Name can't be just spaces.</p>
+                )}
+              </div>
+              <DialogFooter>
+                <Button onClick={create} className="rounded-full" disabled={!name.trim() || creating}>
+                  {creating ? "Creating…" : "Create"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         }
