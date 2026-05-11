@@ -148,15 +148,15 @@ function CampaignsList() {
                 </div>
               </Link>
               <StatusPill tone={tone(c.status) as any}>{c.status}</StatusPill>
-              <Btn
+              <Button
                 size="icon"
                 variant="ghost"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
+                onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
                 title="Delete campaign"
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4" />
-              </Btn>
+              </Button>
             </div>
           ))}
         </div>
