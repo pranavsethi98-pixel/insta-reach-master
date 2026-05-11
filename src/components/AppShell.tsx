@@ -308,6 +308,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Settings className="w-4 h-4 mr-2" /> Settings
             </CommandItem>
           </CommandGroup>
+          {!!searchData?.campaigns.length && (
+            <CommandGroup heading="Campaigns">
+              {searchData.campaigns.map((c: any) => (
+                <CommandItem key={c.id} value={`campaign ${c.name} ${c.id}`} onSelect={() => { setPaletteOpen(false); navigate({ to: "/campaigns/$id", params: { id: c.id } }); }}>
+                  <Send className="w-4 h-4 mr-2" /> {c.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {!!searchData?.leads.length && (
+            <CommandGroup heading="Leads">
+              {searchData.leads.map((l: any) => {
+                const name = [l.first_name, l.last_name].filter(Boolean).join(" ");
+                const label = name ? `${name} · ${l.email}` : l.email;
+                return (
+                  <CommandItem key={l.id} value={`lead ${l.email} ${name} ${l.company ?? ""}`} onSelect={() => { setPaletteOpen(false); navigate({ to: "/leads" as any }); }}>
+                    <Users className="w-4 h-4 mr-2" /> <span className="truncate">{label}</span>
+                    {l.company && <span className="ml-2 text-xs text-muted-foreground">{l.company}</span>}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          )}
+          {!!searchData?.flows.length && (
+            <CommandGroup heading="Salesflows">
+              {searchData.flows.map((f: any) => (
+                <CommandItem key={f.id} value={`salesflow ${f.name} ${f.id}`} onSelect={() => { setPaletteOpen(false); navigate({ to: "/salesflows" as any }); }}>
+                  <Workflow className="w-4 h-4 mr-2" /> {f.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
         </CommandList>
       </CommandDialog>
     </div>
