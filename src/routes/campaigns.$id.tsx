@@ -239,9 +239,34 @@ function CampaignDetail() {
             <div className="col-span-2 text-xs text-muted-foreground">
               Sending only happens within this window in your server timezone. Days: Mon–Fri by default.
             </div>
+            <div className="col-span-2 border-t pt-4 mt-2">
+              <div className="text-sm font-semibold text-destructive mb-1">Danger zone</div>
+              <p className="text-xs text-muted-foreground mb-3">Deleting a campaign removes all sequence steps, lead assignments, and analytics. This cannot be undone.</p>
+              <Button
+                variant="outline"
+                className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: `Delete campaign "${campaign.name}"?`,
+                    description: "All sequence steps, lead assignments, and analytics will be permanently removed. This cannot be undone.",
+                    confirmLabel: "Delete campaign",
+                    destructive: true,
+                  });
+                  if (!ok) return;
+                  const { error } = await supabase.from("campaigns").delete().eq("id", id);
+                  if (error) return toast.error(error.message);
+                  toast.success("Campaign deleted");
+                  qc.invalidateQueries({ queryKey: ["campaigns"] });
+                  navigate({ to: "/campaigns" });
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" /> Delete campaign
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
+      {confirmDialog}
     </div>
   );
 }
