@@ -128,27 +128,41 @@ function CampaignsList() {
       ) : (
         <div className="grid gap-3">
           {campaigns?.map((c) => (
-            <Link
+            <div
               key={c.id}
-              to="/campaigns/$id"
-              params={{ id: c.id }}
               className="group bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-all flex items-center gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-glow transition-all">
-                <Activity className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{c.name}</div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
-                  <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
-                  <span>limit · {c.daily_send_limit ?? "—"}/day</span>
+              <Link
+                to="/campaigns/$id"
+                params={{ id: c.id }}
+                className="flex items-center gap-4 flex-1 min-w-0"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-glow transition-all">
+                  <Activity className="w-5 h-5" />
                 </div>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate" title={c.name}>{c.name}</div>
+                  <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
+                    <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
+                    <span>limit · {c.daily_send_limit ?? "—"}/day</span>
+                  </div>
+                </div>
+              </Link>
               <StatusPill tone={tone(c.status) as any}>{c.status}</StatusPill>
-            </Link>
+              <Btn
+                size="icon"
+                variant="ghost"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
+                title="Delete campaign"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Btn>
+            </div>
           ))}
         </div>
       )}
+      {confirmDialog}
     </div>
   );
 }
