@@ -16,6 +16,10 @@ import { Plus, Trash2, Upload, Users, Sparkles, ShieldCheck } from "lucide-react
 import { toast } from "sonner";
 import { generateIcebreakers } from "@/lib/ai.functions";
 import { verifyLeads } from "@/lib/verify.functions";
+import { useConfirm } from "@/components/ConfirmDialog";
+
+const URL_RE = /^https?:\/\/[^\s]+\.[^\s]+$/i;
+const LINKEDIN_RE = /^(https?:\/\/)?([a-z0-9-]+\.)?linkedin\.com\/.+/i;
 
 export const Route = createFileRoute("/leads")({
   component: () => (
@@ -32,6 +36,7 @@ function LeadsPage() {
   const genFn = useServerFn(generateIcebreakers);
   const verifyFn = useServerFn(verifyLeads);
   const [verifying, setVerifying] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const runVerify = async () => {
     if (selected.size === 0) return toast.error("Select leads first");
     setVerifying(true);
@@ -58,19 +63,34 @@ function LeadsPage() {
   };
 
   const remove = async (id: string, email?: string) => {
-    if (!window.confirm(`Delete this lead${email ? ` (${email})` : ""}? This cannot be undone.`)) return;
-    await supabase.from("leads").delete().eq("id", id);
+    const ok = await confirm({
+      title: `Delete this lead?`,
+      description: email ? `${email} will be permanently removed. This cannot be undone.` : "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("leads").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["leads"] });
     toast.success("Lead deleted");
   };
 
   const bulkDelete = async () => {
     if (selected.size === 0) return;
-    if (!window.confirm(`Delete ${selected.size} lead${selected.size === 1 ? "" : "s"}? This cannot be undone.`)) return;
-    await supabase.from("leads").delete().in("id", Array.from(selected));
+    const n = selected.size;
+    const ok = await confirm({
+      title: `Delete ${n} lead${n === 1 ? "" : "s"}?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("leads").delete().in("id", Array.from(selected));
+    if (error) return toast.error(error.message);
     setSelected(new Set());
     qc.invalidateQueries({ queryKey: ["leads"] });
-    toast.success(`Deleted ${selected.size} lead${selected.size === 1 ? "" : "s"}`);
+    toast.success(`Deleted ${n} lead${n === 1 ? "" : "s"}`);
   };
 
   const generateAI = async () => {
