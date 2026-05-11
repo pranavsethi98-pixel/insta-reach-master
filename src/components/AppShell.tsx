@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 type NavItem = { to: string; label: string; icon: any };
 
@@ -101,6 +103,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Dismiss any lingering toasts when the user navigates so they don't bleed
+  // onto the next page.
+  useEffect(() => {
+    toast.dismiss();
+  }, [location.pathname]);
+
+  // Light-weight data search for Cmd+K. Only loads when palette is open.
+  const { data: searchData } = useQuery({
+    queryKey: ["cmdk-search-data"],
+    enabled: paletteOpen,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const [campaignsRes, leadsRes, flowsRes] = await Promise.all([
+        supabase.from("campaigns").select("id, name").limit(50),
+        supabase.from("leads").select("id, email, first_name, last_name, company").limit(100),
+        supabase.from("salesflows").select("id, name").limit(50),
+      ]);
+      return {
+        campaigns: campaignsRes.data ?? [],
+        leads: leadsRes.data ?? [],
+        flows: flowsRes.data ?? [],
+      };
+    },
+  });
 
   const logout = async () => {
     await supabase.auth.signOut();
