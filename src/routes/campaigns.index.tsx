@@ -12,6 +12,7 @@ import { Plus, Send, Clock, Activity, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, EmptyState, StatusPill } from "@/components/app/PageHeader";
 import { useConfirm } from "@/components/ConfirmDialog";
+import { smartTruncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/campaigns/")({
   component: () => (
