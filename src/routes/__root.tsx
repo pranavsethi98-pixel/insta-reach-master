@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { applyTheme, getInitialTheme } from "@/hooks/use-theme";
 
 import appCss from "../styles.css?url";
