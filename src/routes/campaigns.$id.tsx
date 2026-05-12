@@ -264,6 +264,35 @@ function CampaignDetail() {
   );
 }
 
+function SendingWindow({ start, end, onChange }: { start: number; end: number; onChange: (patch: { send_window_start?: number; send_window_end?: number }) => void }) {
+  const [s, setS] = useState(start);
+  const [e, setE] = useState(end);
+  useEffect(() => { setS(start); setE(end); }, [start, end]);
+  const commit = (nextS: number, nextE: number) => {
+    if (nextS >= nextE) {
+      toast.error(`Window end must be after start (${nextS})`);
+      setS(start); setE(end);
+      return;
+    }
+    const patch: { send_window_start?: number; send_window_end?: number } = {};
+    if (nextS !== start) patch.send_window_start = nextS;
+    if (nextE !== end) patch.send_window_end = nextE;
+    if (Object.keys(patch).length) onChange(patch);
+  };
+  return (
+    <>
+      <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} value={s} onChange={(ev) => setS(Number(ev.target.value))} onBlur={() => {
+        const v = Math.max(0, Math.min(23, Number.isFinite(s) ? Math.floor(s) : 9));
+        setS(v); commit(v, e);
+      }} /></div>
+      <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} value={e} onChange={(ev) => setE(Number(ev.target.value))} onBlur={() => {
+        const v = Math.max(0, Math.min(23, Number.isFinite(e) ? Math.floor(e) : 17));
+        setE(v); commit(s, v);
+      }} /></div>
+    </>
+  );
+}
+
 function SequenceEditor({ campaignId, steps, campaignStatus }: { campaignId: string; steps: any[]; campaignStatus?: string }) {
   const qc = useQueryClient();
   const refresh = () => qc.invalidateQueries({ queryKey: ["steps", campaignId] });
