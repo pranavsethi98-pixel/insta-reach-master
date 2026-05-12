@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Sparkles, Loader2, Wand2, Save } from "lucide-react";
 import { generateCampaign } from "@/lib/copilot.functions";
 import { toast } from "sonner";
+import { smartTruncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/copilot")({
   component: () => (<RequireAuth><AppShell><CopilotPage /></AppShell></RequireAuth>),
