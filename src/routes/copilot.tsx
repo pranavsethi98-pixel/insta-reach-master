@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Sparkles, Loader2, Wand2, Save } from "lucide-react";
 import { generateCampaign } from "@/lib/copilot.functions";
 import { toast } from "sonner";
+import { smartTruncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/copilot")({
   component: () => (<RequireAuth><AppShell><CopilotPage /></AppShell></RequireAuth>),
@@ -104,8 +105,8 @@ function CopilotPage() {
           placeholder="e.g. Book demos with HR Directors at 200-1000 person logistics companies…" />
         <div className="flex flex-wrap gap-2">
           {SAMPLES.map((s) => (
-            <button key={s} className="text-xs px-2 py-1 rounded-full bg-muted hover:bg-muted/80"
-              onClick={() => setPrompt(s)}>{s.slice(0, 60)}…</button>
+            <button key={s} className="text-xs px-2 py-1 rounded-full bg-muted hover:bg-muted/80 max-w-full truncate" title={s}
+              onClick={() => setPrompt(s)}>{smartTruncate(s, 60)}</button>
           ))}
         </div>
         <div className="flex gap-2">

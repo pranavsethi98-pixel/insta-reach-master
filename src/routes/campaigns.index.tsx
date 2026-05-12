@@ -12,6 +12,7 @@ import { Plus, Send, Clock, Activity, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, EmptyState, StatusPill } from "@/components/app/PageHeader";
 import { useConfirm } from "@/components/ConfirmDialog";
+import { smartTruncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/campaigns/")({
   component: () => (
@@ -103,7 +104,7 @@ function CampaignsList() {
                 )}
               </div>
               <DialogFooter>
-                <Button onClick={create} className="rounded-full" disabled={!name.trim() || creating}>
+                <Button onClick={create} className="rounded-full" disabled={creating}>
                   {creating ? "Creating…" : "Create"}
                 </Button>
               </DialogFooter>
@@ -140,7 +141,7 @@ function CampaignsList() {
                   <Activity className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold truncate" title={c.name}>{c.name}</div>
+                  <div className="font-semibold truncate" title={c.name}>{smartTruncate(c.name, 90)}</div>
                   <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
                     <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
                     <span>limit · {c.daily_send_limit ?? "—"}/day</span>

@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { applyTheme, getInitialTheme } from "@/hooks/use-theme";
 
 import appCss from "../styles.css?url";
@@ -117,8 +117,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
 
   useEffect(() => { applyTheme(getInitialTheme()); }, []);
+
+  // Dismiss any visible toasts whenever the router resolves to a new
+  // location. This kills "toast bleed" where a success/error from the
+  // previous page sticks around after navigation.
+  useEffect(() => {
+    const unsub = router.subscribe("onResolved", () => {
+      // Defer past the navigation tick so toasts emitted just before
+      // navigate() (e.g. toast.success(); navigate(...)) also get cleared.
+      setTimeout(() => toast.dismiss(), 0);
+    });
+    return () => { unsub?.(); };
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
