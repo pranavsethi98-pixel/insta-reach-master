@@ -103,7 +103,7 @@ function CampaignsList() {
                 )}
               </div>
               <DialogFooter>
-                <Button onClick={create} className="rounded-full" disabled={!name.trim() || creating}>
+                <Button onClick={create} className="rounded-full" disabled={creating}>
                   {creating ? "Creating…" : "Create"}
                 </Button>
               </DialogFooter>
