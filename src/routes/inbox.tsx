@@ -148,7 +148,7 @@ function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; on
             <div className="flex gap-2 mt-2 items-center flex-wrap">
               {l.opened_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-600"><Eye className="w-3 h-3" /> Opened</span>}
               {l.clicked_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-500/15 text-purple-600"><MousePointerClick className="w-3 h-3" /> {l.click_count} click{l.click_count > 1 ? "s" : ""}</span>}
-              {l.replied_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success"><Reply className="w-3 h-3" /> Replied</span>}
+              {l.replied_at && <button onClick={() => onUnmarkReplied(l.id)} title="Click to unmark replied" className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success hover:bg-success/25 transition-colors"><Reply className="w-3 h-3" /> Replied · undo</button>}
               {l.bounced_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-destructive/15 text-destructive">Bounced ({l.bounce_type})</span>}
               {l.status === "sent" && !l.replied_at && !l.bounced_at && (
                 <Button size="sm" variant="outline" onClick={() => onMarkReplied(l.id)}>
