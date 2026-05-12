@@ -120,7 +120,7 @@ function RepliesPanel({ convs }: { convs: any[] }) {
   );
 }
 
-function ActivityPanel({ log, onMarkReplied }: { log: any[]; onMarkReplied: (id: string) => void }) {
+function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; onMarkReplied: (id: string) => void; onUnmarkReplied: (id: string) => void }) {
   if (log.length === 0) return (
     <div className="bg-card border rounded-xl p-12 text-center">
       <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
