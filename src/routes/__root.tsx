@@ -118,7 +118,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => { applyTheme(getInitialTheme()); }, []);
