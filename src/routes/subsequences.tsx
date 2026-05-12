@@ -187,7 +187,8 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
         ))}
       </div>
 
-      <Button className="w-full" onClick={() => {
+      <Button className="w-full" disabled={saveMut.isPending} onClick={() => {
+        if (saveMut.isPending) return;
         if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
         if (!form.name.trim()) return toast.error("Name is required");
         if (steps.some(s => !Number.isFinite(s.delay_days) || s.delay_days < 1)) return toast.error("Step delay must be at least 1 day");
@@ -195,7 +196,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
         if (bad) return toast.error("Every step needs a subject and body");
         onSave({ ...form, steps });
       }}>
-        Save subsequence
+        {saveMut.isPending ? "Saving…" : "Save subsequence"}
       </Button>
     </div>
   );
