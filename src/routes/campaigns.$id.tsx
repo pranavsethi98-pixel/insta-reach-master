@@ -141,10 +141,14 @@ function CampaignDetail() {
               className="w-full text-3xl font-bold tracking-tight bg-transparent outline-none border-b border-transparent focus:border-border truncate"
               defaultValue={campaign.name}
               title={campaign.name}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); (e.target as HTMLInputElement).blur(); }
+                if (e.key === "Escape") { (e.target as HTMLInputElement).value = campaign.name; (e.target as HTMLInputElement).blur(); }
+              }}
               onBlur={(e) => {
                 const next = e.target.value.trim();
                 if (!next) {
-                  e.target.value = campaign.name;
+                  e.target.value = campaign.name || "";
                   toast.error("Campaign name can't be empty");
                   return;
                 }
