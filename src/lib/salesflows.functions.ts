@@ -93,8 +93,8 @@ export const saveSalesflow = createServerFn({ method: "POST" })
     id: z.string().uuid().optional(),
     name: z.string().min(1).max(120),
     description: z.string().max(500).optional(),
-    conditions: z.array(z.any()),
-    actions: z.array(z.any()),
+    conditions: z.array(z.any()).min(1, "At least one condition is required"),
+    actions: z.array(z.any()).min(1, "At least one action is required"),
     is_active: z.boolean().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
