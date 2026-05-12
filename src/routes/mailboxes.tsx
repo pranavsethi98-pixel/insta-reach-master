@@ -310,7 +310,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
           <TabsContent value="imap" className="grid grid-cols-2 gap-3 pt-3">
             <div className="col-span-2 text-xs text-muted-foreground">Used for reply detection. Defaults to your SMTP credentials if blank.</div>
             <div className="col-span-2"><Label>IMAP host</Label><Input value={form.imap_host} onChange={(e) => setForm({ ...form, imap_host: e.target.value })} /></div>
-            <div><Label>Port</Label><Input type="number" min={1} max={65535} value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} /></div>
+            <div><Label>Port</Label><Input type="number" min={1} max={65535} value={form.imap_port} onChange={(e) => setForm({ ...form, imap_port: Number(e.target.value) })} onBlur={(e) => { const v = Math.max(1, Math.min(65535, Math.floor(Number(e.target.value) || 0))); setForm(f => ({ ...f, imap_port: v })); }} /></div>
             <div className="flex items-end gap-2"><Switch checked={form.imap_secure} onCheckedChange={(v) => setForm({ ...form, imap_secure: v })} /><span className="text-sm">SSL</span></div>
           </TabsContent>
           <TabsContent value="limits" className="grid grid-cols-2 gap-3 pt-3">
