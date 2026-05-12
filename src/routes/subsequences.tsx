@@ -69,7 +69,7 @@ function SubsequencesPage() {
             <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined} onClick={() => setEditing(null)}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
               <DialogHeader><DialogTitle>{editing ? "Edit subsequence" : "New subsequence"}</DialogTitle></DialogHeader>
-              <SubseqForm campaigns={campaigns ?? []} initial={editing} saving={saveMut.isPending} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
+              <SubseqForm campaigns={campaigns ?? []} initial={editing} saving={saving} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -187,8 +187,8 @@ function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; 
         ))}
       </div>
 
-      <Button className="w-full" disabled={saveMut.isPending} onClick={() => {
-        if (saveMut.isPending) return;
+      <Button className="w-full" disabled={saving} onClick={() => {
+        if (saving) return;
         if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
         if (!form.name.trim()) return toast.error("Name is required");
         if (steps.some(s => !Number.isFinite(s.delay_days) || s.delay_days < 1)) return toast.error("Step delay must be at least 1 day");
@@ -196,7 +196,7 @@ function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; 
         if (bad) return toast.error("Every step needs a subject and body");
         onSave({ ...form, steps });
       }}>
-        {saveMut.isPending ? "Saving…" : "Save subsequence"}
+        {saving ? "Saving…" : "Save subsequence"}
       </Button>
     </div>
   );
