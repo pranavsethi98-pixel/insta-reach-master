@@ -105,7 +105,7 @@ function SubsequencesPage() {
   );
 }
 
-function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?: any; onSave: (v: any) => void }) {
+function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; initial?: any; saving?: boolean; onSave: (v: any) => void }) {
   const [form, setForm] = useState({
     parent_campaign_id: initial?.parent_campaign_id ?? campaigns[0]?.id ?? "",
     name: initial?.name ?? "",
