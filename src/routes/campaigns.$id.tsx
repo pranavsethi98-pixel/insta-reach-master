@@ -337,11 +337,17 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
             </>
           )}
           <Label className="text-xs">Delay</Label>
-          <Input type="number" min={0} max={365} className="w-20 h-8" value={local.delay_days ?? 0} onChange={(e) => {
+          {(() => { const minDelay = step.step_order > 1 ? 1 : 0; return (
+          <Input type="number" min={minDelay} max={365} className="w-20 h-8" value={local.delay_days ?? minDelay} onChange={(e) => {
             const raw = Math.floor(Number(e.target.value));
-            const v = Number.isFinite(raw) ? Math.max(0, Math.min(365, raw)) : 0;
+            const v = Number.isFinite(raw) ? Math.max(minDelay, Math.min(365, raw)) : minDelay;
             save({ delay_days: v });
+          }} onBlur={(e) => {
+            const raw = Math.floor(Number(e.target.value));
+            const v = Number.isFinite(raw) ? Math.max(minDelay, Math.min(365, raw)) : minDelay;
+            if (v !== local.delay_days) save({ delay_days: v });
           }} />
+          ); })()}
           <span className="text-sm text-muted-foreground">days</span>
           <Button size="icon" variant="ghost" onClick={remove}><Trash2 className="w-4 h-4" /></Button>
         </div>
