@@ -275,11 +275,14 @@ function CampaignDetail() {
   );
 }
 
-function SequenceEditor({ campaignId, steps }: { campaignId: string; steps: any[] }) {
+function SequenceEditor({ campaignId, steps, campaignStatus }: { campaignId: string; steps: any[]; campaignStatus?: string }) {
   const qc = useQueryClient();
   const refresh = () => qc.invalidateQueries({ queryKey: ["steps", campaignId] });
 
   const addStep = async () => {
+    if (campaignStatus === "active") {
+      return toast.error("Pause this campaign before adding steps — new empty steps shouldn't ship live.");
+    }
     const nextOrder = (steps[steps.length - 1]?.step_order ?? 0) + 1;
     await supabase.from("campaign_steps").insert({
       campaign_id: campaignId,
