@@ -29,6 +29,14 @@ function InboxPage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<"replies" | "activity" | "setup">("replies");
 
+  // If arriving with ?q=... (e.g. from dashboard's "Recent activity"), default to
+  // the Activity tab where the matching sent email lives.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("q")) setTab("activity");
+  }, []);
+
   const { data: convs } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () =>
@@ -46,6 +54,13 @@ function InboxPage() {
     qc.setQueryData(["send-log"], (prev: any) => (prev ?? []).map((l: any) => l.id === id ? { ...l, replied_at: new Date().toISOString() } : l));
     await supabase.from("send_log").update({ replied_at: new Date().toISOString() }).eq("id", id);
     toast.success("Marked as replied. Campaign will pause for this lead.");
+    qc.invalidateQueries({ queryKey: ["send-log"] });
+  };
+
+  const unmarkReplied = async (id: string) => {
+    qc.setQueryData(["send-log"], (prev: any) => (prev ?? []).map((l: any) => l.id === id ? { ...l, replied_at: null } : l));
+    await supabase.from("send_log").update({ replied_at: null }).eq("id", id);
+    toast.success("Reply mark removed. Campaign will resume.");
     qc.invalidateQueries({ queryKey: ["send-log"] });
   };
 
