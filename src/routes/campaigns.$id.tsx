@@ -181,7 +181,7 @@ function CampaignDetail() {
         </TabsList>
 
         <TabsContent value="sequence" className="space-y-4 mt-4">
-          <SequenceEditor campaignId={id} steps={steps ?? []} />
+          <SequenceEditor campaignId={id} steps={steps ?? []} campaignStatus={campaign.status} />
         </TabsContent>
 
         <TabsContent value="mailboxes" className="mt-4 space-y-3">
