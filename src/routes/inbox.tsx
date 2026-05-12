@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
@@ -29,6 +29,14 @@ function InboxPage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<"replies" | "activity" | "setup">("replies");
 
+  // If arriving with ?q=... (e.g. from dashboard's "Recent activity"), default to
+  // the Activity tab where the matching sent email lives.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("q")) setTab("activity");
+  }, []);
+
   const { data: convs } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () =>
@@ -49,6 +57,13 @@ function InboxPage() {
     qc.invalidateQueries({ queryKey: ["send-log"] });
   };
 
+  const unmarkReplied = async (id: string) => {
+    qc.setQueryData(["send-log"], (prev: any) => (prev ?? []).map((l: any) => l.id === id ? { ...l, replied_at: null } : l));
+    await supabase.from("send_log").update({ replied_at: null }).eq("id", id);
+    toast.success("Reply mark removed. Campaign will resume.");
+    qc.invalidateQueries({ queryKey: ["send-log"] });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
@@ -65,7 +80,7 @@ function InboxPage() {
       </div>
 
       {tab === "replies" && <RepliesPanel convs={convs ?? []} />}
-      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} />}
+      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} onUnmarkReplied={unmarkReplied} />}
       {tab === "setup" && <SetupPanel />}
     </div>
   );
@@ -105,7 +120,7 @@ function RepliesPanel({ convs }: { convs: any[] }) {
   );
 }
 
-function ActivityPanel({ log, onMarkReplied }: { log: any[]; onMarkReplied: (id: string) => void }) {
+function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; onMarkReplied: (id: string) => void; onUnmarkReplied: (id: string) => void }) {
   if (log.length === 0) return (
     <div className="bg-card border rounded-xl p-12 text-center">
       <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -133,7 +148,7 @@ function ActivityPanel({ log, onMarkReplied }: { log: any[]; onMarkReplied: (id:
             <div className="flex gap-2 mt-2 items-center flex-wrap">
               {l.opened_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-600"><Eye className="w-3 h-3" /> Opened</span>}
               {l.clicked_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-500/15 text-purple-600"><MousePointerClick className="w-3 h-3" /> {l.click_count} click{l.click_count > 1 ? "s" : ""}</span>}
-              {l.replied_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success"><Reply className="w-3 h-3" /> Replied</span>}
+              {l.replied_at && <button onClick={() => onUnmarkReplied(l.id)} title="Click to unmark replied" className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-success/15 text-success hover:bg-success/25 transition-colors"><Reply className="w-3 h-3" /> Replied · undo</button>}
               {l.bounced_at && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-destructive/15 text-destructive">Bounced ({l.bounce_type})</span>}
               {l.status === "sent" && !l.replied_at && !l.bounced_at && (
                 <Button size="sm" variant="outline" onClick={() => onMarkReplied(l.id)}>

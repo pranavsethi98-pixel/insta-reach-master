@@ -181,7 +181,7 @@ function CampaignDetail() {
         </TabsList>
 
         <TabsContent value="sequence" className="space-y-4 mt-4">
-          <SequenceEditor campaignId={id} steps={steps ?? []} />
+          <SequenceEditor campaignId={id} steps={steps ?? []} campaignStatus={campaign.status} />
         </TabsContent>
 
         <TabsContent value="mailboxes" className="mt-4 space-y-3">
@@ -224,22 +224,11 @@ function CampaignDetail() {
 
         <TabsContent value="settings" className="mt-4">
           <div className="bg-card border rounded-xl p-6 grid grid-cols-2 gap-4 max-w-xl">
-            <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_start ?? 9} onBlur={(e) => {
-              const raw = Number(e.target.value);
-              const v = Math.max(0, Math.min(23, isFinite(raw) ? Math.floor(raw) : 9));
-              if (v !== raw) { e.target.value = String(v); toast.info(`Hour clamped to ${v} (must be 0–23)`); }
-              const end = campaign.send_window_end ?? 17;
-              if (v >= end) return toast.error(`Window start must be before end (${end})`);
-              updateCampaign({ send_window_start: v });
-            }} /></div>
-            <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} defaultValue={campaign.send_window_end ?? 17} onBlur={(e) => {
-              const raw = Number(e.target.value);
-              const v = Math.max(0, Math.min(23, isFinite(raw) ? Math.floor(raw) : 17));
-              if (v !== raw) { e.target.value = String(v); toast.info(`Hour clamped to ${v} (must be 0–23)`); }
-              const start = campaign.send_window_start ?? 9;
-              if (v <= start) return toast.error(`Window end must be after start (${start})`);
-              updateCampaign({ send_window_end: v });
-            }} /></div>
+            <SendingWindow
+              start={campaign.send_window_start ?? 9}
+              end={campaign.send_window_end ?? 17}
+              onChange={(patch) => updateCampaign(patch)}
+            />
             <div className="col-span-2 text-xs text-muted-foreground">
               Sending only happens within this window in your server timezone. Days: Mon–Fri by default.
             </div>
@@ -275,11 +264,43 @@ function CampaignDetail() {
   );
 }
 
-function SequenceEditor({ campaignId, steps }: { campaignId: string; steps: any[] }) {
+function SendingWindow({ start, end, onChange }: { start: number; end: number; onChange: (patch: { send_window_start?: number; send_window_end?: number }) => void }) {
+  const [s, setS] = useState(start);
+  const [e, setE] = useState(end);
+  useEffect(() => { setS(start); setE(end); }, [start, end]);
+  const commit = (nextS: number, nextE: number) => {
+    if (nextS >= nextE) {
+      toast.error(`Window end must be after start (${nextS})`);
+      setS(start); setE(end);
+      return;
+    }
+    const patch: { send_window_start?: number; send_window_end?: number } = {};
+    if (nextS !== start) patch.send_window_start = nextS;
+    if (nextE !== end) patch.send_window_end = nextE;
+    if (Object.keys(patch).length) onChange(patch);
+  };
+  return (
+    <>
+      <div><Label>Window start (hour)</Label><Input type="number" min={0} max={23} value={s} onChange={(ev) => setS(Number(ev.target.value))} onBlur={() => {
+        const v = Math.max(0, Math.min(23, Number.isFinite(s) ? Math.floor(s) : 9));
+        setS(v); commit(v, e);
+      }} /></div>
+      <div><Label>Window end (hour)</Label><Input type="number" min={0} max={23} value={e} onChange={(ev) => setE(Number(ev.target.value))} onBlur={() => {
+        const v = Math.max(0, Math.min(23, Number.isFinite(e) ? Math.floor(e) : 17));
+        setE(v); commit(s, v);
+      }} /></div>
+    </>
+  );
+}
+
+function SequenceEditor({ campaignId, steps, campaignStatus }: { campaignId: string; steps: any[]; campaignStatus?: string }) {
   const qc = useQueryClient();
   const refresh = () => qc.invalidateQueries({ queryKey: ["steps", campaignId] });
 
   const addStep = async () => {
+    if (campaignStatus === "active") {
+      return toast.error("Pause this campaign before adding steps — new empty steps shouldn't ship live.");
+    }
     const nextOrder = (steps[steps.length - 1]?.step_order ?? 0) + 1;
     await supabase.from("campaign_steps").insert({
       campaign_id: campaignId,

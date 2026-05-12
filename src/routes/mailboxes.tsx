@@ -219,7 +219,7 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
   const save = async () => {
     setError(null);
     if (!form.label || !form.from_email || !form.smtp_username || !form.smtp_password) {
-      setError("Fill in all required fields.");
+      setError("Fill in all required fields (Basics & SMTP tabs).");
       return;
     }
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -237,6 +237,15 @@ function AddMailboxDialog({ onCreated }: { onCreated: () => void }) {
       setError("IMAP port must be between 1 and 65535.");
       return;
     }
+    const daily = Number(form.daily_limit);
+    const hourly = Number(form.hourly_limit);
+    const minD = Number(form.min_delay_seconds);
+    const maxD = Number(form.max_delay_seconds);
+    if (!Number.isFinite(daily) || daily < 1) { setError("Daily limit must be at least 1 (Limits tab)."); return; }
+    if (!Number.isFinite(hourly) || hourly < 1) { setError("Hourly limit must be at least 1 (Limits tab)."); return; }
+    if (hourly > daily) { setError("Hourly limit can't exceed daily limit (Limits tab)."); return; }
+    if (!Number.isFinite(minD) || minD < 0 || !Number.isFinite(maxD) || maxD < 0) { setError("Delays must be non-negative (Limits tab)."); return; }
+    if (minD >= maxD) { setError("Min delay must be less than Max delay (Limits tab)."); return; }
     setTesting(true);
     try {
       await testSmtp({ data: {

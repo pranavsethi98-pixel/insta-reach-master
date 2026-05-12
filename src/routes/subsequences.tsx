@@ -69,7 +69,7 @@ function SubsequencesPage() {
             <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined} onClick={() => setEditing(null)}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
               <DialogHeader><DialogTitle>{editing ? "Edit subsequence" : "New subsequence"}</DialogTitle></DialogHeader>
-              <SubseqForm campaigns={campaigns ?? []} initial={editing} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
+              <SubseqForm campaigns={campaigns ?? []} initial={editing} saving={saving} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -105,7 +105,7 @@ function SubsequencesPage() {
   );
 }
 
-function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?: any; onSave: (v: any) => void }) {
+function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; initial?: any; saving?: boolean; onSave: (v: any) => void }) {
   const [form, setForm] = useState({
     parent_campaign_id: initial?.parent_campaign_id ?? campaigns[0]?.id ?? "",
     name: initial?.name ?? "",
@@ -187,7 +187,8 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
         ))}
       </div>
 
-      <Button className="w-full" onClick={() => {
+      <Button className="w-full" disabled={saving} onClick={() => {
+        if (saving) return;
         if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
         if (!form.name.trim()) return toast.error("Name is required");
         if (steps.some(s => !Number.isFinite(s.delay_days) || s.delay_days < 1)) return toast.error("Step delay must be at least 1 day");
@@ -195,7 +196,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
         if (bad) return toast.error("Every step needs a subject and body");
         onSave({ ...form, steps });
       }}>
-        Save subsequence
+        {saving ? "Saving…" : "Save subsequence"}
       </Button>
     </div>
   );
