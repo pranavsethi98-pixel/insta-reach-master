@@ -24,7 +24,7 @@ export const listSubsequences = createServerFn({ method: "GET" })
 
 const StepSchema = z.object({
   step_order: z.number(),
-  delay_days: z.number().min(0).max(60),
+  delay_days: z.number().min(1).max(60),
   subject: z.string().max(255),
   body: z.string().max(10000),
 });
