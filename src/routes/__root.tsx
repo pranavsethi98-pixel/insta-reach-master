@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -117,21 +118,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => { applyTheme(getInitialTheme()); }, []);
 
-  // Dismiss any visible toasts whenever the router resolves to a new
-  // location. This kills "toast bleed" where a success/error from the
-  // previous page sticks around after navigation.
+  // Dismiss any visible toasts when the pathname changes. Router events can
+  // miss some app-triggered transitions, but router state updates are the
+  // single source of truth after every successful navigation.
   useEffect(() => {
-    const unsub = router.subscribe("onResolved", () => {
-      // Defer past the navigation tick so toasts emitted just before
-      // navigate() (e.g. toast.success(); navigate(...)) also get cleared.
-      setTimeout(() => toast.dismiss(), 0);
-    });
-    return () => { unsub?.(); };
-  }, [router]);
+    toast.dismiss();
+    const id = window.setTimeout(() => toast.dismiss(), 0);
+    return () => window.clearTimeout(id);
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

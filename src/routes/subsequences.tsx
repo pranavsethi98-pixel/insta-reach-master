@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { listSubsequences, upsertSubsequence, deleteSubsequence } from "@/lib/subsequences.functions";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ConfirmDialog";
+import { smartTruncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/subsequences")({ component: () => (<RequireAuth><SubsequencesPage /></RequireAuth>) });
 
@@ -116,7 +117,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
   const [steps, setSteps] = useState<Step[]>(
     initial?.steps?.length
       ? initial.steps.map((s: any, i: number) => ({ step_order: i, delay_days: s.delay_days ?? 0, subject: s.subject ?? "", body: s.body ?? "" }))
-      : [{ step_order: 0, delay_days: 0, subject: "", body: "" }]
+      : [{ step_order: 0, delay_days: 1, subject: "", body: "" }]
   );
 
   return (
@@ -126,7 +127,11 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
         <Select value={form.parent_campaign_id} onValueChange={(v) => setForm({ ...form, parent_campaign_id: v })}>
           <SelectTrigger><SelectValue placeholder="Select campaign"/></SelectTrigger>
           <SelectContent>
-            {campaigns.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            {campaigns.map((c) => (
+              <SelectItem key={c.id} value={c.id} title={c.name}>
+                {smartTruncate(c.name, 64)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -170,7 +175,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
           <Card key={i} className="p-3 space-y-2">
             <div className="flex gap-2 items-center">
               <span className="text-xs text-muted-foreground">Step {i + 1}</span>
-              <Input className="w-24" type="number" min={0} value={s.delay_days}
+              <Input className="w-24" type="number" min={1} value={s.delay_days}
                 onChange={(e) => { const c = [...steps]; c[i].delay_days = Number(e.target.value); setSteps(c); }} />
               <span className="text-xs text-muted-foreground">days</span>
             </div>
@@ -185,6 +190,7 @@ function SubseqForm({ campaigns, initial, onSave }: { campaigns: any[]; initial?
       <Button className="w-full" onClick={() => {
         if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
         if (!form.name.trim()) return toast.error("Name is required");
+        if (steps.some(s => !Number.isFinite(s.delay_days) || s.delay_days < 1)) return toast.error("Step delay must be at least 1 day");
         const bad = steps.find(s => !s.subject.trim() || !s.body.trim());
         if (bad) return toast.error("Every step needs a subject and body");
         onSave({ ...form, steps });
