@@ -80,7 +80,7 @@ function InboxPage() {
       </div>
 
       {tab === "replies" && <RepliesPanel convs={convs ?? []} />}
-      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} />}
+      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} onUnmarkReplied={unmarkReplied} />}
       {tab === "setup" && <SetupPanel />}
     </div>
   );
