@@ -35,7 +35,7 @@ export const inviteTeammate = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
-    const origin = process.env.SITE_URL || "https://id-preview--c1fb09cc-dc95-493b-92f3-507054f93627.lovable.app";
+    const origin = process.env.SITE_URL || process.env.VITE_SITE_URL || "https://app.emailsend.ai";
     return {
       ok: true,
       inviteUrl: `${origin}/invite/${(invite as any).token}`,

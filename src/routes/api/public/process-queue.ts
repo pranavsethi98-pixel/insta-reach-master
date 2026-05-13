@@ -129,6 +129,12 @@ export const Route = createFileRoute("/api/public/process-queue")({
               }
             }
 
+            // Skip leads with no email address
+            if (!lead?.email) {
+              await supabase.from("campaign_leads").update({ status: "suppressed" }).eq("id", cl.id);
+              continue;
+            }
+
             // Suppression check
             const emailLc = (lead.email || "").toLowerCase();
             const domainLc = emailLc.split("@")[1] ?? "";

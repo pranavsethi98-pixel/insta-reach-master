@@ -30,7 +30,11 @@ function GoalsPage() {
 
   const { data: goals } = useQuery({
     queryKey: ["goals"],
-    queryFn: async () => (await supabase.from("goals").select("*").order("starts_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      return (await supabase.from("goals").select("*").eq("user_id", user.id).order("starts_at", { ascending: false })).data ?? [];
+    },
   });
 
   // Compute simple progress per metric for current month
@@ -41,19 +45,20 @@ function GoalsPage() {
   });
   const { data: leads } = useQuery({
     queryKey: ["goal-leads"],
-    queryFn: async () => (await supabase.from("leads").select("pipeline_stage, deal_value, closed_at")).data ?? [],
+    queryFn: async () => (await supabase.from("leads").select("pipeline_stage, deal_value, closed_at, meeting_booked_at")).data ?? [],
   });
   const progress = {
     sent: (log ?? []).filter(l => l.status === "sent").length,
     replies: (log ?? []).filter(l => l.replied_at).length,
-    meetings_booked: (leads ?? []).filter(l => l.pipeline_stage === "meeting").length,
+    // Only count meetings booked this month, not all-time
+    meetings_booked: (leads ?? []).filter(l => l.pipeline_stage === "meeting" && l.meeting_booked_at && new Date(l.meeting_booked_at) >= monthStart).length,
     revenue: (leads ?? []).filter(l => l.closed_at && new Date(l.closed_at) >= monthStart).reduce((s, l) => s + Number(l.deal_value || 0), 0),
   };
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ["goals"] }); };
 
   const create = async () => {
-    if (!draft.target || draft.target <= 0) { toast.error("Target must be greater than 0"); return; }
+    if (!Number.isFinite(draft.target) || draft.target <= 0) { toast.error("Target must be a number greater than 0"); return; }
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
     const { error } = await supabase.from("goals").insert({ ...draft, user_id: u.user.id });

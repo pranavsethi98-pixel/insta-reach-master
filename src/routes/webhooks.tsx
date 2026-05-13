@@ -54,9 +54,16 @@ function WebhooksPage() {
     await supabase.from("webhooks").update({ is_active }).eq("id", id);
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
-  const copy = (s: string) => { navigator.clipboard.writeText(s); toast.success("Copied"); };
+  const copy = async (s: string) => {
+    try { await navigator.clipboard.writeText(s); toast.success("Copied"); }
+    catch { toast.error("Could not copy to clipboard"); }
+  };
   const toggleReveal = (id: string) => setRevealed((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const mask = (s: string) => s ? `${s.slice(0, 4)}${"•".repeat(Math.max(8, s.length - 8))}${s.slice(-4)}` : "";
+  const mask = (s: string) => {
+    if (!s) return "";
+    if (s.length <= 8) return "•".repeat(s.length);
+    return `${s.slice(0, 4)}${"•".repeat(s.length - 8)}${s.slice(-4)}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -118,7 +125,7 @@ function WebhooksPage() {
                 <tr key={d.id} className="border-t">
                   <td className="p-3 text-xs">{new Date(d.created_at).toLocaleString()}</td>
                   <td className="p-3"><Badge variant="secondary">{d.event}</Badge></td>
-                  <td className="p-3">{d.status ?? "—"}</td>
+                  <td className="p-3">{d.status ? d.status : (d.status === 0 ? "Error" : "—")}</td>
                   <td className="p-3 text-xs text-muted-foreground truncate max-w-md">{d.response}</td>
                 </tr>
               ))}

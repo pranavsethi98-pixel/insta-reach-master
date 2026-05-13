@@ -25,8 +25,8 @@ export const listSubsequences = createServerFn({ method: "GET" })
 const StepSchema = z.object({
   step_order: z.number(),
   delay_days: z.number().min(1).max(60),
-  subject: z.string().max(255),
-  body: z.string().max(10000),
+  subject: z.string().min(1).max(255),
+  body: z.string().min(1).max(10000),
 });
 
 export const upsertSubsequence = createServerFn({ method: "POST" })
@@ -39,7 +39,7 @@ export const upsertSubsequence = createServerFn({ method: "POST" })
     trigger_after_days: z.number().min(0).max(60),
     trigger_step: z.number().nullable().optional(),
     is_active: z.boolean().default(true),
-    steps: z.array(StepSchema).max(10),
+    steps: z.array(StepSchema).min(1).max(10),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

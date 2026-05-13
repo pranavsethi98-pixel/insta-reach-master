@@ -59,6 +59,10 @@ function TeamPage() {
 
   const sendInvite = async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email");
+    // Client-side duplicate check: block if there's already a pending invite for this email
+    if ((invites ?? []).some((i: any) => i.email?.toLowerCase() === email.trim().toLowerCase())) {
+      return toast.error("A pending invite already exists for this address");
+    }
     setInviting(true);
     try {
       const res = await inviteFn({ data: { workspaceId: ws?.id, email, role } });
@@ -136,7 +140,7 @@ function TeamPage() {
                   <div className="text-sm font-medium truncate">{name || email || `User ${m.user_id.slice(0, 8)}…`}</div>
                   {name && email && <div className="text-xs text-muted-foreground truncate">{email}</div>}
                 </div>
-                <Badge>{m.role}</Badge>
+                <Badge>{m.role ? m.role.charAt(0).toUpperCase() + m.role.slice(1) : "Member"}</Badge>
               </div>
             );
           })}
@@ -150,7 +154,7 @@ function TeamPage() {
             <div key={i.id} className="flex items-center justify-between py-2 border-b last:border-0">
               <div>
                 <div className="text-sm">{i.email}</div>
-                <div className="text-xs text-muted-foreground">{i.role}</div>
+                <div className="text-xs text-muted-foreground">{i.role ? i.role.charAt(0).toUpperCase() + i.role.slice(1) : "Member"}</div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="ghost" title="Copy invite link" onClick={() => copyLink(i.token)}><Copy className="w-4 h-4" /></Button>

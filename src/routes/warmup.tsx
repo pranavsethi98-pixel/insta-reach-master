@@ -21,17 +21,20 @@ function WarmupPage() {
     queryKey: ["mailboxes-warmup"],
     queryFn: async () => (await supabase.from("mailboxes").select("*").order("created_at")).data ?? [],
   });
-  const { data: log } = useQuery({
+  const { data: log, isLoading: logLoading } = useQuery({
     queryKey: ["warmup-log"],
     queryFn: async () => (await supabase.from("warmup_log").select("*").order("created_at", { ascending: false }).limit(50)).data ?? [],
     refetchInterval: 10000,
   });
 
   const update = async (id: string, patch: any) => {
-    if (patch.warmup_enabled && !mailboxes?.find(m => m.id === id)?.warmup_started_at) {
+    // Set warmup_started_at when warmup is enabled for the first time,
+    // and reset it when warmup is re-enabled (so the ramp restarts from today).
+    if (patch.warmup_enabled === true) {
       patch.warmup_started_at = new Date().toISOString().slice(0, 10);
     }
-    await supabase.from("mailboxes").update(patch).eq("id", id);
+    const { error } = await supabase.from("mailboxes").update(patch).eq("id", id);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["mailboxes-warmup"] });
   };
 
@@ -48,7 +51,7 @@ function WarmupPage() {
         </p>
       </div>
 
-      {(mailboxes?.length ?? 0) < 2 && (
+      {!isLoading && (mailboxes?.length ?? 0) < 2 && (
         <div className="bg-card border rounded-xl p-5 flex gap-3 items-start">
           <AlertCircle className="w-5 h-5 text-warning mt-0.5" />
           <div>
@@ -65,8 +68,9 @@ function WarmupPage() {
         {mailboxes?.map((m) => {
           const startedDays = m.warmup_started_at
             ? Math.floor((Date.now() - new Date(m.warmup_started_at).getTime()) / 86400000) : 0;
+          const increment = m.warmup_increment ?? 2;
           const todayTarget = m.warmup_enabled
-            ? Math.min(m.warmup_daily_target ?? 40, 2 + startedDays * (m.warmup_increment ?? 2))
+            ? Math.min(m.warmup_daily_target ?? 40, increment * (startedDays + 1))
             : 0;
           return (
             <div key={m.id} className="bg-card border rounded-xl p-5 space-y-3">
@@ -164,7 +168,8 @@ function WarmupPage() {
       <div>
         <h2 className="font-semibold mb-3">Recent warmup activity</h2>
         <div className="bg-card border rounded-xl divide-y">
-          {(log ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No activity yet.</div>}
+          {logLoading && [1,2,3].map(i => <div key={i} className="h-10 m-2 rounded bg-muted/40 animate-pulse" />)}
+          {!logLoading && (log ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No activity yet.</div>}
           {log?.map((l) => (
             <div key={l.id} className="p-3 text-sm flex justify-between">
               <span>{l.action} — {(mailboxes?.find(m => m.id === l.from_mailbox_id)?.from_email) ?? "?"} → {(mailboxes?.find(m => m.id === l.to_mailbox_id)?.from_email) ?? "?"}</span>

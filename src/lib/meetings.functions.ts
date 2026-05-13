@@ -49,7 +49,12 @@ export const createMeeting = createServerFn({ method: "POST" })
     return { id: m.id };
   });
 
-/** Cron-callable: process pending no-show followups (1h, 24h, 48h cadence) */
+/**
+ * Process no-show followups for a single authenticated user.
+ * NOTE: The platform-wide no-show processing runs inside process-queue.ts
+ * which uses the service-role client and iterates all users. This function
+ * is only for per-user manual invocation and scopes to the calling user.
+ */
 export const processNoShowQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

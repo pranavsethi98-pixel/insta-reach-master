@@ -58,7 +58,7 @@ export const disconnectCalendly = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await context.supabase.from("profiles").update({
-      calendly_token: null, calendly_user_uri: null, calendly_event_uri: null,
+      calendly_token: null, calendly_user_uri: null, calendly_event_uri: null, calendar_link: null,
     }).eq("id", context.userId);
     return { ok: true };
   });

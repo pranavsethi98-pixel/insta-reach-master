@@ -1,6 +1,8 @@
 // Shared bearer-token guard for /api/public/* cron endpoints.
 // Set CRON_SECRET in your environment. Cron callers must send:
 //   Authorization: Bearer <CRON_SECRET>
+import { timingSafeEqual } from "crypto";
+
 export function verifyCronSecret(request: Request): Response | null {
   const expected = process.env.CRON_SECRET;
   if (!expected) {
@@ -9,14 +11,11 @@ export function verifyCronSecret(request: Request): Response | null {
   }
   const auth = request.headers.get("authorization") || "";
   const provided = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  // Constant-time compare
-  if (provided.length !== expected.length) {
+  // Use Node's native constant-time compare to prevent timing attacks
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided);
+  if (expectedBuf.length !== providedBuf.length || !timingSafeEqual(expectedBuf, providedBuf)) {
     return new Response("Unauthorized", { status: 401 });
   }
-  let mismatch = 0;
-  for (let i = 0; i < expected.length; i++) {
-    mismatch |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
-  }
-  if (mismatch !== 0) return new Response("Unauthorized", { status: 401 });
   return null;
 }

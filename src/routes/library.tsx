@@ -40,7 +40,8 @@ function LibraryPage() {
   const seedStarter = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    await supabase.from("resource_library").insert(STARTER.map(s => ({ ...s, user_id: u.user!.id })));
+    const { error } = await supabase.from("resource_library").insert(STARTER.map(s => ({ ...s, user_id: u.user!.id })));
+    if (error) return toast.error(error.message);
     toast.success("Seeded starter templates");
     refresh();
   };
@@ -51,10 +52,17 @@ function LibraryPage() {
     if (!title || !body) return toast.error("Title and body required");
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const payload = { ...editing, title, body };
+    // Only send DB-safe fields — never send stale id/user_id/created_at in update payload
+    const safeFields = {
+      kind: editing.kind,
+      category: editing.category ?? "",
+      title,
+      body,
+      subject: editing.subject ?? null,
+    };
     const { error } = editing.id
-      ? await supabase.from("resource_library").update(payload).eq("id", editing.id)
-      : await supabase.from("resource_library").insert({ ...payload, user_id: u.user.id });
+      ? await supabase.from("resource_library").update(safeFields).eq("id", editing.id)
+      : await supabase.from("resource_library").insert({ ...safeFields, user_id: u.user.id });
     if (error) return toast.error(error.message);
     toast.success(editing.id ? "Saved" : "Created");
     setEditing(null); refresh();

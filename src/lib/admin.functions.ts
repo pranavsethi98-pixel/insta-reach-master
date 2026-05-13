@@ -702,8 +702,9 @@ export const claimFirstSuperAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertSuperAdminEmail(context.userId);
-    const { count } = await supabaseAdmin
+    const { count, error: countErr } = await supabaseAdmin
       .from("user_roles").select("id", { count: "exact", head: true }).eq("role", "super_admin");
+    if (countErr) throw new Error(countErr.message);
     if ((count ?? 0) > 0) {
       const roles = await requireRole(context.userId, SUPER);
       return { ok: true, roles };

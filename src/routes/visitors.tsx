@@ -60,7 +60,8 @@ function VisitorsPage() {
       destructive: true,
     });
     if (!ok) return;
-    await supabase.from("visitor_pixels").delete().eq("id", id);
+    const { error } = await supabase.from("visitor_pixels").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     toast.success("Pixel deleted");
     qc.invalidateQueries({ queryKey: ["pixels"] });
   };
@@ -103,7 +104,14 @@ function VisitorsPage() {
           return (
             <div key={p.id} className="bg-card border rounded-xl p-5 space-y-3">
               <div className="flex items-center justify-between gap-2">
-                <Input className="max-w-xs" defaultValue={p.label} onBlur={(e) => supabase.from("visitor_pixels").update({ label: e.target.value }).eq("id", p.id).then(() => qc.invalidateQueries({ queryKey: ["pixels"] }))} />
+                <Input className="max-w-xs" defaultValue={p.label} onBlur={(e) => {
+                const v = e.target.value.trim();
+                if (!v) { toast.error("Pixel name cannot be empty"); e.target.value = p.label; return; }
+                supabase.from("visitor_pixels").update({ label: v }).eq("id", p.id).then(({ error }) => {
+                  if (error) toast.error(error.message);
+                  else qc.invalidateQueries({ queryKey: ["pixels"] });
+                });
+              }} />
                 <div className="flex items-center gap-3">
                   <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
                     <Switch checked={!!p.is_active} onCheckedChange={async (v) => { await supabase.from("visitor_pixels").update({ is_active: v }).eq("id", p.id); qc.invalidateQueries({ queryKey: ["pixels"] }); }} />

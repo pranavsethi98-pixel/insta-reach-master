@@ -79,7 +79,7 @@ function SettingsPage() {
   const commitRename = async () => {
     if (!renaming) return;
     const clean = renameVal.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain");
+    if (!/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain like track.yourbrand.com");
     const { error } = await supabase.from("tracking_domains").update({ domain: clean, verified: false } as any).eq("id", renaming.id);
     if (error) return toast.error(error.message);
     toast.success("Renamed — re-verify the CNAME");
@@ -272,11 +272,13 @@ function ReplyAgentCard() {
 }
 
 function SlackWebhookField({ initial, onSave }: { initial: string; onSave: (v: string) => void }) {
-  const [val, setVal] = useState(initial);
+  const [val, setVal] = useState<string | null>(null);
+  // Use null to distinguish "user hasn't typed yet" from "user cleared the field"
+  const value = val !== null ? val : initial;
   return (
     <div className="flex gap-2">
-      <Input placeholder="https://hooks.slack.com/services/..." value={val} onChange={(e) => setVal(e.target.value)} />
-      <Button type="button" onClick={(e) => { e.preventDefault(); if (val && !/^https:\/\/hooks\.slack\.com\//.test(val)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(val); }}>Save</Button>
+      <Input placeholder="https://hooks.slack.com/services/..." value={value} onChange={(e) => setVal(e.target.value)} />
+      <Button type="button" onClick={(e) => { e.preventDefault(); if (value && !/^https:\/\/hooks\.slack\.com\//.test(value)) return toast.error("Must be a Slack incoming-webhook URL"); onSave(value); }}>Save</Button>
     </div>
   );
 }
@@ -290,15 +292,17 @@ function CalendarLinkCard() {
       return (await supabase.from("profiles").select("calendar_link").eq("id", user.id).maybeSingle()).data;
     },
   });
-  const [link, setLink] = useState("");
-  const value = link || profile?.calendar_link || "";
+  const [link, setLink] = useState<string | null>(null);
+  // Use controlled value: prefer local edits, fall back to loaded profile value
+  const value = link !== null ? link : (profile?.calendar_link ?? "");
   const save = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return toast.error("Not signed in");
-    const trimmed = link.trim();
+    const trimmed = value.trim();
     if (!trimmed) {
       const { error } = await supabase.from("profiles").update({ calendar_link: null }).eq("id", user.id);
       if (error) return toast.error(error.message);
+      setLink(null);
       return toast.success("Calendar link cleared");
     }
     try {
@@ -309,6 +313,7 @@ function CalendarLinkCard() {
     }
     const { error } = await supabase.from("profiles").update({ calendar_link: trimmed }).eq("id", user.id);
     if (error) return toast.error(error.message);
+    setLink(null); // reset local state so profile value takes over
     toast.success("Saved — use {{calendar_link}} in your emails");
   };
   return (
@@ -318,7 +323,7 @@ function CalendarLinkCard() {
         Paste your Cal.com / Calendly / SavvyCal URL. Insert it in any email or template with <code className="bg-muted px-1.5 py-0.5 rounded">{`{{calendar_link}}`}</code>.
       </p>
       <div className="flex gap-2">
-        <Input placeholder="https://cal.com/your-name/15min" defaultValue={value} onChange={e => setLink(e.target.value)} />
+        <Input placeholder="https://cal.com/your-name/15min" value={value} onChange={e => setLink(e.target.value)} />
         <Button type="button" onClick={save}>Save</Button>
       </div>
     </Card>

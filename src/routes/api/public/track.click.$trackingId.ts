@@ -6,7 +6,15 @@ export const Route = createFileRoute("/api/public/track/click/$trackingId")({
     handlers: {
       GET: async ({ params, request }) => {
         const url = new URL(request.url);
-        const dest = url.searchParams.get("u") || "/";
+        const rawDest = url.searchParams.get("u") || "";
+        // Validate destination to prevent open redirect to non-http schemes
+        let dest = "/";
+        try {
+          const parsed = new URL(rawDest);
+          if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+            dest = rawDest;
+          }
+        } catch { /* invalid URL — fall back to home */ }
         const supabase = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,

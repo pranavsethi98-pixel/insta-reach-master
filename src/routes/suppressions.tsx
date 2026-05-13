@@ -57,7 +57,8 @@ function Page() {
       destructive: true,
     });
     if (!ok) return;
-    await supabase.from("suppressions").delete().eq("id", id);
+    const { error } = await supabase.from("suppressions").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
     toast.success("Removed");
     qc.invalidateQueries({ queryKey: ["suppressions"] });
   };
@@ -76,7 +77,7 @@ function Page() {
       </div>
       <div className="bg-card border rounded-xl divide-y">
         {isLoading && [1,2,3].map(i => <div key={i} className="p-4 h-12 animate-pulse bg-muted/30" />)}
-        {(rows ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No suppressions.</div>}
+        {!isLoading && (rows ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No suppressions.</div>}
         {rows?.map(r => (
           <div key={r.id} className="p-3 flex items-center justify-between">
             <div>

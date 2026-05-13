@@ -5,6 +5,11 @@ export const Route = createFileRoute("/api/public/unsubscribe/$leadId")({
   server: {
     handlers: {
       GET: async ({ params }) => {
+        // Validate leadId is a UUID before hitting the DB
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!UUID_RE.test(params.leadId)) {
+          return new Response("Invalid request", { status: 400 });
+        }
         const supabase = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,

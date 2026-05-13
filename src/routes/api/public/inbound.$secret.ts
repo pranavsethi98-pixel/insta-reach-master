@@ -101,12 +101,13 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
             status: "open",
           }).eq("id", convId);
         } else {
-          const { data: created } = await supabase.from("conversations").insert({
+          const { data: created, error: convErr } = await supabase.from("conversations").insert({
             user_id: userId, mailbox_id: mailboxId, lead_id: sendLog?.lead_id ?? null,
             campaign_id: sendLog?.campaign_id ?? null, subject: body.subject,
             unread_count: 1,
           }).select("id").single();
-          convId = created!.id;
+          if (convErr || !created) return new Response("Failed to create conversation", { status: 500 });
+          convId = created.id;
         }
 
         await supabase.from("messages").insert({

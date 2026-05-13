@@ -191,6 +191,7 @@ function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; 
         if (saving) return;
         if (!form.parent_campaign_id) return toast.error("Pick a parent campaign");
         if (!form.name.trim()) return toast.error("Name is required");
+        if (steps.length === 0) return toast.error("Add at least one step");
         if (steps.some(s => !Number.isFinite(s.delay_days) || s.delay_days < 1)) return toast.error("Step delay must be at least 1 day");
         const bad = steps.find(s => !s.subject.trim() || !s.body.trim());
         if (bad) return toast.error("Every step needs a subject and body");

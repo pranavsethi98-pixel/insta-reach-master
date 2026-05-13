@@ -20,7 +20,7 @@ export async function fireWebhook(
   await Promise.all(hooks
     .filter((h: any) => (h.events ?? []).includes(event))
     .map(async (h: any) => {
-      const sig = createHmac("sha256", h.secret).update(body).digest("hex");
+      const sig = createHmac("sha256", h.secret ?? "").update(body).digest("hex");
       let status = 0; let response = "";
       try {
         const r = await fetch(h.url, {

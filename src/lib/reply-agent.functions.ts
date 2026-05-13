@@ -105,7 +105,6 @@ export const processInboundReply = createServerFn({ method: "POST" })
 
     // OOO handling
     if (classification === "out_of_office") {
-      const m = latest.body?.match(/back\s+(?:on\s+)?([A-Za-z]+\s+\d{1,2}|\d{4}-\d{2}-\d{2})/i);
       const oooUntil = new Date(Date.now() + 7 * 86400000).toISOString();
       if (conv?.lead_id) {
         await supabase.from("campaign_leads")

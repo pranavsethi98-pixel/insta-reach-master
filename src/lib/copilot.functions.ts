@@ -93,7 +93,12 @@ export const generateCampaign = createServerFn({ method: "POST" })
 
     const call = json?.choices?.[0]?.message?.tool_calls?.[0];
     if (!call) throw new Error("AI did not return a campaign");
-    const result = JSON.parse(call.function.arguments);
+    let result: any;
+    try {
+      result = JSON.parse(call.function.arguments);
+    } catch {
+      throw new Error("AI returned malformed campaign data. Please try again.");
+    }
     // Normalize single-brace merge tags like {CompanyName} → {{company_name}} (canonicalize known vars)
     const KNOWN = ["first_name","last_name","email","company","title","website","linkedin","sender_name","sender_company","icebreaker"];
     const normalize = (s: string) => (s ?? "").replace(/(?<!\{)\{([A-Za-z][\w]*)\}(?!\})/g, (_m, name: string) => {
@@ -147,12 +152,13 @@ export const suggestReply = createServerFn({ method: "POST" })
       .map((m: any) => `${m.direction === "outbound" ? "Me" : "Them"}: ${(m.body || "").slice(0, 800)}`)
       .join("\n---\n");
 
-    const intentInstr = {
+    const intentMap: Record<string, string> = {
       positive: "They are interested. Reply briefly, propose a 15-min call, and include the calendar link if available.",
       decline: "They declined politely. Acknowledge graciously, leave the door open, do not push.",
       ask: "They asked a question. Answer concisely without sales fluff.",
       followup: "They went quiet. Send a 1-line bump asking yes/no.",
-    }[data.intent || "positive"];
+    };
+    const intentInstr = intentMap[data.intent ?? "positive"] ?? intentMap["positive"];
 
     const json = await callAI([
       { role: "system", content: `You are ${prof?.full_name || "the sender"}, ${prof?.ai_reply_tone || "friendly"} tone. Reply to a cold-outreach conversation. Keep under 70 words. No salutation overload. Output ONLY the reply text.` },
@@ -177,11 +183,12 @@ export const categorizeReply = createServerFn({ method: "POST" })
       type: "function",
       function: {
         name: "label",
+        description: "Classify a cold-email reply into a category with a confidence score and one-sentence summary.",
         parameters: {
           type: "object",
           properties: {
             category: { type: "string", enum: ["interested", "not_interested", "out_of_office", "unsubscribe", "question", "other"] },
-            confidence: { type: "number" },
+            confidence: { type: "number", minimum: 0, maximum: 1 },
             summary: { type: "string" },
           },
           required: ["category", "confidence", "summary"],

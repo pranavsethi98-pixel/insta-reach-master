@@ -63,7 +63,7 @@ function ReplyAgentPage() {
           </Card>
         )}
 
-        {data?.items.map((item: any) => (
+        {(data?.items ?? []).map((item: any) => (
           <ReplyCard
             key={item.id}
             item={item}
