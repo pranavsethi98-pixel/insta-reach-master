@@ -12,8 +12,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Webhook, Copy, Activity } from "lucide-react";
+import { Plus, Trash2, Webhook, Copy, Activity, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 const ALL_EVENTS = ["sent", "open", "click", "reply", "bounce"] as const;
 
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/webhooks")({
 
 function WebhooksPage() {
   const qc = useQueryClient();
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const { data: hooks } = useQuery({
     queryKey: ["webhooks"],
     queryFn: async () => (await supabase.from("webhooks").select("*").order("created_at", { ascending: false })).data ?? [],
@@ -34,8 +37,17 @@ function WebhooksPage() {
     queryFn: async () => (await supabase.from("webhook_deliveries").select("*").order("created_at", { ascending: false }).limit(50)).data ?? [],
   });
 
-  const remove = async (id: string) => {
-    await supabase.from("webhooks").delete().eq("id", id);
+  const remove = async (id: string, url: string) => {
+    const ok = await confirm({
+      title: "Delete this webhook?",
+      description: `${url} will stop receiving events. This cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("webhooks").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Webhook deleted");
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const toggle = async (id: string, is_active: boolean) => {
@@ -43,6 +55,8 @@ function WebhooksPage() {
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const copy = (s: string) => { navigator.clipboard.writeText(s); toast.success("Copied"); };
+  const toggleReveal = (id: string) => setRevealed((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const mask = (s: string) => s ? `${s.slice(0, 4)}${"•".repeat(Math.max(8, s.length - 8))}${s.slice(-4)}` : "";
 
   return (
     <div className="space-y-6">
@@ -72,11 +86,15 @@ function WebhooksPage() {
               )}
               <Switch checked={h.is_active} onCheckedChange={(v) => toggle(h.id, v)} />
               <Button size="icon" variant="ghost" onClick={() => copy(h.secret)} title="Copy signing secret"><Copy className="w-4 h-4" /></Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(h.id)}><Trash2 className="w-4 h-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(h.id, h.url)}><Trash2 className="w-4 h-4" /></Button>
             </div>
-            <div className="text-xs text-muted-foreground mt-3">
-              Signing secret: <code className="bg-muted px-1.5 py-0.5 rounded">{h.secret}</code>
-              {" · "}Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-EmailSend-Signature: sha256=&lt;hex&gt;</code>
+            <div className="text-xs text-muted-foreground mt-3 flex items-center gap-2 flex-wrap">
+              <span>Signing secret:</span>
+              <code className="bg-muted px-1.5 py-0.5 rounded font-mono">{revealed.has(h.id) ? h.secret : mask(h.secret)}</code>
+              <button type="button" onClick={() => toggleReveal(h.id)} className="text-muted-foreground hover:text-foreground" title={revealed.has(h.id) ? "Hide" : "Reveal"}>
+                {revealed.has(h.id) ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+              <span>· Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-EmailSend-Signature: sha256=&lt;hex&gt;</code></span>
             </div>
           </Card>
         ))}

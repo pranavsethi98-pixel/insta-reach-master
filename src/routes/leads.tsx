@@ -32,6 +32,7 @@ function LeadsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [detail, setDetail] = useState<any>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const genFn = useServerFn(generateIcebreakers);
   const verifyFn = useServerFn(verifyLeads);
@@ -43,6 +44,7 @@ function LeadsPage() {
     try {
       const r = await verifyFn({ data: { leadIds: Array.from(selected).slice(0, 200) } });
       toast.success(`Verified — ${r.valid} valid · ${r.risky} risky · ${r.invalid} invalid (auto-suppressed)`);
+      qc.invalidateQueries({ queryKey: ["leads"] });
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
     finally { setVerifying(false); }
   };
@@ -116,7 +118,10 @@ function LeadsPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const seen = new Set<string>();
-        const rows = (res.data as any[]).map((r) => {
+        const parsedRows = (res.data as any[]);
+        const headers = (res.meta?.fields ?? []).map((h: string) => h.toLowerCase().trim().replace(/\s+/g, "_"));
+        const hasEmailHeader = headers.includes("email");
+        const rows = parsedRows.map((r) => {
           const norm: any = { user_id: user.id, custom_fields: {} };
           for (const [k, v] of Object.entries(r)) {
             const key = k.toLowerCase().trim().replace(/\s+/g, "_");
@@ -135,7 +140,15 @@ function LeadsPage() {
           r.email = e;
           return true;
         });
-        if (rows.length === 0) return toast.error("No valid rows. CSV must have an 'email' column.");
+        if (rows.length === 0) {
+          if (hasEmailHeader && parsedRows.length === 0) {
+            return toast.error("Your CSV has the right headers but no data rows. Add at least one email address.");
+          }
+          if (!hasEmailHeader) {
+            return toast.error("CSV must have an 'email' column header.");
+          }
+          return toast.error("No rows had a valid email value in the 'email' column.");
+        }
         const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const valid = rows.filter(r => emailRe.test(r.email));
         const skippedInvalid = rows.length - valid.length;
@@ -227,12 +240,20 @@ function LeadsPage() {
         Tip: use <code className="bg-muted px-1 rounded">{"{{icebreaker}}"}</code> in your campaign body to inject AI-generated openers.
       </div>
 
-      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+      <Dialog open={!!detail} onOpenChange={(o) => { if (!o) { setDetail(null); setDetailError(null); } }}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit lead</DialogTitle></DialogHeader>
           {detail && (
             <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2"><Label>Email</Label><Input value={detail.email ?? ""} onChange={(e) => setDetail({ ...detail, email: e.target.value })} /></div>
+              <div className="col-span-2">
+                <Label>Email</Label>
+                <Input
+                  value={detail.email ?? ""}
+                  onChange={(e) => { setDetail({ ...detail, email: e.target.value }); if (detailError) setDetailError(null); }}
+                  className={detailError ? "border-destructive focus-visible:ring-destructive" : undefined}
+                  aria-invalid={!!detailError}
+                />
+              </div>
               <div><Label>First name</Label><Input value={detail.first_name ?? ""} onChange={(e) => setDetail({ ...detail, first_name: e.target.value })} /></div>
               <div><Label>Last name</Label><Input value={detail.last_name ?? ""} onChange={(e) => setDetail({ ...detail, last_name: e.target.value })} /></div>
               <div><Label>Company</Label><Input value={detail.company ?? ""} onChange={(e) => setDetail({ ...detail, company: e.target.value })} /></div>
@@ -240,27 +261,33 @@ function LeadsPage() {
               <div><Label>Website</Label><Input value={detail.website ?? ""} onChange={(e) => setDetail({ ...detail, website: e.target.value })} /></div>
               <div className="col-span-2"><Label>LinkedIn</Label><Input value={detail.linkedin ?? ""} onChange={(e) => setDetail({ ...detail, linkedin: e.target.value })} /></div>
               <div className="col-span-2"><Label>Icebreaker</Label><Input value={detail.icebreaker ?? ""} onChange={(e) => setDetail({ ...detail, icebreaker: e.target.value })} /></div>
+              {detailError && (
+                <div className="col-span-2 rounded-md border border-destructive/50 bg-destructive/10 text-destructive text-sm px-3 py-2">
+                  {detailError}
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDetail(null)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => { setDetail(null); setDetailError(null); }}>Cancel</Button>
             <Button onClick={async () => {
               if (!detail) return;
               const email = String(detail.email ?? "").toLowerCase().trim();
-              if (!email) return toast.error("Email is required");
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+              if (!email) return setDetailError("Email is required.");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setDetailError("Enter a valid email address (e.g. name@example.com).");
               const website = String(detail.website ?? "").trim();
-              if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+              if (website && !URL_RE.test(website)) return setDetailError("Website must be a valid URL (https://example.com).");
               const linkedin = String(detail.linkedin ?? "").trim();
-              if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
+              if (linkedin && !LINKEDIN_RE.test(linkedin)) return setDetailError("LinkedIn must be a linkedin.com URL.");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
               patch.email = email;
               patch.website = website || null;
               patch.linkedin = linkedin || null;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
-              if (error) return toast.error(error.message);
+              if (error) return setDetailError(error.message);
               toast.success("Lead updated");
               setDetail(null);
+              setDetailError(null);
               qc.invalidateQueries({ queryKey: ["leads"] });
             }}>Save</Button>
           </DialogFooter>
@@ -274,33 +301,48 @@ function LeadsPage() {
 function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [emailInvalid, setEmailInvalid] = useState(false);
   const save = async () => {
     const email = form.email.toLowerCase().trim();
-    if (!email) return toast.error("Email is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+    if (!email) { setEmailInvalid(true); setError("Email is required."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailInvalid(true); setError("Enter a valid email address (e.g. name@example.com)."); return; }
     const website = form.website.trim();
-    if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+    if (website && !URL_RE.test(website)) { setError("Website must be a valid URL (https://example.com)."); return; }
     const linkedin = form.linkedin.trim();
-    if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
+    if (linkedin && !LINKEDIN_RE.test(linkedin)) { setError("LinkedIn must be a linkedin.com URL."); return; }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
-    if (error) {
-      if (/duplicate|unique/i.test(error.message)) return toast.error("This email already exists in your leads");
-      return toast.error(error.message);
+    const { error: insErr } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
+    if (insErr) {
+      if (/duplicate|unique/i.test(insErr.message)) { setError("This email already exists in your leads."); return; }
+      setError(insErr.message);
+      return;
     }
     toast.success("Lead added");
     setOpen(false);
+    setForm({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
+    setError(null); setEmailInvalid(false);
     onCreated();
   };
   const f = (k: keyof typeof form) => ({ value: form[k], onChange: (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value }) });
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setError(null); setEmailInvalid(false); } }}>
       <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" /> Add lead</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>Add lead</DialogTitle></DialogHeader>
         <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2"><Label>Email</Label><Input type="email" {...f("email")} /></div>
+          <div className="col-span-2">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              autoFocus
+              value={form.email}
+              onChange={(e) => { setForm({ ...form, email: e.target.value }); if (emailInvalid) { setEmailInvalid(false); setError(null); } }}
+              className={emailInvalid ? "border-destructive focus-visible:ring-destructive" : undefined}
+              aria-invalid={emailInvalid}
+            />
+          </div>
           <div><Label>First name</Label><Input {...f("first_name")} /></div>
           <div><Label>Last name</Label><Input {...f("last_name")} /></div>
           <div><Label>Company</Label><Input {...f("company")} /></div>
@@ -308,6 +350,11 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
           <div><Label>Website</Label><Input {...f("website")} /></div>
           <div><Label>LinkedIn</Label><Input {...f("linkedin")} /></div>
           <div className="col-span-2"><Label>Icebreaker</Label><Textarea rows={3} value={form.icebreaker} onChange={(e) => setForm({ ...form, icebreaker: e.target.value })} /></div>
+          {error && (
+            <div className="col-span-2 rounded-md border border-destructive/50 bg-destructive/10 text-destructive text-sm px-3 py-2">
+              {error}
+            </div>
+          )}
         </div>
         <DialogFooter><Button onClick={save}>Add</Button></DialogFooter>
       </DialogContent>

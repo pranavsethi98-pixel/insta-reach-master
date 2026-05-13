@@ -73,6 +73,8 @@ export const verifyLeads = createServerFn({ method: "POST" })
         user_id: userId, email: l.email.toLowerCase(), ...r,
         checked_at: new Date().toISOString(),
       } as any, { onConflict: "user_id,email" });
+      // Mirror status onto the lead so the Leads table reflects the result.
+      await supabase.from("leads").update({ verification_status: r.result } as any).eq("id", l.id);
       // Auto-suppress invalids
       if (r.result === "invalid") {
         await supabase.from("suppressions").upsert({
