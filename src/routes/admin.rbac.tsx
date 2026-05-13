@@ -23,7 +23,7 @@ function Page() {
   const fu = useServerFn(listUsers); const gr = useServerFn(grantRole); const rv = useServerFn(revokeRole);
   const { data: invites, refetch: ri } = useQuery({ queryKey: ["invites"], queryFn: () => fi() });
   const { data: users, refetch: ru } = useQuery({ queryKey: ["users-rbac"], queryFn: () => fu({ data: {} }) });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => { ri(); ru(); } });
+  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => { ri(); ru(); }, onError: (e: any) => toast.error(e?.message ?? "Action failed") });
 
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<typeof ROLES[number]>("support_admin");

@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/AuthGate";
+import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { useConfirm } from "@/components/ConfirmDialog";
 import { smartTruncate } from "@/lib/utils";
 
-export const Route = createFileRoute("/subsequences")({ component: () => (<RequireAuth><SubsequencesPage /></RequireAuth>) });
+export const Route = createFileRoute("/subsequences")({ component: () => (<RequireAuth><AppShell><SubsequencesPage /></AppShell></RequireAuth>) });
 
 function SubsequencesPage() {
   const list = useServerFn(listSubsequences);
@@ -59,8 +59,7 @@ function SubsequencesPage() {
   };
 
   return (
-    <AppShell>
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2"><GitBranch className="w-7 h-7"/> Subsequences</h1>
@@ -102,7 +101,7 @@ function SubsequencesPage() {
         </div>
       </div>
       {confirmDialog}
-    </AppShell>
+    </div>
   );
 }
 

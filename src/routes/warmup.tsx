@@ -94,7 +94,7 @@ function WarmupPage() {
                         const raw = Math.floor(Number(e.target.value));
                         const v = Number.isFinite(raw) ? Math.max(1, Math.min(500, raw)) : 40;
                         if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 1–500)`); }
-                        update(m.id, { warmup_daily_target: v });
+                        if (v !== (m.warmup_daily_target ?? 40)) update(m.id, { warmup_daily_target: v });
                       }} />
                     </div>
                     <div>
@@ -103,7 +103,7 @@ function WarmupPage() {
                         const raw = Math.floor(Number(e.target.value));
                         const v = Number.isFinite(raw) ? Math.max(1, Math.min(50, raw)) : 2;
                         if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 1–50)`); }
-                        update(m.id, { warmup_increment: v });
+                        if (v !== (m.warmup_increment ?? 2)) update(m.id, { warmup_increment: v });
                       }} />
                     </div>
                     <div>
@@ -112,7 +112,7 @@ function WarmupPage() {
                         const raw = Number(e.target.value);
                         const v = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.4;
                         if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1)`); }
-                        update(m.id, { warmup_reply_rate: v });
+                        if (v !== (m.warmup_reply_rate ?? 0.4)) update(m.id, { warmup_reply_rate: v });
                       }} />
                     </div>
                     <div>
@@ -121,14 +121,14 @@ function WarmupPage() {
                         const raw = Number(e.target.value);
                         const v = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.5;
                         if (v !== raw) { e.target.value = String(v); toast.info(`Clamped to ${v} (must be 0–1)`); }
-                        update(m.id, { warmup_open_rate: v });
+                        if (v !== ((m as any).warmup_open_rate ?? 0.5)) update(m.id, { warmup_open_rate: v });
                       }} />
                     </div>
                     <div>
                       <Label className="text-xs">Spam protection</Label>
                       <select className="w-full h-10 rounded-md border bg-background px-3 text-sm"
                         defaultValue={(m as any).warmup_spam_protection_level ?? "medium"}
-                        onBlur={(e) => update(m.id, { warmup_spam_protection_level: e.target.value })}>
+                        onBlur={(e) => { if (e.target.value !== ((m as any).warmup_spam_protection_level ?? "medium")) update(m.id, { warmup_spam_protection_level: e.target.value }); }}>
                         <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
                       </select>
                     </div>

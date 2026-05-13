@@ -60,12 +60,13 @@ function CampaignDetailInner({ id }: { id: string }) {
   const navigate = useNavigate();
   const { confirm, dialog: confirmDialog } = useConfirm();
 
-  const { data: campaign } = useQuery({
+  const { data: campaign, error: campaignError, isLoading: campaignLoading } = useQuery({
     queryKey: ["campaign", id],
     queryFn: async () => {
       const { data, error } = await supabase.from("campaigns").select("*").eq("id", id).single();
       if (error) throw error; return data;
     },
+    retry: 1,
   });
 
   const { data: steps } = useQuery({
@@ -139,7 +140,14 @@ function CampaignDetailInner({ id }: { id: string }) {
     qc.invalidateQueries({ queryKey: ["assigned", id] });
   };
 
-  if (!campaign) return <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground">Loading campaign…</div>;
+  if (campaignError) return (
+    <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3 text-muted-foreground">
+      <p className="text-lg font-medium text-foreground">Campaign not found</p>
+      <p className="text-sm">This campaign may have been deleted or you may not have access.</p>
+      <Link to="/campaigns"><Button variant="outline">Back to campaigns</Button></Link>
+    </div>
+  );
+  if (campaignLoading || !campaign) return <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground">Loading campaign…</div>;
 
   return (
     <div className="space-y-6">

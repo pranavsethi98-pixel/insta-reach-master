@@ -81,11 +81,23 @@ export const runSalesflows = createServerFn({ method: "POST" })
             const tags = new Set([...(cf.tags || []), a.tag]);
             await supabase.from("leads").update({ custom_fields: { ...cf, tags: [...tags] } }).eq("id", lead.id);
           } else if (a.type === "webhook" && a.url) {
-            await fetch(a.url, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ lead_id: lead.id, flow_id: flow.id, triggered_at: new Date().toISOString() }),
-            }).catch(() => null); // fire-and-forget; ignore network errors
+            // SSRF guard: only allow HTTPS to external (non-private) hosts
+            let safeUrl = false;
+            try {
+              const u = new URL(a.url);
+              const h = u.hostname.toLowerCase();
+              safeUrl = u.protocol === "https:" &&
+                h !== "localhost" && h !== "0.0.0.0" &&
+                !/^127\.|^::1$|^169\.254\.|^10\.|^172\.(1[6-9]|2\d|3[01])\.|^192\.168\./.test(h);
+            } catch {}
+            if (safeUrl) {
+              await fetch(a.url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ lead_id: lead.id, flow_id: flow.id, triggered_at: new Date().toISOString() }),
+                signal: AbortSignal.timeout(8000),
+              }).catch(() => null); // fire-and-forget; ignore network errors
+            }
           }
         }
       }

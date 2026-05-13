@@ -51,7 +51,11 @@ function CampaignsList() {
     navigate({ to: "/campaigns/$id", params: { id: data.id } });
   };
 
-  const removeCampaign = async (id: string, cName: string) => {
+  const removeCampaign = async (id: string, cName: string, status: string) => {
+    if (status === "active") {
+      toast.error("Pause the campaign before deleting it.");
+      return;
+    }
     const ok = await confirm({
       title: `Delete campaign "${cName}"?`,
       description: "All sequence steps, lead assignments, and analytics for this campaign will be permanently removed. This cannot be undone.",
@@ -158,7 +162,7 @@ function CampaignsList() {
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={(e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name); }}
+                onClick={(e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); removeCampaign(c.id, c.name, c.status); }}
                 title="Delete campaign"
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               >
