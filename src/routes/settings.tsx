@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CheckCircle2, AlertCircle, Globe, Trash2, Pencil } from "lucide-react";
 import { verifyTrackingDomain } from "@/lib/tracking-domain.functions";
@@ -27,6 +28,8 @@ function SettingsPage() {
   const verifyFn = useServerFn(verifyTrackingDomain);
   const [domain, setDomain] = useState("");
   const { confirm, dialog: confirmDialog } = useConfirm();
+  const [renaming, setRenaming] = useState<{ id: string; current: string } | null>(null);
+  const [renameVal, setRenameVal] = useState("");
 
   const { data: domains } = useQuery({
     queryKey: ["tracking_domains"],
@@ -68,15 +71,20 @@ function SettingsPage() {
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
   };
 
-  const rename = async (id: string, current: string) => {
-    const next = window.prompt("Rename tracking domain", current);
-    if (!next) return;
-    const clean = next.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  const startRename = (id: string, current: string) => {
+    setRenaming({ id, current });
+    setRenameVal(current);
+  };
+
+  const commitRename = async () => {
+    if (!renaming) return;
+    const clean = renameVal.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
     if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(clean)) return toast.error("Enter a valid domain");
-    const { error } = await supabase.from("tracking_domains").update({ domain: clean, verified: false } as any).eq("id", id);
+    const { error } = await supabase.from("tracking_domains").update({ domain: clean, verified: false } as any).eq("id", renaming.id);
     if (error) return toast.error(error.message);
     toast.success("Renamed — re-verify the CNAME");
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
+    setRenaming(null);
   };
 
   return (
@@ -111,7 +119,7 @@ function SettingsPage() {
                   <Badge variant="secondary" className="gap-1"><AlertCircle className="w-3 h-3" />Pending</Badge>
                 )}
                 <Button size="sm" variant="outline" onClick={() => verify(d.id)}>Verify</Button>
-                <Button size="sm" variant="ghost" onClick={() => rename(d.id, d.domain)} title="Rename"><Pencil className="w-4 h-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => startRename(d.id, d.domain)} title="Rename"><Pencil className="w-4 h-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(d.id, d.domain)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
@@ -126,6 +134,27 @@ function SettingsPage() {
       <CalendlyCard />
       <ReplyAgentCard />
       {confirmDialog}
+
+      <Dialog open={!!renaming} onOpenChange={(o) => { if (!o) setRenaming(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Rename tracking domain</DialogTitle></DialogHeader>
+          <div>
+            <Label>New domain</Label>
+            <Input
+              autoFocus
+              value={renameVal}
+              onChange={(e) => setRenameVal(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") commitRename(); }}
+              placeholder="track.yourbrand.com"
+            />
+            <p className="text-xs text-muted-foreground mt-1">The CNAME verification will reset — you'll need to verify again.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRenaming(null)}>Cancel</Button>
+            <Button onClick={commitRename}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

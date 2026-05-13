@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Ban } from "lucide-react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/suppressions")({
   component: () => (
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/suppressions")({
 function Page() {
   const qc = useQueryClient();
   const [val, setVal] = useState("");
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const { data: rows, isLoading } = useQuery({
     queryKey: ["suppressions"],
     queryFn: async () => (await supabase.from("suppressions").select("*").order("created_at", { ascending: false })).data ?? [],
@@ -47,7 +49,14 @@ function Page() {
     toast.success(isDomain ? "Domain blocked" : "Email blocked");
     qc.invalidateQueries({ queryKey: ["suppressions"] });
   };
-  const remove = async (id: string) => {
+  const remove = async (id: string, target: string) => {
+    const ok = await confirm({
+      title: `Remove suppression for "${target}"?`,
+      description: "This address will be eligible for campaigns again.",
+      confirmLabel: "Remove",
+      destructive: true,
+    });
+    if (!ok) return;
     await supabase.from("suppressions").delete().eq("id", id);
     toast.success("Removed");
     qc.invalidateQueries({ queryKey: ["suppressions"] });
@@ -74,10 +83,11 @@ function Page() {
               <div className="font-medium">{r.email || r.domain}</div>
               <div className="text-xs text-muted-foreground">{r.email ? "Email" : "Domain"} · {r.reason} · {new Date(r.created_at).toLocaleDateString()}</div>
             </div>
-            <Button size="icon" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="w-4 h-4" /></Button>
+            <Button size="icon" variant="ghost" onClick={() => remove(r.id, r.email || r.domain)}><Trash2 className="w-4 h-4" /></Button>
           </div>
         ))}
       </div>
+      {confirmDialog}
     </div>
   );
 }

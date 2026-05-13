@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Globe, Copy, Plus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/visitors")({
   component: () => (<RequireAuth><AppShell><VisitorsPage /></AppShell></RequireAuth>),
@@ -21,6 +22,7 @@ function VisitorsPage() {
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState("");
   const [creating, setCreating] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: pixels } = useQuery({
     queryKey: ["pixels"],
@@ -51,7 +53,13 @@ function VisitorsPage() {
   };
 
   const removePixel = async (id: string) => {
-    if (!window.confirm("Delete this pixel? Your snippet will stop tracking immediately.")) return;
+    const ok = await confirm({
+      title: "Delete this pixel?",
+      description: "Your tracking snippet will stop working immediately. This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     await supabase.from("visitor_pixels").delete().eq("id", id);
     toast.success("Pixel deleted");
     qc.invalidateQueries({ queryKey: ["pixels"] });
@@ -132,6 +140,7 @@ function VisitorsPage() {
           {!events?.length && <div className="p-6 text-center text-muted-foreground text-sm">No visits captured yet.</div>}
         </div>
       </div>
+      {confirmDialog}
     </div>
   );
 }

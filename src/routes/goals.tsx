@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Target, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/goals")({
   component: () => (<RequireAuth><AppShell><GoalsPage /></AppShell></RequireAuth>),
@@ -25,6 +26,7 @@ function GoalsPage() {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ metric: "meetings_booked", target: 20, period: "month" });
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: goals } = useQuery({
     queryKey: ["goals"],
@@ -60,7 +62,14 @@ function GoalsPage() {
     setAdding(false); refresh();
   };
 
-  const remove = async (id: string) => {
+  const remove = async (id: string, label: string) => {
+    const ok = await confirm({
+      title: `Delete "${label}" goal?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     const { error } = await supabase.from("goals").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Goal deleted");
@@ -106,7 +115,7 @@ function GoalsPage() {
                   <div className="text-xs uppercase text-muted-foreground">{g.period}</div>
                   <div className="font-semibold">{label}</div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => remove(g.id)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => remove(g.id, label)}><Trash2 className="w-4 h-4" /></Button>
               </div>
               <div className="mt-3 text-2xl font-bold">{cur} <span className="text-sm font-normal text-muted-foreground">/ {g.target}</span></div>
               <div className="h-2 bg-muted rounded-full mt-2 overflow-hidden">
@@ -118,6 +127,7 @@ function GoalsPage() {
         })}
         {!goals?.length && !adding && <div className="col-span-2 bg-card border rounded-xl p-8 text-center text-muted-foreground">No goals yet.</div>}
       </div>
+      {confirmDialog}
     </div>
   );
 }
