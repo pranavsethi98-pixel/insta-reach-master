@@ -43,6 +43,7 @@ function LeadsPage() {
     try {
       const r = await verifyFn({ data: { leadIds: Array.from(selected).slice(0, 200) } });
       toast.success(`Verified — ${r.valid} valid · ${r.risky} risky · ${r.invalid} invalid (auto-suppressed)`);
+      qc.invalidateQueries({ queryKey: ["leads"] });
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
     finally { setVerifying(false); }
   };
