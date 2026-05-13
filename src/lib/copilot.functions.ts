@@ -2,12 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const GATEWAY = "https://api.groq.com/openai/v1/chat/completions";
-const AI_MODEL = "llama-3.3-70b-versatile";
+const GATEWAY = "https://api.openai.com/v1/chat/completions";
+const AI_MODEL = "gpt-4o-mini";
 
 async function callAI(messages: any[], tools?: any[], tool_choice?: any) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error("AI not configured — add GROQ_API_KEY to your environment");
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("AI not configured — add OPENAI_API_KEY to your environment");
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },

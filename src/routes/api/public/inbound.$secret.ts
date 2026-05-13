@@ -130,14 +130,14 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
         });
 
         // Fire-and-forget AI categorization (best-effort)
-        const apiKey = process.env.GROQ_API_KEY;
+        const apiKey = process.env.OPENAI_API_KEY;
         if (apiKey && (body.text || body.html)) {
           try {
             const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
               body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "gpt-4o-mini",
                 messages: [
                   { role: "system", content: 'Classify a cold-email reply into ONE of: interested, not_interested, out_of_office, unsubscribe, question, other. Return strict JSON: {"category":"...","confidence":0..1,"summary":"<8 words"}' },
                   { role: "user", content: (body.text || body.html).slice(0, 4000) },
@@ -187,7 +187,7 @@ export const Route = createFileRoute("/api/public/inbound/$secret")({
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
                 body: JSON.stringify({
-                  model: "llama-3.3-70b-versatile",
+                  model: "gpt-4o-mini",
                   response_format: { type: "json_object" },
                   messages: [
                     { role: "system", content: `You are a sales rep replying to a prospect. Tone: ${tone}. Business: ${bizCtx}. ${calLink ? `If they show interest, include this link naturally: ${calLink}` : ""} Handle objections directly. Under 100 words. Output JSON {subject, body}.` },

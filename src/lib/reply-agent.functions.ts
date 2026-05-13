@@ -3,8 +3,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { tagLeadContact, getGhlSyncSettings } from "./ghl-sync.server";
 
-const AI_URL = "https://api.groq.com/openai/v1/chat/completions";
-const AI_MODEL = "llama-3.3-70b-versatile";
+const AI_URL = "https://api.openai.com/v1/chat/completions";
+const AI_MODEL = "gpt-4o-mini";
 
 const LABELS = [
   "interested",
@@ -18,8 +18,8 @@ const LABELS = [
 ] as const;
 
 async function callAi(messages: any[], json = false) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error("AI not configured — add GROQ_API_KEY to your environment");
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("AI not configured — add OPENAI_API_KEY to your environment");
   const res = await fetch(AI_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
