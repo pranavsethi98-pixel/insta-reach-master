@@ -126,10 +126,10 @@ function CopilotPage() {
           <div className="bg-card border rounded-xl p-5">
             <h2 className="font-semibold mb-2">ICP</h2>
             <div className="grid sm:grid-cols-2 gap-3 text-sm">
-              <div><div className="text-xs text-muted-foreground">Titles</div>{(result.icp.titles || []).join(", ")}</div>
-              <div><div className="text-xs text-muted-foreground">Industries</div>{(result.icp.industries || []).join(", ")}</div>
-              {result.icp.company_size && <div><div className="text-xs text-muted-foreground">Company size</div>{result.icp.company_size}</div>}
-              <div className="sm:col-span-2"><div className="text-xs text-muted-foreground">Pain points</div>{(result.icp.pain_points || []).join(" · ")}</div>
+              <div><div className="text-xs text-muted-foreground">Titles</div>{(result.icp?.titles || []).join(", ")}</div>
+              <div><div className="text-xs text-muted-foreground">Industries</div>{(result.icp?.industries || []).join(", ")}</div>
+              {result.icp?.company_size && <div><div className="text-xs text-muted-foreground">Company size</div>{result.icp.company_size}</div>}
+              <div className="sm:col-span-2"><div className="text-xs text-muted-foreground">Pain points</div>{(result.icp?.pain_points || []).join(" · ")}</div>
             </div>
           </div>
           <div className="bg-card border rounded-xl p-5">

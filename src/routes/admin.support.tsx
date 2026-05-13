@@ -70,9 +70,11 @@ function Page() {
               <div className="flex gap-2 mt-2">
                 <Input placeholder="Reply…" value={reply[t.id] ?? ""} onChange={(e) => setReply({ ...reply, [t.id]: e.target.value })} />
                 <Button size="sm" disabled={m.isPending} onClick={() => {
-                  if (!(reply[t.id] ?? "").trim()) { toast.error("Enter a reply first"); return; }
-                  m.mutate(() => rt({ data: { ticketId: t.id, body: reply[t.id] ?? "", status: "answered" } }));
-                  setReply({ ...reply, [t.id]: "" });
+                  const replyText = (reply[t.id] ?? "").trim();
+                  if (!replyText) { toast.error("Enter a reply first"); return; }
+                  m.mutate(() => rt({ data: { ticketId: t.id, body: replyText, status: "answered" } }), {
+                    onSuccess: () => setReply((prev) => ({ ...prev, [t.id]: "" })),
+                  });
                 }}>Reply</Button>
                 <Button size="sm" variant="ghost" disabled={m.isPending} onClick={() => m.mutate(() => rt({ data: { ticketId: t.id, body: "[Closed by admin]", status: "closed" } }))}>Close</Button>
               </div>

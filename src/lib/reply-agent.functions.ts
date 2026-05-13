@@ -54,7 +54,7 @@ export const processInboundReply = createServerFn({ method: "POST" })
     }
 
     const { data: conv } = await supabase
-      .from("conversations").select("*").eq("id", data.conversationId).single();
+      .from("conversations").select("*").eq("id", data.conversationId).eq("user_id", userId).single();
     const { data: lead } = conv?.lead_id
       ? await supabase.from("leads").select("*").eq("id", conv.lead_id).single()
       : { data: null };
@@ -187,10 +187,11 @@ export const processInboundReply = createServerFn({ method: "POST" })
 export const listReplyQueue = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("reply_queue")
       .select("*, conversation:conversations(subject), lead:leads(email, first_name, company)")
+      .eq("user_id", userId)
       .eq("status", "pending")
       .order("created_at", { ascending: false })
       .limit(100);

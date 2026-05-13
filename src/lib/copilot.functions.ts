@@ -11,6 +11,7 @@ async function callAI(messages: any[], tools?: any[], tool_choice?: any) {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model: "google/gemini-2.5-flash", messages, ...(tools ? { tools, tool_choice } : {}) }),
+    signal: AbortSignal.timeout(30_000),
   });
   if (res.status === 429) throw new Error("Rate limited. Try again in a minute.");
   if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Settings → Workspace → Usage.");
@@ -175,7 +176,7 @@ export const categorizeReply = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ conversationId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: conv } = await supabase.from("conversations").select("*, messages(*)").eq("id", data.conversationId).single();
+    const { data: conv } = await supabase.from("conversations").select("*, messages(*)").eq("id", data.conversationId).eq("user_id", context.userId).single();
     if (!conv) throw new Error("Not found");
     const last = (conv.messages ?? []).filter((m: any) => m.direction === "inbound").slice(-1)[0];
     if (!last) return { category: "other", confidence: 0, summary: "" };

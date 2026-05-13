@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
@@ -32,18 +32,6 @@ function ReplyAgentPage() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["reply-queue"], queryFn: () => list() });
 
-  const approveMut = useMutation({
-    mutationFn: (v: { id: string; subject: string; body: string }) =>
-      approve({ data: v }),
-    onSuccess: () => { toast.success("Reply approved and queued to send"); qc.invalidateQueries({ queryKey: ["reply-queue"] }); },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to approve reply"),
-  });
-  const rejectMut = useMutation({
-    mutationFn: (id: string) => reject({ data: { id } }),
-    onSuccess: () => { toast.success("Rejected"); qc.invalidateQueries({ queryKey: ["reply-queue"] }); },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to reject reply"),
-  });
-
   return (
     <div className="space-y-4">
         <div>
@@ -68,20 +56,52 @@ function ReplyAgentPage() {
           <ReplyCard
             key={item.id}
             item={item}
-            approvePending={approveMut.isPending}
-            rejectPending={rejectMut.isPending}
-            onApprove={(subject: string, body: string) => approveMut.mutate({ id: item.id, subject, body })}
-            onReject={() => rejectMut.mutate(item.id)}
+            onApprove={(subject: string, body: string) => approve({ data: { id: item.id, subject, body } })}
+            onReject={() => reject({ data: { id: item.id } })}
+            onDone={() => qc.invalidateQueries({ queryKey: ["reply-queue"] })}
           />
         ))}
       </div>
   );
 }
 
-function ReplyCard({ item, onApprove, onReject, approvePending, rejectPending }: any) {
+// Each card manages its own pending state so approving/rejecting one card
+// doesn't disable the buttons on all other cards.
+function ReplyCard({ item, onApprove, onReject, onDone }: {
+  item: any;
+  onApprove: (subject: string, body: string) => Promise<any>;
+  onReject: () => Promise<any>;
+  onDone: () => void;
+}) {
   const [subject, setSubject] = useState(item.draft_subject || "");
   const [body, setBody] = useState(item.draft_body || "");
+  const [approvePending, setApprovePending] = useState(false);
+  const [rejectPending, setRejectPending] = useState(false);
   const lead = item.lead;
+
+  const handleApprove = async () => {
+    if (approvePending || rejectPending) return;
+    setApprovePending(true);
+    try {
+      await onApprove(subject, body);
+      toast.success("Reply approved and queued to send");
+      onDone();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to approve reply");
+    } finally { setApprovePending(false); }
+  };
+
+  const handleReject = async () => {
+    if (approvePending || rejectPending) return;
+    setRejectPending(true);
+    try {
+      await onReject();
+      toast.success("Rejected");
+      onDone();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to reject reply");
+    } finally { setRejectPending(false); }
+  };
 
   return (
     <Card className="p-5 space-y-3">
@@ -108,10 +128,10 @@ function ReplyCard({ item, onApprove, onReject, approvePending, rejectPending }:
       <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} />
 
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={onReject} disabled={rejectPending || approvePending}>
+        <Button variant="outline" onClick={handleReject} disabled={rejectPending || approvePending}>
           {rejectPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin"/> : <X className="w-4 h-4 mr-1"/>} Reject
         </Button>
-        <Button onClick={() => onApprove(subject, body)} disabled={approvePending || rejectPending}>
+        <Button onClick={handleApprove} disabled={approvePending || rejectPending}>
           {approvePending ? <Loader2 className="w-4 h-4 mr-1 animate-spin"/> : <Check className="w-4 h-4 mr-1"/>} Approve & Send
         </Button>
       </div>

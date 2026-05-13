@@ -13,7 +13,7 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("AI not configured");
 
     const { data: leads, error } = await supabase
-      .from("leads").select("*").in("id", data.leadIds);
+      .from("leads").select("*").in("id", data.leadIds).eq("user_id", context.userId);
     if (error) throw error;
 
     const results: { id: string; icebreaker: string }[] = [];

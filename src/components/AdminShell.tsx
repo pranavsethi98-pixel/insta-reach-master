@@ -43,12 +43,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     queryFn: () => fetchRoles(),
   });
 
-  useEffect(() => {
-    if (!isLoading && data && data.roles.length === 0) {
-      // not admin — kick to dashboard
-      // small delay so the bootstrap card can render once
-    }
-  }, [isLoading, data]);
+  // Note: non-admin users are shown a "claim super admin" or "access denied"
+  // card inline — we deliberately do NOT auto-redirect here so the bootstrap
+  // flow (claim super admin button) remains usable.
 
   const logout = async () => { await supabase.auth.signOut(); navigate({ to: "/login" }); };
 

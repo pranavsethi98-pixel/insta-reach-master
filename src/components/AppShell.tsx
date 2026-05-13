@@ -68,8 +68,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState();
   const { theme, toggle: toggleTheme } = useTheme();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const isAdmin = user?.email?.toLowerCase() === "pranav@insanex.io";
 
   // Auto-open "More" if the active route lives inside it.
   const moreItemPaths = moreGroups.flatMap(g => g.items.map(i => i.to));
@@ -90,6 +90,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       if (!data.user) return;
       const { data: p } = await supabase.from("profiles").select("full_name,email").eq("id", data.user.id).maybeSingle();
       setUser({ email: data.user.email, full_name: p?.full_name ?? data.user.email ?? "" });
+      // Check admin role from DB rather than hardcoding an email address
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
+      setIsAdmin((roles ?? []).some((r: any) => ["super_admin", "support_admin", "billing_admin", "read_only_admin"].includes(r.role)));
     });
   }, []);
 

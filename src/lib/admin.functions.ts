@@ -289,9 +289,10 @@ export const assignPlan = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ userId: z.string().uuid(), planId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireRole(context.userId, WRITE_BILLING);
-    await supabaseAdmin.from("subscriptions").upsert({
+    const { error: upsertErr } = await supabaseAdmin.from("subscriptions").upsert({
       user_id: data.userId, plan_id: data.planId, status: "active", updated_at: new Date().toISOString(),
     } as any);
+    if (upsertErr) throw new Error(upsertErr.message);
     await audit(context.userId, "billing.assign_plan", "user", data.userId, { planId: data.planId });
     return { ok: true };
   });
@@ -625,10 +626,10 @@ export const platformAnalytics = createServerFn({ method: "GET" })
     await requireRole(context.userId, ALL);
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
     const [sends, opens, replies, bounces, signups, subs, payments, leads, enrich, verify, webhooks, calendly, slack, pixels, visits] = await Promise.all([
-      supabaseAdmin.from("send_log").select("sent_at,status").gte("sent_at", since).limit(50000),
-      supabaseAdmin.from("send_log").select("opened_at").not("opened_at", "is", null).gte("sent_at", since).limit(50000),
-      supabaseAdmin.from("send_log").select("replied_at").not("replied_at", "is", null).gte("sent_at", since).limit(50000),
-      supabaseAdmin.from("send_log").select("bounced_at").not("bounced_at", "is", null).gte("sent_at", since).limit(50000),
+      supabaseAdmin.from("send_log").select("id", { count: "exact", head: true }).gte("sent_at", since).eq("status", "sent"),
+      supabaseAdmin.from("send_log").select("id", { count: "exact", head: true }).not("opened_at", "is", null).gte("sent_at", since),
+      supabaseAdmin.from("send_log").select("id", { count: "exact", head: true }).not("replied_at", "is", null).gte("sent_at", since),
+      supabaseAdmin.from("send_log").select("id", { count: "exact", head: true }).not("bounced_at", "is", null).gte("sent_at", since),
       supabaseAdmin.from("profiles").select("created_at").gte("created_at", since),
       supabaseAdmin.from("subscriptions").select("plan_id,status,plans(price_cents)"),
       supabaseAdmin.from("payments_history").select("amount_cents,refunded_cents,created_at,status").gte("created_at", since),
@@ -646,10 +647,10 @@ export const platformAnalytics = createServerFn({ method: "GET" })
     const revenue30d = (payments.data ?? []).filter(p => p.status === "succeeded")
       .reduce((s, p) => s + (p.amount_cents - (p.refunded_cents ?? 0)), 0);
     return {
-      sends30d: sends.data?.length ?? 0,
-      opens30d: opens.data?.length ?? 0,
-      replies30d: replies.data?.length ?? 0,
-      bounces30d: bounces.data?.length ?? 0,
+      sends30d: sends.count ?? 0,
+      opens30d: opens.count ?? 0,
+      replies30d: replies.count ?? 0,
+      bounces30d: bounces.count ?? 0,
       signups30d: signups.data?.length ?? 0,
       mrrCents: mrr,
       revenueCents30d: revenue30d,

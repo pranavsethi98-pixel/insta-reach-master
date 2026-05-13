@@ -45,9 +45,11 @@ export const updateGhlSettings = createServerFn({ method: "POST" })
   }).parse(d))
   .handler(async ({ data, context }) => {
     await requireSuper(context.userId);
+    // ghl_sync_settings is a singleton table — update without filtering by id
+    // (using .limit(1) to be safe; the table always has exactly one row)
     await supabaseAdmin.from("ghl_sync_settings")
       .update({ ...data, updated_at: new Date().toISOString() })
-      .eq("id", true);
+      .not("id", "is", null);
     return { ok: true };
   });
 

@@ -45,6 +45,7 @@ function SubsequencesPage() {
   const delMut = useMutation({
     mutationFn: (id: string) => del({ data: { id } }),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["subsequences"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to delete subsequence"),
   });
 
   const confirmDelete = async (id: string, name: string) => {
@@ -176,13 +177,13 @@ function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; 
             <div className="flex gap-2 items-center">
               <span className="text-xs text-muted-foreground">Step {i + 1}</span>
               <Input className="w-24" type="number" min={1} value={s.delay_days}
-                onChange={(e) => { const c = [...steps]; c[i].delay_days = Number(e.target.value); setSteps(c); }} />
+                onChange={(e) => setSteps(prev => prev.map((s2, j) => j === i ? { ...s2, delay_days: Number(e.target.value) } : s2))} />
               <span className="text-xs text-muted-foreground">days</span>
             </div>
             <Input placeholder="Subject" value={s.subject}
-              onChange={(e) => { const c = [...steps]; c[i].subject = e.target.value; setSteps(c); }} />
+              onChange={(e) => setSteps(prev => prev.map((s2, j) => j === i ? { ...s2, subject: e.target.value } : s2))} />
             <Textarea placeholder="Body" rows={3} value={s.body}
-              onChange={(e) => { const c = [...steps]; c[i].body = e.target.value; setSteps(c); }} />
+              onChange={(e) => setSteps(prev => prev.map((s2, j) => j === i ? { ...s2, body: e.target.value } : s2))} />
           </Card>
         ))}
       </div>

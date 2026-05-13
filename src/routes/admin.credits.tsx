@@ -43,7 +43,11 @@ function Page() {
               <div className="font-mono">{c.action}</div>
               <div className="flex items-center gap-2">
                 <Input type="number" step="0.01" defaultValue={c.cost} className="w-24"
-                  onBlur={(e) => { if (parseFloat(e.target.value) !== c.cost) m.mutate(() => s({ data: { action: c.action, cost: parseFloat(e.target.value) } })); }} />
+                  onBlur={(e) => {
+                    const parsed = parseFloat(e.target.value);
+                    if (!Number.isFinite(parsed) || parsed < 0) { e.target.value = String(c.cost); return; }
+                    if (parsed !== c.cost) m.mutate(() => s({ data: { action: c.action, cost: parsed } }));
+                  }} />
                 <span className="text-muted-foreground text-xs">credits</span>
               </div>
             </div>

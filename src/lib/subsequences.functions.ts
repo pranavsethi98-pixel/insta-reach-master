@@ -7,7 +7,7 @@ export const listSubsequences = createServerFn({ method: "GET" })
   .inputValidator((i) => z.object({ campaignId: z.string().uuid().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    let q = supabase.from("subsequences").select("*").order("created_at", { ascending: false });
+    let q = supabase.from("subsequences").select("*").eq("user_id", context.userId).order("created_at", { ascending: false });
     if (data.campaignId) q = q.eq("parent_campaign_id", data.campaignId);
     const { data: rows, error } = await q;
     if (error) throw error;

@@ -47,16 +47,18 @@ export const Route = createFileRoute("/campaigns/$id")({
   ),
 });
 
+// Wrapper that handles the "new" redirect BEFORE any hooks run,
+// preventing a React rules-of-hooks violation.
 function CampaignDetail() {
   const { id } = Route.useParams();
+  if (id === "new") return <Navigate to="/campaigns" />;
+  return <CampaignDetailInner id={id} />;
+}
+
+function CampaignDetailInner({ id }: { id: string }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { confirm, dialog: confirmDialog } = useConfirm();
-
-  // /campaigns/new is reserved for the create flow; redirect to the list
-  // (which exposes the "New campaign" modal) instead of trying to load a
-  // campaign with id="new".
-  if (id === "new") return <Navigate to="/campaigns" />;
 
   const { data: campaign } = useQuery({
     queryKey: ["campaign", id],
@@ -114,13 +116,16 @@ function CampaignDetail() {
   };
 
   const updateCampaign = async (patch: any) => {
-    await supabase.from("campaigns").update(patch).eq("id", id);
+    const { error } = await supabase.from("campaigns").update(patch).eq("id", id);
+    if (error) { toast.error("Could not update campaign. " + error.message); return; }
     qc.invalidateQueries({ queryKey: ["campaign", id] });
   };
 
   const toggleMailbox = async (mid: string, checked: boolean) => {
-    if (checked) await supabase.from("campaign_mailboxes").insert({ campaign_id: id, mailbox_id: mid });
-    else await supabase.from("campaign_mailboxes").delete().eq("campaign_id", id).eq("mailbox_id", mid);
+    const { error } = checked
+      ? await supabase.from("campaign_mailboxes").insert({ campaign_id: id, mailbox_id: mid })
+      : await supabase.from("campaign_mailboxes").delete().eq("campaign_id", id).eq("mailbox_id", mid);
+    if (error) { toast.error("Could not update mailbox. " + error.message); return; }
     qc.invalidateQueries({ queryKey: ["camp-mailboxes", id] });
   };
 
@@ -307,13 +312,14 @@ function SequenceEditor({ campaignId, steps, campaignStatus }: { campaignId: str
       return toast.error("Pause this campaign before adding steps — new empty steps shouldn't ship live.");
     }
     const nextOrder = (steps[steps.length - 1]?.step_order ?? 0) + 1;
-    await supabase.from("campaign_steps").insert({
+    const { error } = await supabase.from("campaign_steps").insert({
       campaign_id: campaignId,
       step_order: nextOrder,
       delay_days: nextOrder === 1 ? 0 : 3,
       subject: "",
       body: "",
     });
+    if (error) { toast.error("Could not add step. " + error.message); return; }
     refresh();
   };
 
@@ -352,7 +358,8 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
     }
   }, [local, step.id]);
   const remove = async () => {
-    await supabase.from("campaign_steps").delete().eq("id", step.id);
+    const { error } = await supabase.from("campaign_steps").delete().eq("id", step.id);
+    if (error) { toast.error("Could not delete step. " + error.message); return; }
     onChange();
   };
   const sample = { first_name: "Jane", last_name: "Doe", company: "Acme", title: "CEO", email: "jane@acme.com" };

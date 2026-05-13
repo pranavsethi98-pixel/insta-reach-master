@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/admin/users/$userId")({
 
 function Page() {
   const { userId } = Route.useParams();
+  const navigate = useNavigate();
   const fetchD = useServerFn(getUserDetail);
   const fetchP = useServerFn(listPlans);
   const flag = useServerFn(setUserFlag);
@@ -81,7 +82,15 @@ function Page() {
               confirmLabel: "Delete permanently",
               destructive: true,
             });
-            if (ok) m.mutate(() => del({ data: { userId } }));
+            if (ok) {
+              try {
+                await del({ data: { userId } });
+                toast.success("User deleted");
+                navigate({ to: "/admin/users" });
+              } catch (e: any) {
+                toast.error(e?.message ?? "Failed to delete user");
+              }
+            }
           }}><Trash2 className="w-4 h-4 mr-1" /> Delete</Button>
         </div>
       </div>

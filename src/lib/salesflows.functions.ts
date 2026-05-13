@@ -106,10 +106,11 @@ export const saveSalesflow = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     if (data.id) {
-      await supabase.from("salesflows").update({
+      const { error: updateErr } = await supabase.from("salesflows").update({
         name: data.name, description: data.description, conditions: data.conditions,
         actions: data.actions, is_active: data.is_active ?? true,
       }).eq("id", data.id).eq("user_id", userId);
+      if (updateErr) throw updateErr;
       return { id: data.id };
     }
     const { data: row, error } = await supabase.from("salesflows").insert({

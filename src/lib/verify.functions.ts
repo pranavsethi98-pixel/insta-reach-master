@@ -65,7 +65,7 @@ export const verifyLeads = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: leads } = await supabase.from("leads").select("id,email").in("id", data.leadIds);
+    const { data: leads } = await supabase.from("leads").select("id,email").in("id", data.leadIds).eq("user_id", userId);
     let invalid = 0, risky = 0, valid = 0;
     for (const l of leads ?? []) {
       if (!l.email) continue;

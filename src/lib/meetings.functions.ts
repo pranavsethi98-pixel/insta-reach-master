@@ -7,7 +7,7 @@ export const listMeetings = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase } = context;
     const { data, error } = await supabase
-      .from("meetings").select("*").order("scheduled_at", { ascending: false }).limit(200);
+      .from("meetings").select("*").eq("user_id", context.userId).order("scheduled_at", { ascending: false }).limit(200);
     if (error) throw error;
     const ids = Array.from(new Set((data ?? []).map(m => m.lead_id).filter(Boolean))) as string[];
     const leadMap: Record<string, any> = {};

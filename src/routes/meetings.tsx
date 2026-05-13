@@ -54,7 +54,7 @@ function MeetingsPage() {
               <div className="font-semibold">{mt.lead?.first_name ?? mt.lead?.email ?? "Lead"} — {mt.lead?.company}</div>
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 <Clock className="w-3 h-3"/> {mt.scheduled_at ? new Date(mt.scheduled_at).toLocaleString() : "—"}
-                <Badge className={statusColor[mt.status]}>{mt.status.replace(/_/g, " ")}</Badge>
+                <Badge className={statusColor[mt.status ?? ""]}>{(mt.status ?? "unknown").replace(/_/g, " ")}</Badge>
                 {mt.no_show_followups_sent > 0 && <span className="text-xs">{mt.no_show_followups_sent} recovery sent</span>}
               </div>
             </div>
@@ -72,7 +72,7 @@ function MeetingsPage() {
             </div>
           </Card>
         ))}
-        {!isLoading && !data?.items.length && (
+        {!isLoading && !(data?.items?.length) && (
           <Card className="p-10 text-center space-y-3">
             <Calendar className="w-10 h-10 text-muted-foreground mx-auto" />
             <p className="font-medium">No meetings yet</p>
