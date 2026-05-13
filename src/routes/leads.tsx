@@ -117,7 +117,10 @@ function LeadsPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const seen = new Set<string>();
-        const rows = (res.data as any[]).map((r) => {
+        const parsedRows = (res.data as any[]);
+        const headers = (res.meta?.fields ?? []).map((h: string) => h.toLowerCase().trim().replace(/\s+/g, "_"));
+        const hasEmailHeader = headers.includes("email");
+        const rows = parsedRows.map((r) => {
           const norm: any = { user_id: user.id, custom_fields: {} };
           for (const [k, v] of Object.entries(r)) {
             const key = k.toLowerCase().trim().replace(/\s+/g, "_");
@@ -136,7 +139,15 @@ function LeadsPage() {
           r.email = e;
           return true;
         });
-        if (rows.length === 0) return toast.error("No valid rows. CSV must have an 'email' column.");
+        if (rows.length === 0) {
+          if (hasEmailHeader && parsedRows.length === 0) {
+            return toast.error("Your CSV has the right headers but no data rows. Add at least one email address.");
+          }
+          if (!hasEmailHeader) {
+            return toast.error("CSV must have an 'email' column header.");
+          }
+          return toast.error("No rows had a valid email value in the 'email' column.");
+        }
         const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const valid = rows.filter(r => emailRe.test(r.email));
         const skippedInvalid = rows.length - valid.length;
