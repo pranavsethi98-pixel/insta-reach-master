@@ -26,6 +26,8 @@ export const Route = createFileRoute("/webhooks")({
 
 function WebhooksPage() {
   const qc = useQueryClient();
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const { data: hooks } = useQuery({
     queryKey: ["webhooks"],
     queryFn: async () => (await supabase.from("webhooks").select("*").order("created_at", { ascending: false })).data ?? [],
@@ -35,8 +37,17 @@ function WebhooksPage() {
     queryFn: async () => (await supabase.from("webhook_deliveries").select("*").order("created_at", { ascending: false }).limit(50)).data ?? [],
   });
 
-  const remove = async (id: string) => {
-    await supabase.from("webhooks").delete().eq("id", id);
+  const remove = async (id: string, url: string) => {
+    const ok = await confirm({
+      title: "Delete this webhook?",
+      description: `${url} will stop receiving events. This cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("webhooks").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Webhook deleted");
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const toggle = async (id: string, is_active: boolean) => {
@@ -44,6 +55,8 @@ function WebhooksPage() {
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const copy = (s: string) => { navigator.clipboard.writeText(s); toast.success("Copied"); };
+  const toggleReveal = (id: string) => setRevealed((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const mask = (s: string) => s ? `${s.slice(0, 4)}${"•".repeat(Math.max(8, s.length - 8))}${s.slice(-4)}` : "";
 
   return (
     <div className="space-y-6">
