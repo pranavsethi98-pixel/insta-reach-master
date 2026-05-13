@@ -99,7 +99,6 @@ function SubsequencesPage() {
           {error && <Card className="p-4 border-destructive text-sm text-destructive">Failed to load: {(error as any)?.message ?? "unknown error"}</Card>}
           {!error && !isLoading && !data?.items.length && <p className="text-muted-foreground text-sm">No subsequences yet.</p>}
         </div>
-      </div>
       {confirmDialog}
     </div>
   );
