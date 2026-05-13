@@ -240,12 +240,20 @@ function LeadsPage() {
         Tip: use <code className="bg-muted px-1 rounded">{"{{icebreaker}}"}</code> in your campaign body to inject AI-generated openers.
       </div>
 
-      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+      <Dialog open={!!detail} onOpenChange={(o) => { if (!o) { setDetail(null); setDetailError(null); } }}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit lead</DialogTitle></DialogHeader>
           {detail && (
             <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2"><Label>Email</Label><Input value={detail.email ?? ""} onChange={(e) => setDetail({ ...detail, email: e.target.value })} /></div>
+              <div className="col-span-2">
+                <Label>Email</Label>
+                <Input
+                  value={detail.email ?? ""}
+                  onChange={(e) => { setDetail({ ...detail, email: e.target.value }); if (detailError) setDetailError(null); }}
+                  className={detailError ? "border-destructive focus-visible:ring-destructive" : undefined}
+                  aria-invalid={!!detailError}
+                />
+              </div>
               <div><Label>First name</Label><Input value={detail.first_name ?? ""} onChange={(e) => setDetail({ ...detail, first_name: e.target.value })} /></div>
               <div><Label>Last name</Label><Input value={detail.last_name ?? ""} onChange={(e) => setDetail({ ...detail, last_name: e.target.value })} /></div>
               <div><Label>Company</Label><Input value={detail.company ?? ""} onChange={(e) => setDetail({ ...detail, company: e.target.value })} /></div>
@@ -253,27 +261,33 @@ function LeadsPage() {
               <div><Label>Website</Label><Input value={detail.website ?? ""} onChange={(e) => setDetail({ ...detail, website: e.target.value })} /></div>
               <div className="col-span-2"><Label>LinkedIn</Label><Input value={detail.linkedin ?? ""} onChange={(e) => setDetail({ ...detail, linkedin: e.target.value })} /></div>
               <div className="col-span-2"><Label>Icebreaker</Label><Input value={detail.icebreaker ?? ""} onChange={(e) => setDetail({ ...detail, icebreaker: e.target.value })} /></div>
+              {detailError && (
+                <div className="col-span-2 rounded-md border border-destructive/50 bg-destructive/10 text-destructive text-sm px-3 py-2">
+                  {detailError}
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDetail(null)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => { setDetail(null); setDetailError(null); }}>Cancel</Button>
             <Button onClick={async () => {
               if (!detail) return;
               const email = String(detail.email ?? "").toLowerCase().trim();
-              if (!email) return toast.error("Email is required");
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+              if (!email) return setDetailError("Email is required.");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setDetailError("Enter a valid email address (e.g. name@example.com).");
               const website = String(detail.website ?? "").trim();
-              if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+              if (website && !URL_RE.test(website)) return setDetailError("Website must be a valid URL (https://example.com).");
               const linkedin = String(detail.linkedin ?? "").trim();
-              if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
+              if (linkedin && !LINKEDIN_RE.test(linkedin)) return setDetailError("LinkedIn must be a linkedin.com URL.");
               const { id, created_at, updated_at, user_id, custom_fields, ...patch } = detail;
               patch.email = email;
               patch.website = website || null;
               patch.linkedin = linkedin || null;
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
-              if (error) return toast.error(error.message);
+              if (error) return setDetailError(error.message);
               toast.success("Lead updated");
               setDetail(null);
+              setDetailError(null);
               qc.invalidateQueries({ queryKey: ["leads"] });
             }}>Save</Button>
           </DialogFooter>
