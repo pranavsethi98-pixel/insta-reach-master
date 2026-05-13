@@ -33,7 +33,7 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
             messages: [
-              { role: "system", content: "You write one-sentence personalized cold-email openers. Keep it natural, specific, max 20 words. No emojis. No fluff. Output ONLY the sentence." },
+              { role: "system", content: "You write one-sentence personalized cold-email openers. Output ONLY the sentence — no markdown, no asterisks, no bold, no bullet points, no quotes, no preamble, no placeholders like [Product Name] or {company}. If you have no real personalization signal, return an empty string. Max 20 words. No emojis." },
               { role: "user", content: `Write an icebreaker for:\n${ctx}` },
             ],
           }),
@@ -43,7 +43,16 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
           continue;
         }
         const json: any = await res.json();
-        const text = json?.choices?.[0]?.message?.content?.trim() ?? "";
+        let text = json?.choices?.[0]?.message?.content?.trim() ?? "";
+        // Strip markdown bold/italic, leading list markers, surrounding quotes,
+        // and reject outputs that still contain unfilled [Placeholder] tokens.
+        text = text
+          .replace(/\*\*(.+?)\*\*/g, "$1")
+          .replace(/\*(.+?)\*/g, "$1")
+          .replace(/^\s*[-*•]\s+/, "")
+          .replace(/^["'“”']+|["'“”']+$/g, "")
+          .trim();
+        if (/\[[A-Z][^\]]*\]|\{\{[^}]+\}\}/.test(text)) text = "";
         await supabase.from("leads").update({ icebreaker: text }).eq("id", lead.id);
         results.push({ id: lead.id, icebreaker: text });
       } catch {
