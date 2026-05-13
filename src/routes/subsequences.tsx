@@ -69,7 +69,7 @@ function SubsequencesPage() {
             <DialogTrigger asChild><Button disabled={!campaigns?.length} title={!campaigns?.length ? "Create a campaign first" : undefined} onClick={() => setEditing(null)}><Plus className="w-4 h-4 mr-1"/> New subsequence</Button></DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
               <DialogHeader><DialogTitle>{editing ? "Edit subsequence" : "New subsequence"}</DialogTitle></DialogHeader>
-              <SubseqForm campaigns={campaigns ?? []} initial={editing} saving={saving} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
+              <SubseqForm campaigns={campaigns ?? []} initial={editing} saving={saveMut.isPending} onSave={(v) => saveMut.mutate(editing ? { ...v, id: editing.id } : v)} />
             </DialogContent>
           </Dialog>
         </div>
