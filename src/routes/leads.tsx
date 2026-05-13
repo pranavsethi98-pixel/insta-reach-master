@@ -301,33 +301,48 @@ function LeadsPage() {
 function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [emailInvalid, setEmailInvalid] = useState(false);
   const save = async () => {
     const email = form.email.toLowerCase().trim();
-    if (!email) return toast.error("Email is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address");
+    if (!email) { setEmailInvalid(true); setError("Email is required."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailInvalid(true); setError("Enter a valid email address (e.g. name@example.com)."); return; }
     const website = form.website.trim();
-    if (website && !URL_RE.test(website)) return toast.error("Website must be a valid URL (https://example.com)");
+    if (website && !URL_RE.test(website)) { setError("Website must be a valid URL (https://example.com)."); return; }
     const linkedin = form.linkedin.trim();
-    if (linkedin && !LINKEDIN_RE.test(linkedin)) return toast.error("LinkedIn must be a linkedin.com URL");
+    if (linkedin && !LINKEDIN_RE.test(linkedin)) { setError("LinkedIn must be a linkedin.com URL."); return; }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
-    if (error) {
-      if (/duplicate|unique/i.test(error.message)) return toast.error("This email already exists in your leads");
-      return toast.error(error.message);
+    const { error: insErr } = await supabase.from("leads").insert({ ...form, email, website: website || null, linkedin: linkedin || null, user_id: user.id });
+    if (insErr) {
+      if (/duplicate|unique/i.test(insErr.message)) { setError("This email already exists in your leads."); return; }
+      setError(insErr.message);
+      return;
     }
     toast.success("Lead added");
     setOpen(false);
+    setForm({ email: "", first_name: "", last_name: "", company: "", title: "", website: "", linkedin: "", icebreaker: "" });
+    setError(null); setEmailInvalid(false);
     onCreated();
   };
   const f = (k: keyof typeof form) => ({ value: form[k], onChange: (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value }) });
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setError(null); setEmailInvalid(false); } }}>
       <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" /> Add lead</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>Add lead</DialogTitle></DialogHeader>
         <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2"><Label>Email</Label><Input type="email" {...f("email")} /></div>
+          <div className="col-span-2">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              autoFocus
+              value={form.email}
+              onChange={(e) => { setForm({ ...form, email: e.target.value }); if (emailInvalid) { setEmailInvalid(false); setError(null); } }}
+              className={emailInvalid ? "border-destructive focus-visible:ring-destructive" : undefined}
+              aria-invalid={emailInvalid}
+            />
+          </div>
           <div><Label>First name</Label><Input {...f("first_name")} /></div>
           <div><Label>Last name</Label><Input {...f("last_name")} /></div>
           <div><Label>Company</Label><Input {...f("company")} /></div>
@@ -335,6 +350,11 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
           <div><Label>Website</Label><Input {...f("website")} /></div>
           <div><Label>LinkedIn</Label><Input {...f("linkedin")} /></div>
           <div className="col-span-2"><Label>Icebreaker</Label><Textarea rows={3} value={form.icebreaker} onChange={(e) => setForm({ ...form, icebreaker: e.target.value })} /></div>
+          {error && (
+            <div className="col-span-2 rounded-md border border-destructive/50 bg-destructive/10 text-destructive text-sm px-3 py-2">
+              {error}
+            </div>
+          )}
         </div>
         <DialogFooter><Button onClick={save}>Add</Button></DialogFooter>
       </DialogContent>
