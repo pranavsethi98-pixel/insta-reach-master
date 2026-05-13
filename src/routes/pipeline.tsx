@@ -105,6 +105,12 @@ function PipelinePage() {
           {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] flex-1 h-64 rounded-lg bg-muted/30 animate-pulse" />)}
         </div>
       ) : (
+      {!loading && !(stages ?? []).length && (
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="font-medium mb-1">No pipeline stages yet</p>
+          <p className="text-sm">Pipeline stages are set up automatically. Refresh the page or contact support if they don't appear.</p>
+        </div>
+      )}
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:thin]"

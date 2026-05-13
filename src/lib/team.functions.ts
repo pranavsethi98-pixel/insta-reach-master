@@ -23,6 +23,16 @@ export const inviteTeammate = createServerFn({ method: "POST" })
         wsId = created.id;
         await supabase.from("workspace_members").insert({ workspace_id: wsId, user_id: userId, role: "owner" } as any);
       }
+    } else {
+      // Verify caller is owner or admin of the supplied workspace
+      const { data: membership } = await supabase
+        .from("workspace_members")
+        .select("role")
+        .eq("workspace_id", wsId)
+        .eq("user_id", userId)
+        .in("role", ["owner", "admin"])
+        .maybeSingle();
+      if (!membership) throw new Error("You don't have permission to invite to this workspace");
     }
     const { data: invite, error } = await supabase
       .from("workspace_invites")

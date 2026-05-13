@@ -195,18 +195,24 @@ function ActivityPanel({ log, onMarkReplied, onUnmarkReplied, filter, onFilterCh
 }
 
 function SetupPanel() {
-  const qc = useQueryClient();
   const { data: secret } = useQuery({
     queryKey: ["inbound-secret"],
+    // queryFn should be read-only; upsert is safe here because inbound_secrets
+    // has a unique constraint on user_id — concurrent calls are idempotent.
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
-      const existing = await supabase.from("inbound_secrets").select("secret").eq("user_id", u.user.id).maybeSingle();
-      if (existing.data) return existing.data.secret;
-      const created = await supabase.from("inbound_secrets").insert({ user_id: u.user.id }).select("secret").single();
-      qc.invalidateQueries({ queryKey: ["inbound-secret"] });
-      return created.data?.secret ?? null;
+      // Use upsert so concurrent calls are idempotent and there's no mutation
+      // inside a retry-able read path.
+      const { data, error } = await supabase
+        .from("inbound_secrets")
+        .upsert({ user_id: u.user.id }, { onConflict: "user_id" })
+        .select("secret")
+        .single();
+      if (error) throw error;
+      return data?.secret ?? null;
     },
+    staleTime: Infinity, // secret is stable; no need to refetch
   });
 
   const url = typeof window !== "undefined" && secret

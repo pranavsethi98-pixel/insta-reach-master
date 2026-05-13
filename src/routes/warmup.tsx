@@ -73,7 +73,7 @@ function WarmupPage() {
             ? Math.min(m.warmup_daily_target ?? 40, increment * (startedDays + 1))
             : 0;
           return (
-            <div key={m.id} className="bg-card border rounded-xl p-5 space-y-3">
+            <div key={`${m.id}-${m.warmup_daily_target}-${m.warmup_increment}-${m.warmup_reply_rate}`} className="bg-card border rounded-xl p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-semibold">{m.label}</div>
