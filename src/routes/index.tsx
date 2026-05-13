@@ -2,13 +2,14 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Flame, Shield, CheckCircle2, X, Globe, Webhook, Calendar, Users, Quote, Download, Lock, Zap, Target, Inbox, Bot, Plus, Minus } from "lucide-react";
+import { ArrowRight, Flame, Shield, CheckCircle2, X, Globe, Webhook, Calendar, Users, Quote, Download, Lock, Zap, Target, Inbox, Bot, Plus, Minus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MarketingLayout } from "@/components/MarketingLayout";
 import { HeroVisual } from "@/components/marketing/HeroVisual";
 import { MailboxRotationVisual, SequenceVisual, InboxVisual, PipelineVisual, AnalyticsVisual, AIComposeVisual } from "@/components/marketing/FeatureShowcase";
 import { captureLead } from "@/lib/marketing-leads.functions";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -312,6 +313,44 @@ function Landing() {
 
       {/* ─────────── FAQ ─────────── */}
       <FAQ />
+
+      {/* ─────────── BLOG PREVIEW ─────────── */}
+      <section className="max-w-6xl mx-auto px-6 pb-24">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest text-primary mb-2">From the blog</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Read before you send.</h2>
+          </div>
+          <Link to="/blog/" className="hidden md:flex items-center gap-1.5 text-sm text-primary font-medium hover:underline">
+            All posts <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          {BLOG_POSTS.filter((p) => p.featured).slice(0, 3).map((post) => (
+            <Link
+              key={post.slug}
+              to="/blog/$slug"
+              params={{ slug: post.slug }}
+              className="group bg-card border border-border rounded-2xl p-6 flex flex-col hover:border-primary/50 transition-all"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-mono uppercase tracking-widest text-primary">{post.category}</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime} min</span>
+              </div>
+              <h3 className="font-bold text-base leading-snug flex-1 group-hover:text-primary transition-colors">{post.title}</h3>
+              <p className="mt-3 text-xs text-muted-foreground leading-relaxed line-clamp-2">{post.description}</p>
+              <div className="mt-4 text-xs text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                Read <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-6 text-center md:hidden">
+          <Link to="/blog/" className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1">
+            See all posts <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
 
       {/* ─────────── FINAL CTA ─────────── */}
       <section className="max-w-5xl mx-auto px-6 pb-24">

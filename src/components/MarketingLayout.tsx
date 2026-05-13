@@ -8,6 +8,7 @@ const nav = [
   { to: "/", label: "Home" },
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/blog/", label: "Blog" },
   { to: "/resources", label: "Resources" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
@@ -110,6 +111,15 @@ export function MarketingFooter() {
             <li><Link to="/pricing" className="text-foreground/80 hover:text-primary">Pricing</Link></li>
             <li><Link to="/resources" className="text-foreground/80 hover:text-primary">Resources</Link></li>
             <li><Link to="/login" className="text-foreground/80 hover:text-primary">Sign in</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Learn</h4>
+          <ul className="space-y-2.5 text-sm">
+            <li><Link to="/blog/" className="text-foreground/80 hover:text-primary">Blog</Link></li>
+            <li><Link to="/resources" className="text-foreground/80 hover:text-primary">Free playbooks</Link></li>
+            <li><Link to="/vs/instantly" className="text-foreground/80 hover:text-primary">vs. Instantly</Link></li>
+            <li><Link to="/vs/smartlead" className="text-foreground/80 hover:text-primary">vs. Smartlead</Link></li>
           </ul>
         </div>
         <div>
