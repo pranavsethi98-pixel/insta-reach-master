@@ -285,6 +285,7 @@ function SlackWebhookField({ initial, onSave }: { initial: string; onSave: (v: s
 }
 
 function CalendarLinkCard() {
+  const qc = useQueryClient();
   const { data: profile } = useQuery({
     queryKey: ["profile-cal"],
     queryFn: async () => {
@@ -294,17 +295,24 @@ function CalendarLinkCard() {
     },
   });
   const [link, setLink] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   // Use controlled value: prefer local edits, fall back to loaded profile value
   const value = link !== null ? link : (profile?.calendar_link ?? "");
   const save = async () => {
+    if (saving) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return toast.error("Not signed in");
     const trimmed = value.trim();
     if (!trimmed) {
-      const { error } = await supabase.from("profiles").update({ calendar_link: null }).eq("id", user.id);
-      if (error) return toast.error(error.message);
-      setLink(null);
-      return toast.success("Calendar link cleared");
+      setSaving(true);
+      try {
+        const { error } = await supabase.from("profiles").update({ calendar_link: null }).eq("id", user.id);
+        if (error) { toast.error(error.message); return; }
+        setLink(null);
+        qc.invalidateQueries({ queryKey: ["profile-cal"] });
+        toast.success("Calendar link cleared");
+      } finally { setSaving(false); }
+      return;
     }
     try {
       const u = new URL(trimmed);
@@ -312,10 +320,14 @@ function CalendarLinkCard() {
     } catch {
       return toast.error("Enter a valid URL starting with https:// (e.g. https://cal.com/you/15min)");
     }
-    const { error } = await supabase.from("profiles").update({ calendar_link: trimmed }).eq("id", user.id);
-    if (error) return toast.error(error.message);
-    setLink(null); // reset local state so profile value takes over
-    toast.success("Saved — use {{calendar_link}} in your emails");
+    setSaving(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ calendar_link: trimmed }).eq("id", user.id);
+      if (error) { toast.error(error.message); return; }
+      setLink(null); // reset local state so profile value takes over
+      qc.invalidateQueries({ queryKey: ["profile-cal"] });
+      toast.success("Saved — use {{calendar_link}} in your emails");
+    } finally { setSaving(false); }
   };
   return (
     <Card className="p-6">
@@ -324,8 +336,8 @@ function CalendarLinkCard() {
         Paste your Cal.com / Calendly / SavvyCal URL. Insert it in any email or template with <code className="bg-muted px-1.5 py-0.5 rounded">{`{{calendar_link}}`}</code>.
       </p>
       <div className="flex gap-2">
-        <Input placeholder="https://cal.com/your-name/15min" value={value} onChange={e => setLink(e.target.value)} />
-        <Button type="button" onClick={save}>Save</Button>
+        <Input placeholder="https://cal.com/your-name/15min" value={value} onChange={e => setLink(e.target.value)} onKeyDown={e => e.key === "Enter" && save()} />
+        <Button type="button" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
       </div>
     </Card>
   );

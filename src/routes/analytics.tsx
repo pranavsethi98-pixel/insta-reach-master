@@ -51,7 +51,8 @@ function AnalyticsPage() {
   const days: { date: string; sent: number; opened: number; replied: number }[] = [];
   for (let i = chartDays - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
-    const dayLog = data.log.filter(l => l.sent_at.slice(0, 10) === d);
+    // Use optional chaining — sent_at can be null for malformed records
+    const dayLog = data.log.filter(l => l.sent_at?.slice(0, 10) === d);
     days.push({
       date: d.slice(5),
       sent: dayLog.filter(l => l.status === "sent").length,
@@ -95,19 +96,36 @@ function AnalyticsPage() {
       </div>
 
       <Panel title={`Daily volume · ${chartDays}d`} desc="Sent vs replied" actions={<StatusPill tone="primary">Live</StatusPill>}>
-        <div className="flex items-end gap-1.5 h-48">
-          {days.map(d => (
-            <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-              <div className="relative w-full flex-1 flex flex-col-reverse">
-                <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60" style={{ height: `${(d.sent / max) * 100}%` }} title={`${d.sent} sent`} />
-                {d.replied > 0 && (
-                  <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${Math.min(d.replied, d.sent) / max * 100}%` }} />
-                )}
-              </div>
-              <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>
+        {days.some(d => d.sent > 0) ? (
+          <div className="space-y-1">
+            {/* Fixed-height parent; bars are absolute-positioned from the bottom */}
+            <div className="flex items-end gap-1" style={{ height: 148 }}>
+              {days.map(d => (
+                <div key={d.date} className="flex-1 relative h-full rounded-t overflow-hidden bg-primary/10">
+                  <div
+                    className="absolute bottom-0 w-full rounded-t bg-gradient-to-t from-primary to-primary/60"
+                    style={{ height: `${(d.sent / max) * 100}%` }}
+                    title={`${d.sent} sent · ${d.replied} replies`}
+                  />
+                  {d.replied > 0 && (
+                    <div
+                      className="absolute bottom-0 w-full rounded-t bg-success"
+                      style={{ height: `${Math.min(d.replied, d.sent) / max * 100}%` }}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            {/* Date labels row */}
+            <div className="flex gap-1">
+              {days.map(d => (
+                <div key={d.date} className="flex-1 text-center text-[9px] font-mono text-muted-foreground truncate">{d.date}</div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">No send activity in this period.</div>
+        )}
         <div className="flex gap-4 mt-4 text-[11px] text-muted-foreground font-mono">
           <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-primary" /> Sent</span>
           <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-success" /> Replies</span>

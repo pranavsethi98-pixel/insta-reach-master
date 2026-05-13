@@ -225,7 +225,10 @@ function SetupPanel() {
       </div>
       <div className="flex gap-2">
         <input readOnly value={url} className="flex-1 bg-muted text-foreground rounded px-3 py-2 text-sm font-mono" />
-        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied"); }}>
+        <Button variant="outline" onClick={async () => {
+          try { await navigator.clipboard.writeText(url); toast.success("Copied"); }
+          catch { toast.error("Could not copy — please copy manually"); }
+        }}>
           <Copy className="w-4 h-4" />
         </Button>
       </div>

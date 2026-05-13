@@ -141,6 +141,7 @@ function WebhooksPage() {
           </table>
         </Card>
       </div>
+      {confirmDialog}
     </div>
   );
 }

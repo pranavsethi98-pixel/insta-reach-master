@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -155,18 +155,31 @@ function Dashboard() {
       >
         {days.length > 0 && days.some(d => d.sent > 0) ? (
           <div>
-            <div className="flex items-end gap-1.5 h-44">
-              {days.map((d) => (
-                <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-                  <div className="relative w-full flex-1 flex flex-col-reverse">
-                    <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60 transition-all" style={{ height: `${(d.sent / maxSent) * 100}%` }} title={`${d.sent} sent · ${d.replies} replies`} />
+            <div className="space-y-1">
+              {/* Bar chart — fixed-height parent, absolute-positioned bars grow from bottom */}
+              <div className="flex items-end gap-1" style={{ height: 140 }}>
+                {days.map((d) => (
+                  <div key={d.date} className="flex-1 relative h-full rounded-t overflow-hidden bg-primary/10">
+                    <div
+                      className="absolute bottom-0 w-full rounded-t bg-gradient-to-t from-primary to-primary/60"
+                      style={{ height: `${(d.sent / maxSent) * 100}%` }}
+                      title={`${d.sent} sent · ${d.replies} replies`}
+                    />
                     {d.replies > 0 && (
-                      <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${Math.min(d.replies, d.sent) / maxSent * 100}%` }} />
+                      <div
+                        className="absolute bottom-0 w-full rounded-t bg-success"
+                        style={{ height: `${Math.min(d.replies, d.sent) / maxSent * 100}%` }}
+                      />
                     )}
                   </div>
-                  <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* Date labels */}
+              <div className="flex gap-1">
+                {days.map((d) => (
+                  <div key={d.date} className="flex-1 text-center text-[9px] font-mono text-muted-foreground truncate">{d.date}</div>
+                ))}
+              </div>
             </div>
             <div className="flex gap-4 mt-4 text-[11px] text-muted-foreground font-mono">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-primary" /> Sent</span>
@@ -272,7 +285,6 @@ function Dashboard() {
 }
 
 function StepCard({ num, title, desc, to, done, disabled }: any) {
-  const navigate = useNavigate();
   const inner = (
     <div className={`relative rounded-xl bg-card/80 border p-4 h-full transition-all ${done ? "border-success/40 opacity-80" : "border-border hover:border-primary/50"} ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
       <div className="flex items-center gap-2.5 mb-2">
@@ -290,9 +302,10 @@ function StepCard({ num, title, desc, to, done, disabled }: any) {
     </div>
   );
   if (disabled) return inner;
+  // Use TanStack Router Link so back/forward navigation stays within the SPA
   return (
-    <a href={to} onClick={(e) => { e.preventDefault(); navigate({ to: to as any }); }} className="block">
+    <Link to={to} className="block">
       {inner}
-    </a>
+    </Link>
   );
 }

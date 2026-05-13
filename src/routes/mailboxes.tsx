@@ -36,7 +36,7 @@ export const Route = createFileRoute("/mailboxes")({
 function MailboxesPage() {
   const qc = useQueryClient();
   const { confirm, dialog: confirmDialog } = useConfirm();
-  const { data: mailboxes } = useQuery({
+  const { data: mailboxes, isLoading: mailboxesLoading } = useQuery({
     queryKey: ["mailboxes"],
     queryFn: async () => (await supabase.from("mailboxes").select("*").order("created_at", { ascending: false })).data ?? [],
   });
@@ -74,7 +74,13 @@ function MailboxesPage() {
         </div>
       </div>
 
-      {mailboxes?.length === 0 && (
+      {mailboxesLoading && (
+        <div className="space-y-2">
+          {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
+      {!mailboxesLoading && mailboxes?.length === 0 && (
         <div className="bg-card border rounded-xl p-12 text-center">
           <Mail className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground">No mailboxes yet. Add your first one to start sending.</p>

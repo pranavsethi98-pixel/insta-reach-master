@@ -58,6 +58,13 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  if (!session) return null;
+  // Prevent blank/black screen during the async navigate() call
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-muted-foreground">
+        Redirecting…
+      </div>
+    );
+  }
   return <>{children}</>;
 }

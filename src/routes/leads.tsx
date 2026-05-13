@@ -31,6 +31,7 @@ function LeadsPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [detailOpen, setDetailOpen] = useState(false);
   const [detail, setDetail] = useState<any>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -49,7 +50,7 @@ function LeadsPage() {
     finally { setVerifying(false); }
   };
 
-  const { data: leads } = useQuery({
+  const { data: leads, isLoading: leadsLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => (await supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(500)).data ?? [],
   });
@@ -208,12 +209,18 @@ function LeadsPage() {
         </div>
       </div>
 
-      {leads?.length === 0 ? (
+      {leadsLoading && (
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-10 rounded-lg bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
+      {!leadsLoading && leads?.length === 0 ? (
         <div className="bg-card border rounded-xl p-12 text-center">
           <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground">No leads yet. Import a CSV with: email, first_name, last_name, company, title, website, linkedin.</p>
         </div>
-      ) : (
+      ) : !leadsLoading && (
         <div className="bg-card border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted text-muted-foreground text-xs uppercase">
@@ -232,7 +239,7 @@ function LeadsPage() {
                 const v = (l as any).verification_status as string | null;
                 const vTone = v === "valid" ? "bg-success/15 text-success" : v === "invalid" ? "bg-destructive/15 text-destructive" : v === "risky" ? "bg-warning/15 text-warning-foreground" : "bg-muted text-muted-foreground";
                 return (
-                <tr key={l.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={(e) => { if ((e.target as HTMLElement).closest('button,input,[role=checkbox]')) return; setDetail(l); }}>
+                <tr key={l.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={(e) => { if ((e.target as HTMLElement).closest('button,input,[role=checkbox]')) return; setDetail(l); setDetailOpen(true); }}>
                   <td className="p-3" onClick={(e) => e.stopPropagation()}><Checkbox checked={selected.has(l.id)} onCheckedChange={() => toggle(l.id)} /></td>
                   <td className="p-3 font-medium">{l.email}</td>
                   <td className="p-3">{[l.first_name, l.last_name].filter(Boolean).join(" ")}</td>
@@ -254,7 +261,14 @@ function LeadsPage() {
         Tip: use <code className="bg-muted px-1 rounded">{"{{icebreaker}}"}</code> in your campaign body to inject AI-generated openers.
       </div>
 
-      <Dialog open={!!detail} onOpenChange={(o) => { if (!o) { setDetail(null); setDetailError(null); } }}>
+      {/* detailOpen controls visibility; detail keeps the form data populated during close animation */}
+      <Dialog open={detailOpen} onOpenChange={(o) => {
+        setDetailOpen(o);
+        if (!o) {
+          // Clear form data after animation completes (~200ms)
+          setTimeout(() => { setDetail(null); setDetailError(null); }, 250);
+        }
+      }}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit lead</DialogTitle></DialogHeader>
           {detail && (
@@ -283,7 +297,7 @@ function LeadsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => { setDetail(null); setDetailError(null); }}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setDetailOpen(false)}>Cancel</Button>
             <Button onClick={async () => {
               if (!detail) return;
               const email = String(detail.email ?? "").toLowerCase().trim();
@@ -300,8 +314,7 @@ function LeadsPage() {
               const { error } = await supabase.from("leads").update(patch).eq("id", id);
               if (error) return setDetailError(error.message);
               toast.success("Lead updated");
-              setDetail(null);
-              setDetailError(null);
+              setDetailOpen(false);
               qc.invalidateQueries({ queryKey: ["leads"] });
             }}>Save</Button>
           </DialogFooter>
