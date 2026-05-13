@@ -18,10 +18,10 @@ export const Route = createFileRoute("/api/public/warmup-tick")({
         );
 
         const today = new Date().toISOString().slice(0, 10);
-        // Reset warmup counters daily
+        // Reset warmup counters daily — include new mailboxes where last_reset_date is NULL
         await supabase.from("mailboxes")
           .update({ warmup_sent_today: 0 })
-          .neq("last_reset_date", today);
+          .or(`last_reset_date.neq.${today},last_reset_date.is.null`);
 
         // Get all warmup-enabled mailboxes grouped by user
         const { data: mailboxes } = await supabase
@@ -40,7 +40,14 @@ export const Route = createFileRoute("/api/public/warmup-tick")({
 
         let sent = 0;
         for (const [userId, mbs] of Object.entries(byUser)) {
-          if (mbs.length < 2) continue; // need at least 2 to warm
+          if (mbs.length < 2) {
+            // Log the skip so users can diagnose why warmup is not running
+            await supabase.from("warmup_log").insert(mbs.map(m => ({
+              user_id: userId, from_mailbox_id: m.id, to_mailbox_id: m.id,
+              action: "skipped_insufficient_mailboxes",
+            }))).then(() => {}); // fire-and-forget; don't block the loop on log failures
+            continue;
+          }
 
           // Compute today's warmup target (with ramp-up)
           for (const sender of mbs) {
@@ -54,7 +61,8 @@ export const Route = createFileRoute("/api/public/warmup-tick")({
             if (sender.warmup_sent_today >= ramp) continue;
 
             // Send 1 message this tick (cron runs every 5 min → spread over day)
-            const recipient = mbs.filter(m => m.id !== sender.id)[Math.floor(Math.random() * (mbs.length - 1))];
+            const others = mbs.filter(m => m.id !== sender.id);
+            const recipient = others[Math.floor(Math.random() * others.length)];
             const { subject, body } = generateWarmupEmail();
             const messageId = `<warmup-${crypto.randomUUID()}@${sender.from_email.split("@")[1]}>`;
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Target, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ConfirmDialog";
 
@@ -28,7 +28,7 @@ function GoalsPage() {
   const [draft, setDraft] = useState({ metric: "meetings_booked", target: 20, period: "month" });
   const { confirm, dialog: confirmDialog } = useConfirm();
 
-  const { data: goals } = useQuery({
+  const { data: goals, isLoading: goalsLoading } = useQuery({
     queryKey: ["goals"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -37,23 +37,33 @@ function GoalsPage() {
     },
   });
 
-  // Compute simple progress per metric for current month
-  const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
-  const { data: log } = useQuery({
-    queryKey: ["goal-progress"],
-    queryFn: async () => (await supabase.from("send_log").select("status, replied_at, sent_at").gte("sent_at", monthStart.toISOString())).data ?? [],
+  // Memoised period boundaries — avoids stale queryFn closures on re-render
+  const { monthStart, quarterStart } = useMemo(() => {
+    const ms = new Date(); ms.setUTCDate(1); ms.setUTCHours(0, 0, 0, 0);
+    const qs = new Date(); qs.setUTCMonth(Math.floor(qs.getUTCMonth() / 3) * 3, 1); qs.setUTCHours(0, 0, 0, 0);
+    return { monthStart: ms, quarterStart: qs };
+  }, []);
+
+  // Fetch from the earliest boundary needed (quarter start covers month too)
+  const { data: log, isLoading: logLoading } = useQuery({
+    queryKey: ["goal-progress", quarterStart.toISOString()],
+    queryFn: async () => (await supabase.from("send_log").select("status, replied_at, sent_at").gte("sent_at", quarterStart.toISOString())).data ?? [],
   });
-  const { data: leads } = useQuery({
+  const { data: leads, isLoading: leadsLoading } = useQuery({
     queryKey: ["goal-leads"],
     queryFn: async () => (await supabase.from("leads").select("pipeline_stage, deal_value, closed_at, meeting_booked_at")).data ?? [],
   });
-  const progress = {
-    sent: (log ?? []).filter(l => l.status === "sent").length,
-    replies: (log ?? []).filter(l => l.replied_at).length,
-    // Only count meetings booked this month, not all-time
-    meetings_booked: (leads ?? []).filter(l => l.pipeline_stage === "meeting" && l.meeting_booked_at && new Date(l.meeting_booked_at) >= monthStart).length,
-    revenue: (leads ?? []).filter(l => l.closed_at && new Date(l.closed_at) >= monthStart).reduce((s, l) => s + Number(l.deal_value || 0), 0),
-  };
+
+  // Progress by period so quarterly goals show quarterly actuals
+  const makeProgress = (since: Date) => ({
+    sent: (log ?? []).filter(l => l.status === "sent" && new Date(l.sent_at) >= since).length,
+    replies: (log ?? []).filter(l => l.replied_at && new Date(l.replied_at) >= since).length,
+    meetings_booked: (leads ?? []).filter(l => l.pipeline_stage === "meeting" && l.meeting_booked_at && new Date(l.meeting_booked_at) >= since).length,
+    revenue: (leads ?? []).filter(l => l.closed_at && new Date(l.closed_at) >= since).reduce((s, l) => s + Number(l.deal_value || 0), 0),
+  });
+  const monthProgress = makeProgress(monthStart);
+  const quarterProgress = makeProgress(quarterStart);
+  const progressFor = (period: string) => period === "quarter" ? quarterProgress : monthProgress;
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ["goals"] }); };
 
@@ -98,7 +108,7 @@ function GoalsPage() {
               {METRICS.map(m => <option key={m.v} value={m.v}>{m.l}</option>)}
             </select>
           </div>
-          <div><Label>Target</Label><Input type="number" value={draft.target} onChange={(e) => setDraft({ ...draft, target: Number(e.target.value) })} /></div>
+          <div><Label>Target</Label><Input type="number" min={1} value={draft.target} onChange={(e) => setDraft({ ...draft, target: Number(e.target.value) })} /></div>
           <div><Label>Period</Label>
             <select className="w-full h-10 rounded-md border bg-background px-2 text-sm" value={draft.period} onChange={(e) => setDraft({ ...draft, period: e.target.value })}>
               <option value="month">Month</option><option value="quarter">Quarter</option>
@@ -108,9 +118,16 @@ function GoalsPage() {
         </div>
       )}
 
+      {(goalsLoading || logLoading || leadsLoading) && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {[1, 2].map(i => <div key={i} className="h-28 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-2 gap-3">
         {(goals ?? []).map((g: any) => {
-          const cur = (progress as any)[g.metric] ?? 0;
+          const prog = progressFor(g.period);
+          const cur = (prog as any)[g.metric] ?? 0;
           const pct = Math.min(100, Math.round((cur / Math.max(1, Number(g.target))) * 100));
           const label = METRICS.find(m => m.v === g.metric)?.l ?? g.metric;
           return (
@@ -130,7 +147,7 @@ function GoalsPage() {
             </div>
           );
         })}
-        {!goals?.length && !adding && <div className="col-span-2 bg-card border rounded-xl p-8 text-center text-muted-foreground">No goals yet.</div>}
+        {!goalsLoading && !goals?.length && !adding && <div className="col-span-2 bg-card border rounded-xl p-8 text-center text-muted-foreground">No goals yet.</div>}
       </div>
       {confirmDialog}
     </div>

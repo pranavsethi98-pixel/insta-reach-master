@@ -15,6 +15,7 @@ export const Route = createFileRoute("/admin/mailboxes")({
 
 function Page() {
   const [low, setLow] = useState(false);
+  const [poolSelections, setPoolSelections] = useState<Record<string, string>>({});
   const fm = useServerFn(listAllMailboxes); const fp = useServerFn(listWarmupPools);
   const sus = useServerFn(setMailboxAdminSuspended); const mv = useServerFn(moveMailboxToPool);
   const { data: mbs, refetch } = useQuery({ queryKey: ["admin-mbs", low], queryFn: () => fm({ data: { lowHealthOnly: low } }) });
@@ -67,8 +68,15 @@ function Page() {
                 <td className="px-3 py-2">{mb.deliverability_score}%</td>
                 <td className="px-3 py-2">{mb.sent_today}/{mb.daily_limit}</td>
                 <td className="px-3 py-2">
-                  <select className="bg-transparent border rounded px-2 py-1 text-xs" defaultValue={mb.warmup_pool_id ?? ""}
-                    onChange={(e) => m.mutate(() => mv({ data: { mailboxId: mb.id, poolId: e.target.value } }))}>
+                  <select
+                    className="bg-transparent border rounded px-2 py-1 text-xs"
+                    value={poolSelections[mb.id] ?? (mb.warmup_pool_id ?? "")}
+                    onChange={(e) => {
+                      const poolId = e.target.value;
+                      setPoolSelections(prev => ({ ...prev, [mb.id]: poolId }));
+                      m.mutate(() => mv({ data: { mailboxId: mb.id, poolId } }));
+                    }}
+                  >
                     <option value="">—</option>
                     {(pools ?? []).map((p: any) => <option key={p.id} value={p.id}>{p.tier}</option>)}
                   </select>

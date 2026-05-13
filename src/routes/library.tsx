@@ -28,6 +28,7 @@ function LibraryPage() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<"all" | "template" | "sop" | "snippet">("all");
   const [editing, setEditing] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
   const { confirm, dialog: confirmDialog } = useConfirm();
 
   const { data: items, isLoading } = useQuery({
@@ -47,25 +48,31 @@ function LibraryPage() {
   };
 
   const save = async () => {
+    if (saving) return;
     const title = (editing?.title ?? "").trim();
     const body = (editing?.body ?? "").trim();
     if (!title || !body) return toast.error("Title and body required");
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    // Only send DB-safe fields — never send stale id/user_id/created_at in update payload
-    const safeFields = {
-      kind: editing.kind,
-      category: editing.category ?? "",
-      title,
-      body,
-      subject: editing.subject ?? null,
-    };
-    const { error } = editing.id
-      ? await supabase.from("resource_library").update(safeFields).eq("id", editing.id)
-      : await supabase.from("resource_library").insert({ ...safeFields, user_id: u.user.id });
-    if (error) return toast.error(error.message);
-    toast.success(editing.id ? "Saved" : "Created");
-    setEditing(null); refresh();
+    setSaving(true);
+    try {
+      // Only send DB-safe fields — never send stale id/user_id/created_at in update payload
+      const safeFields = {
+        kind: editing.kind,
+        category: editing.category ?? "",
+        title,
+        body,
+        subject: editing.subject ?? null,
+      };
+      const { error } = editing.id
+        ? await supabase.from("resource_library").update(safeFields).eq("id", editing.id)
+        : await supabase.from("resource_library").insert({ ...safeFields, user_id: u.user.id });
+      if (error) { toast.error(error.message); return; }
+      toast.success(editing.id ? "Saved" : "Created");
+      setEditing(null); refresh();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteItem = async (i: any) => {
@@ -116,7 +123,7 @@ function LibraryPage() {
           </div>
           {editing.kind === "template" && <div><Label>Subject</Label><Input value={editing.subject ?? ""} onChange={(e) => setEditing({ ...editing, subject: e.target.value })} /></div>}
           <div><Label>Body</Label><Textarea rows={8} value={editing.body} onChange={(e) => setEditing({ ...editing, body: e.target.value })} /></div>
-          <div className="flex gap-2"><Button onClick={save}>Save</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
+          <div className="flex gap-2"><Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Button><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
         </div>
       )}
 
@@ -135,7 +142,11 @@ function LibraryPage() {
                 <div className="font-semibold truncate">{i.title}</div>
               </div>
               <div className="flex gap-1 ml-2 flex-shrink-0">
-                <Button size="icon" variant="ghost" title={i.is_favorite ? "Unfavorite" : "Favorite"} onClick={() => supabase.from("resource_library").update({ is_favorite: !i.is_favorite }).eq("id", i.id).then(refresh)}>
+                <Button size="icon" variant="ghost" title={i.is_favorite ? "Unfavorite" : "Favorite"} onClick={async () => {
+                  const { error } = await supabase.from("resource_library").update({ is_favorite: !i.is_favorite }).eq("id", i.id);
+                  if (error) { toast.error(error.message); return; }
+                  refresh();
+                }}>
                   <Star className={`w-4 h-4 ${i.is_favorite ? "fill-amber-400 text-amber-400" : ""}`} />
                 </Button>
                 <Button size="icon" variant="ghost" title="Edit" onClick={() => setEditing(i)}><Pencil className="w-4 h-4" /></Button>

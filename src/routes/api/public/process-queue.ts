@@ -20,10 +20,10 @@ export const Route = createFileRoute("/api/public/process-queue")({
         );
 
         const today = new Date().toISOString().slice(0, 10);
-        // Reset daily counters
+        // Reset daily counters — include mailboxes where last_reset_date is NULL (new mailboxes)
         await supabase.from("mailboxes")
           .update({ sent_today: 0, warmup_sent_today: 0, last_reset_date: today })
-          .neq("last_reset_date", today);
+          .or(`last_reset_date.neq.${today},last_reset_date.is.null`);
 
         // Reset hourly counters
         await supabase.from("mailboxes")
@@ -90,6 +90,9 @@ export const Route = createFileRoute("/api/public/process-queue")({
           const { data: steps } = await supabase
             .from("campaign_steps").select("*").eq("campaign_id", camp.id).order("step_order");
           if (!steps?.length) continue;
+
+          // Hoist profile fetch outside the per-lead loop — one DB call per campaign, not per lead
+          const { data: campProf } = await supabase.from("profiles").select("calendar_link, full_name, company_name").eq("id", camp.user_id).maybeSingle();
 
           let mbIdx = 0;
           for (const cl of due) {
@@ -169,17 +172,15 @@ export const Route = createFileRoute("/api/public/process-queue")({
             }
             if (!mb) break;
 
-            // A/B variant pick
+            // A/B variant pick — use the shorter array length to keep subject/body pairs aligned
             const subjVariants = [step.subject, ...(step.variant_subjects ?? [])].filter(Boolean);
             const bodyVariants = [step.body, ...(step.variant_bodies ?? [])].filter(Boolean);
-            const variantIdx = Math.floor(Math.random() * Math.max(subjVariants.length, bodyVariants.length, 1));
-            const subjectTpl = subjVariants[variantIdx % subjVariants.length] ?? "";
-            const bodyTpl = bodyVariants[variantIdx % bodyVariants.length] ?? "";
-
-            // Apply merge tags incl. calendar_link from sender's profile + unsubscribe url
-            const { data: prof } = await supabase.from("profiles").select("calendar_link, full_name, company_name").eq("id", camp.user_id).maybeSingle();
+            const variantCount = Math.max(1, Math.min(subjVariants.length, bodyVariants.length));
+            const variantIdx = Math.floor(Math.random() * variantCount);
+            const subjectTpl = subjVariants[variantIdx] ?? subjVariants[0] ?? "";
+            const bodyTpl = bodyVariants[variantIdx] ?? bodyVariants[0] ?? "";
             const unsubscribeUrl = `${origin}/unsubscribe/${cl.lead_id}`;
-            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "", calendar_link: prof?.calendar_link || "", unsubscribe_url: unsubscribeUrl, sender_name: prof?.full_name || mb.from_name || "", sender_company: prof?.company_name || "" };
+            const leadForRender = { ...lead, icebreaker: lead.icebreaker || "", calendar_link: campProf?.calendar_link || "", unsubscribe_url: unsubscribeUrl, sender_name: campProf?.full_name || mb.from_name || "", sender_company: campProf?.company_name || "" };
             const subject = renderEmail(subjectTpl, leadForRender);
             const body = renderEmail(bodyTpl, leadForRender);
 
@@ -246,6 +247,18 @@ export const Route = createFileRoute("/api/public/process-queue")({
                 step_order: step.step_order, to_email: lead.email, subject, body,
                 status: "failed", error: String(e?.message ?? e),
               });
+              // Exponential backoff on failure — max 3 retries, then mark failed
+              const retries = (cl.retry_count ?? 0) + 1;
+              const MAX_RETRIES = 3;
+              if (retries >= MAX_RETRIES) {
+                await supabase.from("campaign_leads").update({ status: "failed", retry_count: retries }).eq("id", cl.id);
+              } else {
+                const backoffMs = Math.pow(2, retries) * 60 * 60 * 1000; // 2h, 4h, 8h
+                await supabase.from("campaign_leads").update({
+                  retry_count: retries,
+                  next_send_at: new Date(Date.now() + backoffMs).toISOString(),
+                }).eq("id", cl.id);
+              }
             }
           }
         }

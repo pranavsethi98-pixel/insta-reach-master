@@ -51,7 +51,8 @@ function WebhooksPage() {
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const toggle = async (id: string, is_active: boolean) => {
-    await supabase.from("webhooks").update({ is_active }).eq("id", id);
+    const { error } = await supabase.from("webhooks").update({ is_active }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["webhooks"] });
   };
   const copy = async (s: string) => {
@@ -105,7 +106,7 @@ function WebhooksPage() {
             </div>
           </Card>
         ))}
-        {hooks?.length === 0 && (
+        {!hooks?.length && (
           <Card className="p-12 text-center">
             <Webhook className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">No webhooks yet. Add one to push events to your CRM, Zapier, or anywhere.</p>
@@ -125,7 +126,11 @@ function WebhooksPage() {
                 <tr key={d.id} className="border-t">
                   <td className="p-3 text-xs">{new Date(d.created_at).toLocaleString()}</td>
                   <td className="p-3"><Badge variant="secondary">{d.event}</Badge></td>
-                  <td className="p-3">{d.status ? d.status : (d.status === 0 ? "Error" : "—")}</td>
+                  <td className="p-3">
+                    {d.status != null
+                      ? <Badge variant={d.status >= 200 && d.status < 300 ? "default" : "destructive"}>{d.status === 0 ? "Error" : d.status}</Badge>
+                      : <span className="text-muted-foreground">—</span>}
+                  </td>
                   <td className="p-3 text-xs text-muted-foreground truncate max-w-md">{d.response}</td>
                 </tr>
               ))}
@@ -172,7 +177,7 @@ function AddWebhookDialog({ onCreated }: { onCreated: () => void }) {
             <div className="grid grid-cols-3 gap-2 mt-2">
               {ALL_EVENTS.map(ev => (
                 <label key={ev} className="flex items-center gap-2 text-sm border rounded-md px-3 py-2 cursor-pointer">
-                  <Checkbox checked={events.includes(ev)} onCheckedChange={(v) => setEvents(v ? [...events, ev] : events.filter(e => e !== ev))} />
+                  <Checkbox checked={events.includes(ev)} onCheckedChange={(v) => setEvents(v === true ? [...events, ev] : events.filter(e => e !== ev))} />
                   {ev}
                 </label>
               ))}

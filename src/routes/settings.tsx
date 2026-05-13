@@ -67,7 +67,8 @@ function SettingsPage() {
       destructive: true,
     });
     if (!ok) return;
-    await supabase.from("tracking_domains").delete().eq("id", id);
+    const { error } = await supabase.from("tracking_domains").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["tracking_domains"] });
   };
 

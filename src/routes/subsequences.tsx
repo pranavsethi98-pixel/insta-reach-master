@@ -155,8 +155,8 @@ function SubseqForm({ campaigns, initial, saving, onSave }: { campaigns: any[]; 
         </div>
         <div>
           <Label>Wait days</Label>
-          <Input type="number" min={0} value={form.trigger_after_days}
-            onChange={(e) => setForm({ ...form, trigger_after_days: Number(e.target.value) })} />
+          <Input type="number" min={1} value={form.trigger_after_days}
+            onChange={(e) => setForm({ ...form, trigger_after_days: Math.max(1, Number(e.target.value)) })} />
         </div>
       </div>
       <div className="flex items-center gap-2">

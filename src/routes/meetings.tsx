@@ -6,7 +6,8 @@ import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { useState } from "react";
+import { Calendar, CheckCircle2, XCircle, Clock, Loader2 } from "lucide-react";
 import { listMeetings, markMeeting } from "@/lib/meetings.functions";
 import { toast } from "sonner";
 
@@ -25,11 +26,12 @@ function MeetingsPage() {
   const list = useServerFn(listMeetings);
   const mark = useServerFn(markMeeting);
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["meetings"], queryFn: () => list() });
+  const { data, isLoading, error } = useQuery({ queryKey: ["meetings"], queryFn: () => list() });
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const m = useMutation({
     mutationFn: (v: any) => mark({ data: v }),
-    onSuccess: () => { toast.success("Updated"); qc.invalidateQueries({ queryKey: ["meetings"] }); },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to update meeting"),
+    onSuccess: () => { toast.success("Updated"); setPendingId(null); qc.invalidateQueries({ queryKey: ["meetings"] }); },
+    onError: (e: any) => { toast.error(e?.message ?? "Failed to update meeting"); setPendingId(null); },
   });
 
   return (
@@ -52,13 +54,21 @@ function MeetingsPage() {
               <div className="font-semibold">{mt.lead?.first_name ?? mt.lead?.email ?? "Lead"} — {mt.lead?.company}</div>
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 <Clock className="w-3 h-3"/> {mt.scheduled_at ? new Date(mt.scheduled_at).toLocaleString() : "—"}
-                <Badge className={statusColor[mt.status]}>{mt.status.replace("_"," ")}</Badge>
+                <Badge className={statusColor[mt.status]}>{mt.status.replace(/_/g, " ")}</Badge>
                 {mt.no_show_followups_sent > 0 && <span className="text-xs">{mt.no_show_followups_sent} recovery sent</span>}
               </div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" disabled={m.isPending} onClick={() => m.mutate({ id: mt.id, status: "completed" })}><CheckCircle2 className="w-3 h-3 mr-1"/> Showed</Button>
-              <Button size="sm" variant="outline" disabled={m.isPending} onClick={() => m.mutate({ id: mt.id, status: "no_show" })}><XCircle className="w-3 h-3 mr-1"/> No-show</Button>
+              <Button size="sm" variant="outline"
+                disabled={pendingId === mt.id || mt.status === "completed"}
+                onClick={() => { setPendingId(mt.id); m.mutate({ id: mt.id, status: "completed" }); }}>
+                {pendingId === mt.id && m.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin"/> : <CheckCircle2 className="w-3 h-3 mr-1"/>} Showed
+              </Button>
+              <Button size="sm" variant="outline"
+                disabled={pendingId === mt.id || mt.status === "no_show"}
+                onClick={() => { setPendingId(mt.id); m.mutate({ id: mt.id, status: "no_show" }); }}>
+                {pendingId === mt.id && m.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin"/> : <XCircle className="w-3 h-3 mr-1"/>} No-show
+              </Button>
             </div>
           </Card>
         ))}

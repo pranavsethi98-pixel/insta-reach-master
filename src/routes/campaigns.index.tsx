@@ -23,7 +23,7 @@ export const Route = createFileRoute("/campaigns/")({
 function CampaignsList() {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const { data: campaigns } = useQuery({
+  const { data: campaigns, isLoading: campaignsLoading } = useQuery({
     queryKey: ["campaigns"],
     queryFn: async () => {
       const { data, error } = await supabase.from("campaigns").select("*").order("created_at", { ascending: false });
@@ -113,7 +113,13 @@ function CampaignsList() {
         }
       />
 
-      {campaigns?.length === 0 ? (
+      {campaignsLoading && (
+        <div className="grid gap-3">
+          {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-2xl bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
+      {!campaignsLoading && campaigns?.length === 0 ? (
         <EmptyState
           icon={Send}
           title="No campaigns yet"
@@ -125,7 +131,7 @@ function CampaignsList() {
             </div>
           }
         />
-      ) : (
+      ) : !campaignsLoading && (
         <div className="grid gap-3">
           {campaigns?.map((c) => (
             <div
@@ -143,7 +149,7 @@ function CampaignsList() {
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate" title={c.name}>{smartTruncate(c.name, 90)}</div>
                   <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 font-mono">
-                    <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start}:00 – {c.send_window_end}:00 {c.timezone || "UTC"}</span>
+                    <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {c.send_window_start != null && c.send_window_end != null ? `${c.send_window_start}:00 – ${c.send_window_end}:00 ${c.timezone || "UTC"}` : "No send window set"}</span>
                     <span>limit · {c.daily_send_limit ?? "—"}/day</span>
                   </div>
                 </div>

@@ -143,7 +143,8 @@ export const suggestReply = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: conv } = await supabase.from("conversations").select("*, messages(*)").eq("id", data.conversationId).single();
+    // Ownership check — users can only get AI replies for their own conversations
+    const { data: conv } = await supabase.from("conversations").select("*, messages(*)").eq("id", data.conversationId).eq("user_id", userId).single();
     if (!conv) throw new Error("Conversation not found");
     const { data: prof } = await supabase.from("profiles").select("full_name, company_name, calendar_link, ai_reply_tone").eq("id", userId).maybeSingle();
 
@@ -203,7 +204,10 @@ export const categorizeReply = createServerFn({ method: "POST" })
       tools,
       { type: "function", function: { name: "label" } },
     );
-    const args = JSON.parse(json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments || "{}");
+    let args: any = { category: "other", confidence: 0, summary: "" };
+    try {
+      args = JSON.parse(json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments || "{}");
+    } catch { /* keep fallback */ }
     await supabase.from("conversations").update({
       ai_category: args.category, ai_confidence: args.confidence, ai_summary: args.summary,
     }).eq("id", data.conversationId);

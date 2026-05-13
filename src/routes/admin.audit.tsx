@@ -25,10 +25,10 @@ function Page() {
             {(data ?? []).map((e: any) => (
               <tr key={e.id} className="border-t">
                 <td className="px-3 py-2 text-muted-foreground text-xs">{new Date(e.created_at).toLocaleString()}</td>
-                <td className="px-3 py-2 font-mono text-xs">{e.actor_id.slice(0,8)}…</td>
+                <td className="px-3 py-2 font-mono text-xs">{e.actor_id ? `${e.actor_id.slice(0,8)}…` : "system"}</td>
                 <td className="px-3 py-2"><Badge variant="outline">{e.action}</Badge></td>
                 <td className="px-3 py-2 text-xs">{e.target_type}/{e.target_id?.slice(0,8) ?? "—"}</td>
-                <td className="px-3 py-2 text-xs font-mono text-muted-foreground">{JSON.stringify(e.metadata)}</td>
+                <td className="px-3 py-2 text-xs font-mono text-muted-foreground" title={JSON.stringify(e.metadata)}>{JSON.stringify(e.metadata).slice(0, 80)}{JSON.stringify(e.metadata).length > 80 ? "…" : ""}</td>
               </tr>
             ))}
           </tbody>

@@ -40,8 +40,10 @@ function Page() {
         <Button disabled={m.isPending} onClick={() => {
           if (!title.trim()) { toast.error("Title is required"); return; }
           if (!body.trim()) { toast.error("Body is required"); return; }
-          m.mutate(() => ua({ data: { title, body, audience: "all", is_active: true } }));
-          setTitle(""); setBody("");
+          const t = title, b = body;
+          m.mutate(() => ua({ data: { title: t, body: b, audience: "all", is_active: true } }), {
+            onSuccess: () => { setTitle(""); setBody(""); },
+          });
         }}>Publish</Button>
         <div className="space-y-1 mt-3">
           {(anns ?? []).map((a: any) => (
@@ -72,7 +74,7 @@ function Page() {
                   m.mutate(() => rt({ data: { ticketId: t.id, body: reply[t.id] ?? "", status: "answered" } }));
                   setReply({ ...reply, [t.id]: "" });
                 }}>Reply</Button>
-                <Button size="sm" variant="ghost" disabled={m.isPending} onClick={() => m.mutate(() => rt({ data: { ticketId: t.id, body: "", status: "closed" } }))}>Close</Button>
+                <Button size="sm" variant="ghost" disabled={m.isPending} onClick={() => m.mutate(() => rt({ data: { ticketId: t.id, body: "[Closed by admin]", status: "closed" } }))}>Close</Button>
               </div>
             </div>
           ))}

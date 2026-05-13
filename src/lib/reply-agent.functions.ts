@@ -103,13 +103,14 @@ export const processInboundReply = createServerFn({ method: "POST" })
     } catch (e) { console.error("GHL tag on reply failed", e); }
 
 
-    // OOO handling
+    // OOO handling — only update campaign_leads tied to THIS conversation's campaign
     if (classification === "out_of_office") {
       const oooUntil = new Date(Date.now() + 7 * 86400000).toISOString();
-      if (conv?.lead_id) {
+      if (conv?.lead_id && conv?.campaign_id) {
         await supabase.from("campaign_leads")
           .update({ ooo_until: oooUntil, status: "ooo" })
-          .eq("lead_id", conv.lead_id);
+          .eq("lead_id", conv.lead_id)
+          .eq("campaign_id", conv.campaign_id);
       }
       return { classification, action: "scheduled_for_return" };
     }
@@ -169,10 +170,11 @@ export const processInboundReply = createServerFn({ method: "POST" })
       context_summary: latest.body?.slice(0, 200),
     }).select().single();
 
-    // Slack escalation for objections / referrals
-    if (profile.slack_webhook_url && (classification === "objection" || classification === "referral")) {
+    // Slack escalation for objections / referrals — only to validated Slack webhook URLs
+    const slackUrl = profile.slack_webhook_url ?? "";
+    if (slackUrl.startsWith("https://hooks.slack.com/") && (classification === "objection" || classification === "referral")) {
       try {
-        await fetch(profile.slack_webhook_url, {
+        await fetch(slackUrl, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: `🚨 ${classification.toUpperCase()} from ${lead?.email ?? "lead"}\n> ${latest.body?.slice(0, 200)}` }),
         });
@@ -210,7 +212,8 @@ export const approveReply = createServerFn({ method: "POST" })
     const updates: any = { status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId };
     if (data.subject !== undefined) updates.draft_subject = data.subject;
     if (data.body !== undefined) updates.draft_body = data.body;
-    await supabase.from("reply_queue").update(updates).eq("id", data.id);
+    // Ownership check — users can only approve their own queue items
+    await supabase.from("reply_queue").update(updates).eq("id", data.id).eq("user_id", userId);
     return { ok: true };
   });
 
@@ -219,8 +222,10 @@ export const rejectReply = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // Ownership check — users can only reject their own queue items
     await supabase.from("reply_queue")
       .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userId })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("user_id", userId);
     return { ok: true };
   });

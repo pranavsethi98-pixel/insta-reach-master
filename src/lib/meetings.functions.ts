@@ -30,7 +30,8 @@ export const markMeeting = createServerFn({ method: "POST" })
     if (data.status === "no_show") {
       updates.next_followup_at = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1h
     }
-    await context.supabase.from("meetings").update(updates).eq("id", data.id);
+    // Ownership check — users can only mark their own meetings
+    await context.supabase.from("meetings").update(updates).eq("id", data.id).eq("user_id", context.userId);
     return { ok: true };
   });
 

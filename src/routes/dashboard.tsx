@@ -28,7 +28,7 @@ function Dashboard() {
     try { window.localStorage.setItem("dashboard-show-more", showMore ? "1" : "0"); } catch {}
   }, [showMore]);
 
-  const { data } = useQuery({
+  const { data, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
       const since14 = new Date(Date.now() - 14 * 86400000).toISOString();
@@ -77,8 +77,9 @@ function Dashboard() {
   const needsMailbox = (data?.mailboxes ?? 0) === 0;
   const needsLeads = !needsMailbox && (data?.leads ?? 0) === 0;
   const needsCampaign = !needsMailbox && !needsLeads && (data?.campaigns ?? 0) === 0;
-  const needsWarmup = (data?.mailboxes ?? 0) > 0 && (data?.warming ?? 0) === 0;
-  const showOnboarding = needsMailbox || needsLeads || needsCampaign;
+  // Guard against flashing onboarding panel while data is still loading
+  const needsWarmup = !statsLoading && (data?.mailboxes ?? 0) > 0 && (data?.warming ?? 0) === 0;
+  const showOnboarding = !statsLoading && (needsMailbox || needsLeads || needsCampaign);
 
   const days = data?.days ?? [];
   const maxSent = Math.max(1, ...days.map(d => d.sent));

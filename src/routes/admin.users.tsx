@@ -6,7 +6,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { listUsers } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/admin/users")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -14,10 +14,17 @@ export const Route = createFileRoute("/admin/users")({
 
 function Page() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const fn = useServerFn(listUsers);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data } = useQuery({
-    queryKey: ["admin-users", search],
-    queryFn: () => fn({ data: { search } }),
+    queryKey: ["admin-users", debouncedSearch],
+    queryFn: () => fn({ data: { search: debouncedSearch } }),
   });
 
   return (

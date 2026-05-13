@@ -172,7 +172,7 @@ function WarmupPage() {
           {!logLoading && (log ?? []).length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No activity yet.</div>}
           {log?.map((l) => (
             <div key={l.id} className="p-3 text-sm flex justify-between">
-              <span>{l.action} — {(mailboxes?.find(m => m.id === l.from_mailbox_id)?.from_email) ?? "?"} → {(mailboxes?.find(m => m.id === l.to_mailbox_id)?.from_email) ?? "?"}</span>
+              <span>{({ sent: "Sent warmup", replied: "Replied to warmup", skipped_insufficient_mailboxes: "Skipped (need ≥2 mailboxes)" } as Record<string, string>)[l.action] ?? l.action} — {(mailboxes?.find(m => m.id === l.from_mailbox_id)?.from_email) ?? "?"} → {(mailboxes?.find(m => m.id === l.to_mailbox_id)?.from_email) ?? "?"}</span>
               <span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
             </div>
           ))}

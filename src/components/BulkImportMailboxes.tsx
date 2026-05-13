@@ -63,24 +63,40 @@ export function BulkImportMailboxes({ onImported }: { onImported: () => void }) 
     if (!user) return;
     setBusy(true);
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let ok = 0, fail = 0;
-    for (const r of rows) {
-      if (!r.from_email || !emailRe.test(r.from_email)) { fail++; continue; }
-      const { error } = await supabase.from("mailboxes").insert({
+    // Build valid rows for batch insert — skip invalid emails
+    const validRows = rows
+      .filter(r => r.from_email && emailRe.test(r.from_email))
+      .map(r => ({
         user_id: user.id,
         label: r.label!, from_name: r.from_name!, from_email: r.from_email,
         smtp_host: r.smtp_host!, smtp_port: r.smtp_port!, smtp_secure: r.smtp_secure!,
         smtp_username: r.smtp_username!, smtp_password: r.smtp_password,
         imap_host: r.imap_host, imap_port: r.imap_port, imap_secure: r.imap_secure,
-        imap_username: r.smtp_username!, imap_password: r.smtp_password,
+        imap_username: r.smtp_username!,
+        // Use dedicated imap_password if provided, otherwise fall back to smtp_password
+        imap_password: (r as any).imap_password ?? r.smtp_password,
         daily_limit: r.daily_limit!, ramp_up_enabled: true, warmup_enabled: true,
-      } as any);
-      if (error) fail++; else ok++;
+      }));
+    const skipped = rows.length - validRows.length;
+    let ok = 0, fail = 0;
+    if (validRows.length > 0) {
+      // Batch insert in chunks of 50 to stay within request size limits
+      const CHUNK = 50;
+      for (let i = 0; i < validRows.length; i += CHUNK) {
+        const { error } = await supabase.from("mailboxes").insert(validRows.slice(i, i + CHUNK) as any);
+        if (error) fail += Math.min(CHUNK, validRows.length - i);
+        else ok += Math.min(CHUNK, validRows.length - i);
+      }
     }
     setBusy(false);
-    toast.success(`Imported ${ok} mailboxes${fail ? `, ${fail} failed (likely duplicates)` : ""}`);
-    setOpen(false); setRows([]); setPasted(""); setPairs(""); setSheetUrl("");
-    onImported();
+    const parts = [`Imported ${ok} mailbox${ok !== 1 ? "es" : ""}`];
+    if (fail) parts.push(`${fail} failed (likely duplicates)`);
+    if (skipped) parts.push(`${skipped} skipped (invalid email)`);
+    toast.success(parts.join(", "));
+    if (ok > 0) {
+      setOpen(false); setRows([]); setPasted(""); setPairs(""); setSheetUrl("");
+      onImported();
+    }
   };
 
   return (
@@ -161,7 +177,7 @@ export function BulkImportMailboxes({ onImported }: { onImported: () => void }) 
         <DialogFooter>
           <Button onClick={importAll} disabled={!rows.length || busy}>
             {busy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-            Import {rows.length || ""} mailboxes
+            {rows.length > 0 ? `Import ${rows.length} mailbox${rows.length !== 1 ? "es" : ""}` : "Import mailboxes"}
           </Button>
         </DialogFooter>
       </DialogContent>

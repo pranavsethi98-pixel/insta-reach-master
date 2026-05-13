@@ -102,8 +102,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <ShieldCheck className="w-4 h-4 text-destructive-foreground" />
           </div>
           <div>
-            <div className="font-bold text-white">Admin</div>
-            <div className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider">{data.roles[0].replace("_"," ")}</div>
+            <div className="font-bold text-sidebar-foreground">Admin</div>
+            <div className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider">{data.roles[0].replace(/_/g, " ")}</div>
           </div>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto">

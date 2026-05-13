@@ -23,6 +23,10 @@ function AcceptInvite() {
         navigate({ to: "/login", search: { invite: token } as any });
         return;
       }
+      // Validate token format before querying DB
+      if (!/^[a-zA-Z0-9_-]{10,256}$/.test(token)) {
+        setStatus("error"); setMsg("Invalid invite link."); return;
+      }
       const { data, error } = await supabase
         .from("workspace_invites")
         .select("*")
@@ -43,6 +47,12 @@ function AcceptInvite() {
     if (status === "accepting") return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !invite) return;
+    // Email ownership check — invite must match the logged-in user's email (if scoped)
+    if (invite.invited_email && user.email && invite.invited_email.toLowerCase() !== user.email.toLowerCase()) {
+      setStatus("error");
+      setMsg(`This invite was sent to ${invite.invited_email}. Please sign in with that email address.`);
+      return;
+    }
     setStatus("accepting");
     const { error: mErr } = await supabase.from("workspace_members").insert({
       workspace_id: invite.workspace_id, user_id: user.id, role: invite.role,

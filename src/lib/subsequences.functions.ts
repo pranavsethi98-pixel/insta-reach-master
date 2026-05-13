@@ -46,7 +46,8 @@ export const upsertSubsequence = createServerFn({ method: "POST" })
     const { steps, id, ...payload } = data;
     let subId = id;
     if (subId) {
-      const { error: uErr } = await supabase.from("subsequences").update(payload).eq("id", subId);
+      // Ownership check — users can only update their own subsequences
+      const { error: uErr } = await supabase.from("subsequences").update(payload).eq("id", subId).eq("user_id", userId);
       if (uErr) throw uErr;
       const { error: dErr } = await supabase.from("subsequence_steps").delete().eq("subsequence_id", subId);
       if (dErr) throw dErr;
@@ -66,6 +67,7 @@ export const deleteSubsequence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    await context.supabase.from("subsequences").delete().eq("id", data.id);
+    // Ownership check — users can only delete their own subsequences
+    await context.supabase.from("subsequences").delete().eq("id", data.id).eq("user_id", context.userId);
     return { ok: true };
   });

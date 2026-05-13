@@ -40,9 +40,9 @@ function VisitorsPage() {
     setCreating(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
+      if (!u.user) { setCreating(false); return; }
       const { error } = await supabase.from("visitor_pixels").insert({ user_id: u.user.id, label: v });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       toast.success("Pixel created");
       setLabel("");
       setOpen(false);

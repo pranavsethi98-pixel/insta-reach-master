@@ -6,9 +6,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { timingSafeEqual } from "crypto";
 
 function safeEq(a: string, b: string) {
-  const A = Buffer.from(a); const B = Buffer.from(b);
-  if (A.length !== B.length) return false;
-  return timingSafeEqual(A, B);
+  // Pad to the same length to avoid leaking secret length via timing
+  const expected = Buffer.from(b);
+  const actual = Buffer.alloc(expected.length);
+  actual.write(a.slice(0, expected.length));
+  return timingSafeEqual(expected, actual);
 }
 
 export const Route = createFileRoute("/api/public/ghl-webhook")({
@@ -16,6 +18,11 @@ export const Route = createFileRoute("/api/public/ghl-webhook")({
     handlers: {
       POST: async ({ request }) => {
         const secret = process.env.GHL_WEBHOOK_SECRET;
+        // In production the secret MUST be set — reject all requests without it
+        if (!secret && process.env.NODE_ENV === "production") {
+          console.error("GHL_WEBHOOK_SECRET is not set — rejecting webhook to prevent spoofed events");
+          return new Response("Service unavailable", { status: 503 });
+        }
         if (secret) {
           const got = request.headers.get("x-ghl-secret") ?? "";
           if (!safeEq(got, secret)) return new Response("Unauthorized", { status: 401 });

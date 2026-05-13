@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { listReplyQueue, approveReply, rejectReply } from "@/lib/reply-agent.functions";
 import { toast } from "sonner";
-import { Bot, Check, X, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Bot, Check, X, Sparkles, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/reply-agent")({ component: () => (<RequireAuth><AppShell><ReplyAgentPage /></AppShell></RequireAuth>) });
 
@@ -59,7 +60,7 @@ function ReplyAgentPage() {
           <Card className="p-8 text-center">
             <Sparkles className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
             <p className="font-medium">Nothing to review</p>
-            <p className="text-sm text-muted-foreground">When a prospect replies, the AI will draft a response here. Switch the mode in <a className="underline" href="/settings">Settings</a>.</p>
+            <p className="text-sm text-muted-foreground">When a prospect replies, the AI will draft a response here. Switch the mode in <Link className="underline" to="/settings">Settings</Link>.</p>
           </Card>
         )}
 
@@ -67,6 +68,8 @@ function ReplyAgentPage() {
           <ReplyCard
             key={item.id}
             item={item}
+            approvePending={approveMut.isPending}
+            rejectPending={rejectMut.isPending}
             onApprove={(subject: string, body: string) => approveMut.mutate({ id: item.id, subject, body })}
             onReject={() => rejectMut.mutate(item.id)}
           />
@@ -75,7 +78,7 @@ function ReplyAgentPage() {
   );
 }
 
-function ReplyCard({ item, onApprove, onReject }: any) {
+function ReplyCard({ item, onApprove, onReject, approvePending, rejectPending }: any) {
   const [subject, setSubject] = useState(item.draft_subject || "");
   const [body, setBody] = useState(item.draft_body || "");
   const lead = item.lead;
@@ -105,8 +108,12 @@ function ReplyCard({ item, onApprove, onReject }: any) {
       <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} />
 
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={onReject}><X className="w-4 h-4 mr-1"/> Reject</Button>
-        <Button onClick={() => onApprove(subject, body)}><Check className="w-4 h-4 mr-1"/> Approve & Send</Button>
+        <Button variant="outline" onClick={onReject} disabled={rejectPending || approvePending}>
+          {rejectPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin"/> : <X className="w-4 h-4 mr-1"/>} Reject
+        </Button>
+        <Button onClick={() => onApprove(subject, body)} disabled={approvePending || rejectPending}>
+          {approvePending ? <Loader2 className="w-4 h-4 mr-1 animate-spin"/> : <Check className="w-4 h-4 mr-1"/>} Approve & Send
+        </Button>
       </div>
     </Card>
   );

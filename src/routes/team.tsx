@@ -39,7 +39,7 @@ function TeamPage() {
   });
   const ws = workspaces?.[0];
 
-  const { data: members } = useQuery({
+  const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["members", ws?.id],
     enabled: !!ws,
     queryFn: async () => {
@@ -51,7 +51,7 @@ function TeamPage() {
       return (rows ?? []).map((m: any) => ({ ...m, profile: byId.get(m.user_id) ?? null }));
     },
   });
-  const { data: invites } = useQuery({
+  const { data: invites, isLoading: invitesLoading } = useQuery({
     queryKey: ["invites", ws?.id],
     enabled: !!ws,
     queryFn: async () => (await supabase.from("workspace_invites").select("*").eq("workspace_id", ws!.id).is("accepted_at", null)).data ?? [],
@@ -95,8 +95,12 @@ function TeamPage() {
 
   const copyLink = async (token: string) => {
     const url = `${window.location.origin}/invite/${token}`;
-    await navigator.clipboard.writeText(url);
-    toast.success("Link copied");
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    } catch {
+      toast.error("Could not copy — please copy the URL manually: " + url);
+    }
   };
 
   return (
@@ -111,7 +115,7 @@ function TeamPage() {
           <DialogContent>
             <DialogHeader><DialogTitle>Invite teammate</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div><Label>Email</Label><Input value={email} onChange={e => setEmail(e.target.value)} placeholder="alice@company.com" /></div>
+              <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="alice@company.com" onKeyDown={e => e.key === "Enter" && sendInvite()} /></div>
               <div>
                 <Label>Role</Label>
                 <Select value={role} onValueChange={(v: any) => setRole(v)}>
@@ -131,6 +135,7 @@ function TeamPage() {
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-2 mb-4 font-semibold"><Users className="w-4 h-4" />Members ({members?.length ?? 0})</div>
         <div className="space-y-2">
+          {membersLoading && [1, 2].map(i => <div key={i} className="h-10 rounded bg-muted/40 animate-pulse" />)}
           {(members ?? []).map((m: any) => {
             const name = m.profile?.full_name?.trim();
             const email = m.profile?.email;
@@ -150,6 +155,7 @@ function TeamPage() {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4 font-semibold"><Mail className="w-4 h-4" />Pending invites ({invites?.length ?? 0})</div>
         <div className="space-y-2">
+          {invitesLoading && [1].map(i => <div key={i} className="h-10 rounded bg-muted/40 animate-pulse" />)}
           {(invites ?? []).map(i => (
             <div key={i.id} className="flex items-center justify-between py-2 border-b last:border-0">
               <div>

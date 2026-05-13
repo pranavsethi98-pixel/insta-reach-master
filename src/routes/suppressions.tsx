@@ -19,6 +19,7 @@ export const Route = createFileRoute("/suppressions")({
 function Page() {
   const qc = useQueryClient();
   const [val, setVal] = useState("");
+  const [adding, setAdding] = useState(false);
   const { confirm, dialog: confirmDialog } = useConfirm();
   const { data: rows, isLoading } = useQuery({
     queryKey: ["suppressions"],
@@ -26,6 +27,7 @@ function Page() {
   });
 
   const add = async () => {
+    if (adding) return;
     const v = val.trim().toLowerCase();
     if (!v) return;
     const isDomain = !v.includes("@");
@@ -39,15 +41,20 @@ function Page() {
     // Duplicate check
     const dup = (rows ?? []).find((r: any) => (isDomain ? r.domain === v : r.email === v));
     if (dup) return toast.error("Already suppressed");
-    const { error } = await supabase.from("suppressions").insert({
-      user_id: user.id,
-      ...(isDomain ? { domain: v } : { email: v }),
-      reason: "manual",
-    });
-    if (error) return toast.error(error.message);
-    setVal("");
-    toast.success(isDomain ? "Domain blocked" : "Email blocked");
-    qc.invalidateQueries({ queryKey: ["suppressions"] });
+    setAdding(true);
+    try {
+      const { error } = await supabase.from("suppressions").insert({
+        user_id: user.id,
+        ...(isDomain ? { domain: v } : { email: v }),
+        reason: "manual",
+      });
+      if (error) { toast.error(error.message); return; }
+      setVal("");
+      toast.success(isDomain ? "Domain blocked" : "Email blocked");
+      qc.invalidateQueries({ queryKey: ["suppressions"] });
+    } finally {
+      setAdding(false);
+    }
   };
   const remove = async (id: string, target: string) => {
     const ok = await confirm({
@@ -73,7 +80,7 @@ function Page() {
       </div>
       <div className="bg-card border rounded-xl p-5 flex gap-2">
         <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="user@example.com or example.com" onKeyDown={(e) => e.key === "Enter" && add()} />
-        <Button onClick={add}><Plus className="w-4 h-4 mr-2" /> Add</Button>
+        <Button onClick={add} disabled={adding}><Plus className="w-4 h-4 mr-2" /> {adding ? "Adding…" : "Add"}</Button>
       </div>
       <div className="bg-card border rounded-xl divide-y">
         {isLoading && [1,2,3].map(i => <div key={i} className="p-4 h-12 animate-pulse bg-muted/30" />)}

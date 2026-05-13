@@ -50,7 +50,7 @@ function SalesflowsPage() {
   const [saving, setSaving] = useState(false);
   const { confirm, dialog: confirmDialog } = useConfirm();
 
-  const { data: flows } = useQuery({
+  const { data: flows, isLoading: flowsLoading } = useQuery({
     queryKey: ["salesflows"],
     queryFn: async () => (await supabase.from("salesflows").select("*").order("created_at", { ascending: false })).data ?? [],
   });
@@ -124,7 +124,13 @@ function SalesflowsPage() {
         </div>
       </div>
 
-      {!flows?.length && !editing && (
+      {flowsLoading && (
+        <div className="space-y-2">
+          {[1, 2].map(i => <div key={i} className="h-16 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
+      {!flowsLoading && !flows?.length && !editing && (
         <div className="bg-card border rounded-xl p-8 space-y-3">
           <p className="text-muted-foreground">Start from a preset:</p>
           <div className="grid sm:grid-cols-3 gap-3">
@@ -211,6 +217,12 @@ function SalesflowsPage() {
               <div className="text-xs text-muted-foreground mt-1">{(() => { const c = (f.conditions || []).length; const a = (f.actions || []).length; return `${c} ${c === 1 ? "condition" : "conditions"} · ${a} ${a === 1 ? "action" : "actions"} · ${f.is_active ? "Active" : "Paused"}`; })()}</div>
             </div>
             <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={async () => {
+                const { error } = await supabase.from("salesflows").update({ is_active: !f.is_active }).eq("id", f.id);
+                if (error) { toast.error(error.message); return; }
+                toast.success(f.is_active ? "Flow paused" : "Flow resumed");
+                refresh();
+              }}>{f.is_active ? "Pause" : "Resume"}</Button>
               <Button size="sm" variant="outline" onClick={() => setEditing(f)}>Edit</Button>
               <Button size="icon" variant="ghost" onClick={() => remove(f.id, f.name)}><Trash2 className="w-4 h-4" /></Button>
             </div>

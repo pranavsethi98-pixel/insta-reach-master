@@ -11,17 +11,18 @@ export const Route = createFileRoute("/admin/analytics")({
 
 function Page() {
   const f = useServerFn(platformAnalytics);
-  const { data } = useQuery({ queryKey: ["pa"], queryFn: () => f() });
-  if (!data) return <div className="text-muted-foreground">Loading…</div>;
+  const { data, isLoading, isError } = useQuery({ queryKey: ["platform-analytics"], queryFn: () => f() });
+  if (isLoading) return <div className="text-muted-foreground">Loading…</div>;
+  if (isError || !data) return <div className="text-destructive">Failed to load analytics. Please refresh.</div>;
   const stats = [
     { l: "Sends · 30d", v: data.sends30d },
     { l: "Opens · 30d", v: data.opens30d },
     { l: "Replies · 30d", v: data.replies30d },
     { l: "Bounces · 30d", v: data.bounces30d },
     { l: "Signups · 30d", v: data.signups30d },
-    { l: "MRR", v: `$${(data.mrrCents/100).toFixed(0)}` },
-    { l: "Revenue · 30d", v: `$${(data.revenueCents30d/100).toFixed(0)}` },
-    { l: "Reply rate", v: `${data.sends30d ? ((data.replies30d/data.sends30d)*100).toFixed(1) : 0}%` },
+    { l: "MRR", v: `$${((data.mrrCents ?? 0)/100).toLocaleString("en-US")}` },
+    { l: "Revenue · 30d", v: `$${((data.revenueCents30d ?? 0)/100).toLocaleString("en-US")}` },
+    { l: "Reply rate", v: `${data.sends30d ? ((data.replies30d/data.sends30d)*100).toFixed(1) : "0.0"}%` },
   ];
   return (
     <div className="space-y-6">
