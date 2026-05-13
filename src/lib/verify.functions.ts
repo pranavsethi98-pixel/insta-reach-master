@@ -17,7 +17,11 @@ async function verifyOne(email: string) {
   const e = email.trim().toLowerCase();
   const m = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(e);
   if (!m) return { result: "invalid", reason: "bad_syntax", mx_found: false, is_disposable: false, is_role: false };
-  const [local, domain] = e.split("@");
+  // Use the captured group from the regex for the domain (handles edge-case of
+  // multiple @ signs, which the split approach would get wrong).
+  const atIdx = e.lastIndexOf("@");
+  const local = e.slice(0, atIdx);
+  const domain = m[1];
   const is_role = ROLE.has(local);
   const is_disposable = DISPOSABLE.has(domain);
   let mx_found = false;

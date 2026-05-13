@@ -17,7 +17,14 @@ export type SpamReport = {
 export function scoreSpam(subject: string, body: string): SpamReport {
   const text = `${subject}\n${body}`;
   const lc = text.toLowerCase();
-  const hits = SPAM_WORDS.filter(w => lc.includes(w));
+  // Use word-boundary matching for single-word entries (e.g. "free") to avoid
+  // false positives on words that contain the spam word as a substring
+  // (e.g. "freestyle", "carefree", "freedom"). Multi-word phrases still use
+  // substring matching since word boundaries don't apply cleanly there.
+  const hits = SPAM_WORDS.filter(w => {
+    if (/\s/.test(w)) return lc.includes(w);
+    return new RegExp(`(?<![a-z])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![a-z])`, "i").test(lc);
+  });
   const warnings: string[] = [];
   const words = (text.match(/\S+/g) ?? []);
   const allCapsWords = words.filter(w => w.length >= 3 && w === w.toUpperCase() && /[A-Z]/.test(w)).length;

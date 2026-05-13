@@ -1,5 +1,5 @@
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
@@ -97,13 +97,18 @@ function CampaignDetail() {
   const linkedIds = new Set((linkedMailboxes ?? []).map((m: any) => m.mailbox_id));
   const assignedIds = new Set((assigned ?? []).map((a: any) => a.lead_id));
 
+  const [statusUpdating, setStatusUpdating] = useState(false);
   const updateStatus = async (status: string) => {
+    if (statusUpdating) return;
     if (status === "active") {
       if (!steps || steps.length === 0) return toast.error("Add at least one step.");
       if (linkedIds.size === 0) return toast.error("Select at least one mailbox.");
       if (assignedIds.size === 0) return toast.error("Assign at least one lead.");
     }
-    await supabase.from("campaigns").update({ status }).eq("id", id);
+    setStatusUpdating(true);
+    const { error } = await supabase.from("campaigns").update({ status }).eq("id", id);
+    setStatusUpdating(false);
+    if (error) return toast.error("Could not update campaign status. Please try again.");
     qc.invalidateQueries({ queryKey: ["campaign", id] });
     toast.success(`Campaign ${status}`);
   };
@@ -129,7 +134,7 @@ function CampaignDetail() {
     qc.invalidateQueries({ queryKey: ["assigned", id] });
   };
 
-  if (!campaign) return <div>Loading…</div>;
+  if (!campaign) return <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground">Loading campaign…</div>;
 
   return (
     <div className="space-y-6">
@@ -165,9 +170,9 @@ function CampaignDetail() {
         </div>
         <div className="flex gap-2">
           {campaign.status !== "active" ? (
-            <Button onClick={() => updateStatus("active")}><Play className="w-4 h-4 mr-2" /> Activate</Button>
+            <Button onClick={() => updateStatus("active")} disabled={statusUpdating}><Play className="w-4 h-4 mr-2" /> {statusUpdating ? "Activating…" : "Activate"}</Button>
           ) : (
-            <Button variant="outline" onClick={() => updateStatus("paused")}><Pause className="w-4 h-4 mr-2" /> Pause</Button>
+            <Button variant="outline" onClick={() => updateStatus("paused")} disabled={statusUpdating}><Pause className="w-4 h-4 mr-2" /> {statusUpdating ? "Pausing…" : "Pause"}</Button>
           )}
         </div>
       </div>
@@ -325,12 +330,27 @@ function SequenceEditor({ campaignId, steps, campaignStatus }: { campaignId: str
 
 function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
   const [local, setLocal] = useState(step);
-  useEffect(() => setLocal(step), [step.id]);
-  const save = async (patch: any) => {
+  // Sync external updates (e.g. after template load) but don't clobber local
+  // edits in progress — compare by step id AND content to avoid stale state.
+  useEffect(() => { setLocal(step); }, [step.id, step.subject, step.body, step.condition, step.delay_days]);
+
+  // Debounce text-field saves so that typing doesn't fire a DB write per
+  // keystroke. Structural changes (delay, condition) save immediately.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const save = useCallback(async (patch: any, immediate = false) => {
     const next = { ...local, ...patch };
     setLocal(next);
-    await supabase.from("campaign_steps").update(patch).eq("id", step.id);
-  };
+    const doSave = async () => {
+      await supabase.from("campaign_steps").update(patch).eq("id", step.id);
+    };
+    if (immediate) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      await doSave();
+    } else {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(doSave, 600);
+    }
+  }, [local, step.id]);
   const remove = async () => {
     await supabase.from("campaign_steps").delete().eq("id", step.id);
     onChange();
@@ -347,7 +367,7 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
               <select
                 className="h-8 text-sm rounded-md border bg-background px-2"
                 value={local.condition ?? "always"}
-                onChange={(e) => save({ condition: e.target.value })}
+                onChange={(e) => save({ condition: e.target.value }, true)}
               >
                 <option value="always">Always</option>
                 <option value="if_not_replied">No reply yet</option>
@@ -362,11 +382,11 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
           <Input type="number" min={minDelay} max={365} className="w-20 h-8" value={local.delay_days ?? minDelay} onChange={(e) => {
             const raw = Math.floor(Number(e.target.value));
             const v = Number.isFinite(raw) ? Math.max(minDelay, Math.min(365, raw)) : minDelay;
-            save({ delay_days: v });
+            save({ delay_days: v }, true);
           }} onBlur={(e) => {
             const raw = Math.floor(Number(e.target.value));
             const v = Number.isFinite(raw) ? Math.max(minDelay, Math.min(365, raw)) : minDelay;
-            if (v !== local.delay_days) save({ delay_days: v });
+            if (v !== local.delay_days) save({ delay_days: v }, true);
           }} />
           ); })()}
           <span className="text-sm text-muted-foreground">days</span>
@@ -388,7 +408,7 @@ function StepCard({ step, onChange }: { step: any; onChange: () => void }) {
             <div className="text-xs text-muted-foreground px-2 py-1">Click to load a starter</div>
             {TEMPLATES.map(t => (
               <button key={t.id} className="w-full text-left p-2 rounded hover:bg-muted"
-                onClick={() => save({ subject: t.subject, body: t.body })}>
+                onClick={() => save({ subject: t.subject, body: t.body }, true)}>
                 <div className="text-sm font-medium">{t.name}</div>
                 <div className="text-xs text-muted-foreground">{t.category}</div>
               </button>

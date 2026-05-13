@@ -38,7 +38,7 @@ function Dashboard() {
         supabase.from("campaigns").select("id,status,name", { count: "exact" }),
         supabase.from("send_log").select("id", { count: "exact", head: true }).eq("status", "sent"),
         supabase.from("send_log").select("opened_at,replied_at,sent_at,status").gte("sent_at", since14).limit(5000),
-        supabase.from("send_log").select("to_email,sent_at,status,opened_at,replied_at").order("sent_at", { ascending: false }).limit(8),
+        supabase.from("send_log").select("to_email,sent_at,status,opened_at,replied_at").eq("status", "sent").order("sent_at", { ascending: false }).limit(8),
       ]);
       const opens = (log.data ?? []).filter(l => l.opened_at).length;
       const replies = (log.data ?? []).filter(l => l.replied_at).length;
@@ -160,7 +160,7 @@ function Dashboard() {
                   <div className="relative w-full flex-1 flex flex-col-reverse">
                     <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60 transition-all" style={{ height: `${(d.sent / maxSent) * 100}%` }} title={`${d.sent} sent · ${d.replies} replies`} />
                     {d.replies > 0 && (
-                      <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${(d.replies / maxSent) * 100}%` }} />
+                      <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${Math.min(d.replies, d.sent) / maxSent * 100}%` }} />
                     )}
                   </div>
                   <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>

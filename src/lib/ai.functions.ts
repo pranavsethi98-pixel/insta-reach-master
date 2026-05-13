@@ -26,8 +26,18 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
         lead.linkedin && `LinkedIn: ${lead.linkedin}`,
       ].filter(Boolean).join("\n");
 
+      // Skip the API call entirely when there is no personalization signal —
+      // the model would just hallucinate or return an empty string anyway.
+      if (!ctx.trim()) {
+        results.push({ id: lead.id, icebreaker: "" });
+        continue;
+      }
+
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15_000);
         const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          signal: controller.signal,
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
@@ -38,6 +48,7 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
             ],
           }),
         });
+        clearTimeout(timeoutId);
         if (!res.ok) {
           results.push({ id: lead.id, icebreaker: "" });
           continue;

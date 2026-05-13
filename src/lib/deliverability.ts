@@ -19,5 +19,5 @@ export function scoreMailbox(m: any): { score: number; checks: DeliverabilityChe
   ];
   const total = checks.reduce((s, c) => s + c.weight, 0);
   const got = checks.reduce((s, c) => s + (c.ok ? c.weight : 0), 0);
-  return { score: Math.round((got / total) * 100), checks };
+  return { score: Math.min(100, Math.round((got / total) * 100)), checks };
 }

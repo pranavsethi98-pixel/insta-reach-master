@@ -111,6 +111,11 @@ function LeadsPage() {
   };
 
   const handleCsv = (file: File) => {
+    const MAX_CSV_MB = 10;
+    if (file.size > MAX_CSV_MB * 1024 * 1024) {
+      toast.error(`CSV file is too large (max ${MAX_CSV_MB} MB). Split it into smaller files.`);
+      return;
+    }
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
@@ -161,9 +166,18 @@ function LeadsPage() {
           toast.success(`No new leads — all ${valid.length} already exist${skippedInvalid ? `, ${skippedInvalid} invalid skipped` : ""}.`);
           return;
         }
-        const { error } = await supabase.from("leads").insert(toInsert);
-        if (error) return toast.error(error.message);
-        toast.success(`Imported ${toInsert.length} leads${valid.length - toInsert.length ? `, ${valid.length - toInsert.length} duplicates skipped` : ""}${skippedInvalid ? `, ${skippedInvalid} invalid skipped` : ""}.`);
+        // Insert in chunks to stay within Supabase's payload limits.
+        const CHUNK = 200;
+        let insertedCount = 0;
+        let insertError: any = null;
+        for (let i = 0; i < toInsert.length; i += CHUNK) {
+          const chunk = toInsert.slice(i, i + CHUNK);
+          const { error: chunkErr } = await supabase.from("leads").insert(chunk);
+          if (chunkErr) { insertError = chunkErr; break; }
+          insertedCount += chunk.length;
+        }
+        if (insertError) return toast.error("Import failed partway — check your data and try again.");
+        toast.success(`Imported ${insertedCount} leads${valid.length - toInsert.length ? `, ${valid.length - toInsert.length} duplicates skipped` : ""}${skippedInvalid ? `, ${skippedInvalid} invalid skipped` : ""}.`);
         qc.invalidateQueries({ queryKey: ["leads"] });
       },
     });

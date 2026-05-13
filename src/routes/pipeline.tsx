@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/pipeline")({
   component: () => (
@@ -22,6 +22,23 @@ function PipelinePage() {
   const qc = useQueryClient();
   const [dragId, setDragId] = useState<string | null>(null);
   const [editing, setEditing] = useState<any>(null);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Attach a non-passive wheel listener so we can preventDefault() and translate
+  // vertical scroll into horizontal scroll (React's synthetic onWheel is passive).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      if (el.scrollWidth <= el.clientWidth) return;
+      el.scrollLeft += e.deltaY;
+      e.preventDefault();
+    };
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, []);
 
   const { data: stages, isLoading: l1 } = useQuery({
     queryKey: ["pipeline_stages"],
@@ -37,10 +54,20 @@ function PipelinePage() {
     const stage = stages?.find(s => s.key === stageKey);
     const patch: any = { pipeline_stage: stageKey };
     if (stage?.is_won || stage?.is_lost) patch.closed_at = new Date().toISOString();
-    await supabase.from("leads").update(patch).eq("id", dragId);
+    const movedId = dragId;
     setDragId(null);
-    qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
-    toast.success(`Moved to ${stage?.label}`);
+    // Optimistic update: move the card immediately in the cache.
+    qc.setQueryData(["pipeline_leads"], (prev: any[]) =>
+      (prev ?? []).map(l => l.id === movedId ? { ...l, ...patch } : l)
+    );
+    const { error } = await supabase.from("leads").update(patch).eq("id", movedId);
+    if (error) {
+      // Roll back on failure.
+      qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
+      toast.error("Failed to move deal: " + error.message);
+    } else {
+      toast.success(`Moved to ${stage?.label}`);
+    }
   };
 
   const totalValue = (key: string) =>
@@ -51,10 +78,20 @@ function PipelinePage() {
     const raw = Number(editing.deal_value || 0);
     if (!Number.isFinite(raw) || raw < 0) return toast.error("Deal value must be 0 or greater");
     if (raw > 1_000_000_000) return toast.error("Deal value can't exceed $1,000,000,000");
-    await supabase.from("leads").update({ deal_value: raw, notes: editing.notes ?? null }).eq("id", editing.id);
+    const patch = { deal_value: raw, notes: editing.notes ?? null };
+    const savedId = editing.id;
+    // Optimistic update.
+    qc.setQueryData(["pipeline_leads"], (prev: any[]) =>
+      (prev ?? []).map(l => l.id === savedId ? { ...l, ...patch } : l)
+    );
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
-    toast.success("Deal updated");
+    const { error } = await supabase.from("leads").update(patch).eq("id", savedId);
+    if (error) {
+      qc.invalidateQueries({ queryKey: ["pipeline_leads"] });
+      toast.error("Failed to save: " + error.message);
+    } else {
+      toast.success("Deal updated");
+    }
   };
 
   const loading = l1 || l2;
@@ -69,17 +106,9 @@ function PipelinePage() {
         </div>
       ) : (
       <div
+        ref={scrollRef}
         className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:thin]"
         style={{ scrollbarColor: "hsl(var(--muted-foreground) / 0.3) transparent" }}
-        onWheel={(e) => {
-          // Translate vertical wheel into horizontal scroll so mouse/trackpad
-          // users can reach the off-screen "Won" / "Lost" stages.
-          if (e.deltaY === 0) return;
-          const el = e.currentTarget;
-          if (el.scrollWidth <= el.clientWidth) return;
-          el.scrollLeft += e.deltaY;
-          e.preventDefault();
-        }}
       >
         {(stages ?? []).map(stage => {
           const items = (leads ?? []).filter(l => (l.pipeline_stage ?? "new") === stage.key);

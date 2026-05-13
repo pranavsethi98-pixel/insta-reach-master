@@ -40,6 +40,7 @@ export const testSmtpCredentials = createServerFn({ method: "POST" })
       if (/TLS|SSL|secure|wrong version/i.test(msg)) {
         throw new Error("Could not connect — TLS/SSL mismatch (port 465 = SSL on, 587 = SSL off).");
       }
-      throw new Error("Could not connect — check your app password and try again.");
+      // Re-throw with context so the caller can diagnose unexpected failures.
+      throw new Error(`Could not connect — ${msg}`);
     }
   });

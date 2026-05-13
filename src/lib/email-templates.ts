@@ -18,7 +18,7 @@ export const TEMPLATES: EmailTemplate[] = [
     id: "case-study",
     name: "Social proof / case study",
     category: "Cold intro",
-    subject: "How {Acme|<similar company>} {3x'd|doubled} their pipeline",
+    subject: "How {Acme|a company like yours} {3x'd|doubled} their pipeline",
     body: `Hi {{first_name}},\n\nNoticed {{company}} is {growing fast|hiring in X|launching Y}. We recently helped a similar team {achieve concrete result} in {timeframe}.\n\nHappy to share the playbook — open to a quick call?\n\n{Best|Cheers},\n{Your name}`,
   },
   {

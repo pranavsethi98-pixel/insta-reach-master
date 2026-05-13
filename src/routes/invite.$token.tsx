@@ -12,7 +12,7 @@ export const Route = createFileRoute("/invite/$token")({
 function AcceptInvite() {
   const { token } = useParams({ from: "/invite/$token" });
   const navigate = useNavigate();
-  const [status, setStatus] = useState<"loading" | "ready" | "done" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "done" | "error" | "accepting">("loading");
   const [invite, setInvite] = useState<any>(null);
   const [msg, setMsg] = useState("");
 
@@ -30,18 +30,28 @@ function AcceptInvite() {
         .maybeSingle();
       if (error || !data) { setStatus("error"); setMsg("Invite not found or expired."); return; }
       if (data.accepted_at) { setStatus("error"); setMsg("Invite already accepted."); return; }
+      // Check expiry if the invite has an expiry timestamp
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        setStatus("error"); setMsg("This invite link has expired. Ask the workspace admin to send a new one."); return;
+      }
       setInvite(data);
       setStatus("ready");
     })();
   }, [token, navigate]);
 
   const accept = async () => {
+    if (status === "accepting") return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !invite) return;
+    setStatus("accepting");
     const { error: mErr } = await supabase.from("workspace_members").insert({
       workspace_id: invite.workspace_id, user_id: user.id, role: invite.role,
     } as any);
-    if (mErr && !mErr.message.includes("duplicate")) { toast.error(mErr.message); return; }
+    if (mErr && !/duplicate|unique/i.test(mErr.message)) {
+      toast.error("Could not join workspace. Please try again.");
+      setStatus("ready");
+      return;
+    }
     await supabase.from("workspace_invites").update({ accepted_at: new Date().toISOString() }).eq("id", invite.id);
     setStatus("done");
     setTimeout(() => navigate({ to: "/dashboard" }), 1200);
@@ -53,10 +63,12 @@ function AcceptInvite() {
         <h1 className="text-2xl font-bold mb-2">Workspace invite</h1>
         {status === "loading" && <p className="text-muted-foreground">Loading…</p>}
         {status === "error" && <p className="text-destructive">{msg}</p>}
-        {status === "ready" && (
+        {(status === "ready" || status === "accepting") && (
           <>
             <p className="text-muted-foreground mb-4">You've been invited to join as <b>{invite.role}</b>.</p>
-            <Button onClick={accept} className="w-full">Accept invite</Button>
+            <Button onClick={accept} disabled={status === "accepting"} className="w-full">
+              {status === "accepting" ? "Joining…" : "Accept invite"}
+            </Button>
           </>
         )}
         {status === "done" && <p className="text-primary">Joined! Redirecting…</p>}

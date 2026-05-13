@@ -25,8 +25,8 @@ function LoginPage() {
   const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!error && data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
 
@@ -67,11 +67,32 @@ function LoginPage() {
         setStep("verifyEmail");
       }
     } catch (err: any) {
-      const msg = err?.message || "Something went wrong";
-      const reasons = err?.weak_password?.reasons?.join(", ");
-      const text = reasons ? `${msg} (${reasons})` : msg;
-      setMessage({ type: "error", text });
-      toast.error(text, { duration: 8000 });
+      const raw = err?.message || "";
+      let msg: string;
+      if (mode === "signin") {
+        if (/invalid login|invalid email or password|wrong password|invalid credentials/i.test(raw)) {
+          msg = "Incorrect email or password.";
+        } else if (/email not confirmed/i.test(raw)) {
+          msg = "Please verify your email before signing in. Check your inbox.";
+        } else if (/too many requests/i.test(raw)) {
+          msg = "Too many attempts. Please wait a moment and try again.";
+        } else {
+          msg = "Sign in failed. Please try again.";
+        }
+      } else {
+        if (/already registered|user already exists/i.test(raw)) {
+          msg = "An account with this email already exists. Try signing in.";
+        } else if (/weak password|password/i.test(raw)) {
+          const reasons = err?.weak_password?.reasons?.join(", ");
+          msg = reasons ? `Password is too weak (${reasons}).` : "Password is too weak. Try a longer or more complex password.";
+        } else if (/too many requests/i.test(raw)) {
+          msg = "Too many attempts. Please wait a moment and try again.";
+        } else {
+          msg = "Could not create account. Please try again.";
+        }
+      }
+      setMessage({ type: "error", text: msg });
+      toast.error(msg, { duration: 8000 });
     } finally {
       setLoading(null);
     }
@@ -102,6 +123,10 @@ function LoginPage() {
       setMessage({ type: "error", text: "Enter your email above first, then click forgot password." });
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setMessage({ type: "error", text: "Enter a valid email address first." });
+      return;
+    }
     if (loading) return;
     setMessage(null);
     setLoading("email");
@@ -114,7 +139,7 @@ function LoginPage() {
       setMessage({ type: "success", text });
       toast.success(text);
     } catch (err: any) {
-      const text = err?.message || "Could not send reset email";
+      const text = "Could not send reset email. Please try again.";
       setMessage({ type: "error", text });
       toast.error(text);
     } finally {

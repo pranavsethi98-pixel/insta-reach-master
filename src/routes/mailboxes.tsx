@@ -56,7 +56,8 @@ function MailboxesPage() {
   };
 
   const toggle = async (id: string, is_active: boolean) => {
-    await supabase.from("mailboxes").update({ is_active }).eq("id", id);
+    const { error } = await supabase.from("mailboxes").update({ is_active }).eq("id", id);
+    if (error) { toast.error("Could not update mailbox status. Please try again."); return; }
     qc.invalidateQueries({ queryKey: ["mailboxes"] });
   };
 
@@ -100,8 +101,9 @@ function MailboxRow({ m, onToggle, onRemove, onUpdate }: any) {
 
   const runTest = async () => {
     if (!testTo) return toast.error("Enter a recipient email");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testTo.trim())) return toast.error("Enter a valid recipient email address.");
     try {
-      await sendTest({ data: { mailboxId: m.id, to: testTo, subject: "Test from your cold email tool", body: "This is a test send to confirm SMTP works.\n\nIf you got this, you're ready to launch campaigns." } });
+      await sendTest({ data: { mailboxId: m.id, to: testTo.trim(), subject: "Test from your cold email tool", body: "This is a test send to confirm SMTP works.\n\nIf you got this, you're ready to launch campaigns." } });
       toast.success("Test sent! Check the inbox.");
     } catch (e: any) {
       toast.error(e.message);
@@ -158,6 +160,7 @@ function MailboxSettings({ m, onSave }: { m: any; onSave: () => void }) {
     const maxD = Number(form.max_delay_seconds);
     const hourly = Number(form.hourly_limit);
     const daily = Number(form.daily_limit);
+    if (form.from_email && !emailRe.test(String(form.from_email).trim())) return toast.error("From email must be a valid email address.");
     if (!Number.isFinite(minD) || !Number.isFinite(maxD) || minD < 0 || maxD < 0) return toast.error("Delays must be non-negative numbers");
     if (minD >= maxD) return toast.error("Min delay must be less than Max delay");
     if (!Number.isFinite(hourly) || !Number.isFinite(daily) || hourly < 1 || daily < 1) return toast.error("Limits must be positive numbers");

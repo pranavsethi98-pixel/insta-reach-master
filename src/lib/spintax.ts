@@ -77,14 +77,20 @@ export function liquid(input: string, lead: Record<string, any>, flags: Record<s
   return s;
 }
 
-// Convert single-brace {first_name} → {{first_name}} so users typing the
-// shorter form still get a working merge tag. We deliberately do NOT touch
-// bare words — replacing the literal word "email" or "company" in prose
-// would corrupt sentences like "manual email tasks".
+// Convert single-brace {first_name} → {{first_name}} ONLY for known merge-tag
+// names so users typing the shorter form still get a working merge tag.
+// We deliberately restrict this to a known set to avoid converting legitimate
+// single-option spintax groups like {Hello} into {{hello}} merge tags.
+const KNOWN_MERGE_TAG_NAMES = new Set([
+  "first_name", "firstname", "last_name", "lastname", "email", "company",
+  "title", "website", "linkedin", "icebreaker", "calendar_link", "unsubscribe",
+  "unsubscribe_url", "sender_name", "sender_company",
+]);
 export function normalizeTemplate(input: string): string {
   return (input ?? "").replace(/(?<!\{)\{([A-Za-z][\w]*)\}(?!\})/g, (_m, name: string) => {
     const snake = name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-    return `{{${snake}}}`;
+    // Only upgrade to a double-brace merge tag if it's a known field name.
+    return KNOWN_MERGE_TAG_NAMES.has(snake) ? `{{${snake}}}` : _m;
   });
 }
 

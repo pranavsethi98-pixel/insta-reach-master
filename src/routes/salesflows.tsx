@@ -61,6 +61,11 @@ function SalesflowsPage() {
     if (!editing?.name?.trim()) return toast.error("Name required");
     if (!editing?.conditions?.length) return toast.error("Add at least one condition — flows without conditions would match every lead");
     if (!editing?.actions?.length) return toast.error("Add at least one action");
+    for (const a of editing.actions) {
+      if (a.type === "set_stage" && !a.stage?.trim()) return toast.error("Set pipeline stage: stage name cannot be empty");
+      if (a.type === "add_tag" && !a.tag?.trim()) return toast.error("Add tag: tag cannot be empty");
+      if (a.type === "webhook" && !a.url?.trim()) return toast.error("Webhook: URL cannot be empty");
+    }
     setSaving(true);
     try {
       // Strip null/empty description so the optional() validator on the server
@@ -150,12 +155,12 @@ function SalesflowsPage() {
                 <select className="h-9 rounded-md border bg-background px-2 text-sm" value={c.op} onChange={(e) => {
                   const n = [...editing.conditions]; n[i] = { ...c, op: e.target.value }; setEditing({ ...editing, conditions: n });
                 }}>{OPS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}</select>
-                <Input type="number" className="w-20 h-9" value={c.value} onChange={(e) => {
-                  const n = [...editing.conditions]; n[i] = { ...c, value: Number(e.target.value) }; setEditing({ ...editing, conditions: n });
+                <Input type="number" min={0} className="w-20 h-9" value={c.value} onChange={(e) => {
+                  const n = [...editing.conditions]; n[i] = { ...c, value: Math.max(0, Number(e.target.value)) }; setEditing({ ...editing, conditions: n });
                 }} />
                 <span className="text-sm text-muted-foreground">in last</span>
-                <Input type="number" className="w-20 h-9" value={c.window_days ?? ""} placeholder="∞" onChange={(e) => {
-                  const n = [...editing.conditions]; const v = e.target.value ? Number(e.target.value) : undefined; n[i] = { ...c, window_days: v }; setEditing({ ...editing, conditions: n });
+                <Input type="number" min={1} className="w-20 h-9" value={c.window_days ?? ""} placeholder="∞" onChange={(e) => {
+                  const n = [...editing.conditions]; const v = e.target.value ? Math.max(1, Number(e.target.value)) : undefined; n[i] = { ...c, window_days: v }; setEditing({ ...editing, conditions: n });
                 }} />
                 <span className="text-sm text-muted-foreground">days</span>
                 <Button size="icon" variant="ghost" onClick={() => setEditing({ ...editing, conditions: editing.conditions.filter((_: any, j: number) => j !== i) })}><Trash2 className="w-4 h-4" /></Button>
@@ -170,17 +175,23 @@ function SalesflowsPage() {
             {editing.actions.map((a: any, i: number) => (
               <div key={i} className="flex flex-wrap items-center gap-2 mb-2">
                 <select className="h-9 rounded-md border bg-background px-2 text-sm" value={a.type} onChange={(e) => {
-                  const n = [...editing.actions]; n[i] = { type: e.target.value, ...(e.target.value === "set_stage" ? { stage: "interested" } : e.target.value === "add_tag" ? { tag: "" } : {}) }; setEditing({ ...editing, actions: n });
+                  const n = [...editing.actions];
+                  const defaults: Record<string, object> = { set_stage: { stage: "interested" }, add_tag: { tag: "" }, webhook: { url: "" } };
+                  n[i] = { type: e.target.value, ...(defaults[e.target.value] ?? {}) };
+                  setEditing({ ...editing, actions: n });
                 }}>
                   <option value="set_stage">Set pipeline stage</option>
                   <option value="add_tag">Add tag</option>
                   <option value="webhook">Fire webhook</option>
                 </select>
                 {a.type === "set_stage" && (
-                  <Input className="h-9 w-40" value={a.stage} onChange={(e) => { const n = [...editing.actions]; n[i] = { ...a, stage: e.target.value }; setEditing({ ...editing, actions: n }); }} />
+                  <Input className="h-9 w-40" placeholder="stage name" value={a.stage ?? ""} onChange={(e) => { const n = [...editing.actions]; n[i] = { ...a, stage: e.target.value }; setEditing({ ...editing, actions: n }); }} />
                 )}
                 {a.type === "add_tag" && (
-                  <Input className="h-9 w-40" placeholder="tag" value={a.tag} onChange={(e) => { const n = [...editing.actions]; n[i] = { ...a, tag: e.target.value }; setEditing({ ...editing, actions: n }); }} />
+                  <Input className="h-9 w-40" placeholder="tag" value={a.tag ?? ""} onChange={(e) => { const n = [...editing.actions]; n[i] = { ...a, tag: e.target.value }; setEditing({ ...editing, actions: n }); }} />
+                )}
+                {a.type === "webhook" && (
+                  <Input className="h-9 w-64" placeholder="https://…" value={a.url ?? ""} onChange={(e) => { const n = [...editing.actions]; n[i] = { ...a, url: e.target.value }; setEditing({ ...editing, actions: n }); }} />
                 )}
                 <Button size="icon" variant="ghost" onClick={() => setEditing({ ...editing, actions: editing.actions.filter((_: any, j: number) => j !== i) })}><Trash2 className="w-4 h-4" /></Button>
               </div>

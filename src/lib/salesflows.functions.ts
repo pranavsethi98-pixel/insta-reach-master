@@ -10,7 +10,7 @@ type Action =
   | { type: "set_stage"; stage: string }
   | { type: "add_to_campaign"; campaign_id: string }
   | { type: "add_tag"; tag: string }
-  | { type: "webhook" };
+  | { type: "webhook"; url: string };
 
 function within(rows: any[], days?: number) {
   if (!days) return rows;
@@ -80,6 +80,12 @@ export const runSalesflows = createServerFn({ method: "POST" })
             const cf = (lead.custom_fields as any) || {};
             const tags = new Set([...(cf.tags || []), a.tag]);
             await supabase.from("leads").update({ custom_fields: { ...cf, tags: [...tags] } }).eq("id", lead.id);
+          } else if (a.type === "webhook" && a.url) {
+            await fetch(a.url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lead_id: lead.id, flow_id: flow.id, triggered_at: new Date().toISOString() }),
+            }).catch(() => null); // fire-and-forget; ignore network errors
           }
         }
       }

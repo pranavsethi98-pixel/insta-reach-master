@@ -20,12 +20,11 @@ function AnalyticsPage() {
     queryKey: ["analytics", periodDays],
     queryFn: async () => {
       const since = new Date(Date.now() - periodDays * 86400000).toISOString();
-      const [{ data: log }, { data: events }, { data: campaigns }] = await Promise.all([
+      const [{ data: log }, { data: campaigns }] = await Promise.all([
         supabase.from("send_log").select("*").gte("sent_at", since).limit(5000),
-        supabase.from("email_events").select("*").gte("created_at", since).limit(5000),
         supabase.from("campaigns").select("*"),
       ]);
-      return { log: log ?? [], events: events ?? [], campaigns: campaigns ?? [] };
+      return { log: log ?? [], campaigns: campaigns ?? [] };
     },
     refetchInterval: 15000,
   });
@@ -102,7 +101,7 @@ function AnalyticsPage() {
               <div className="relative w-full flex-1 flex flex-col-reverse">
                 <div className="w-full rounded-t bg-gradient-to-t from-primary to-primary/60" style={{ height: `${(d.sent / max) * 100}%` }} title={`${d.sent} sent`} />
                 {d.replied > 0 && (
-                  <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${(d.replied / max) * 100}%` }} />
+                  <div className="absolute bottom-0 left-0 w-full rounded-t bg-success" style={{ height: `${Math.min(d.replied, d.sent) / max * 100}%` }} />
                 )}
               </div>
               <div className="text-[9px] font-mono text-muted-foreground">{d.date}</div>

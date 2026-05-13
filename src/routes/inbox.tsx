@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/AuthGate";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Inbox, CheckCircle2, XCircle, Eye, Reply, MousePointerClick, AlertTriangle, Copy, Sparkles, Loader2 } from "lucide-react";
+import { Inbox, CheckCircle2, XCircle, Eye, Reply, MousePointerClick, AlertTriangle, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { suggestReply, categorizeReply } from "@/lib/copilot.functions";
 
 export const Route = createFileRoute("/inbox")({
   component: () => (
@@ -28,13 +26,18 @@ const CATEGORY_STYLE: Record<string, string> = {
 function InboxPage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<"replies" | "activity" | "setup">("replies");
+  const [activityFilter, setActivityFilter] = useState<string>("");
 
   // If arriving with ?q=... (e.g. from dashboard's "Recent activity"), default to
-  // the Activity tab where the matching sent email lives.
+  // the Activity tab where the matching sent email lives, and pre-fill the filter.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("q")) setTab("activity");
+    const q = params.get("q");
+    if (q) {
+      setTab("activity");
+      setActivityFilter(q);
+    }
   }, []);
 
   const { data: convs } = useQuery({
@@ -80,7 +83,7 @@ function InboxPage() {
       </div>
 
       {tab === "replies" && <RepliesPanel convs={convs ?? []} />}
-      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} onUnmarkReplied={unmarkReplied} />}
+      {tab === "activity" && <ActivityPanel log={log ?? []} onMarkReplied={markReplied} onUnmarkReplied={unmarkReplied} filter={activityFilter} onFilterChange={setActivityFilter} />}
       {tab === "setup" && <SetupPanel />}
     </div>
   );
@@ -110,7 +113,7 @@ function RepliesPanel({ convs }: { convs: any[] }) {
               )}
               <div className="text-xs text-muted-foreground">{new Date(c.last_message_at).toLocaleString()}</div>
             </div>
-            <div className="text-sm text-muted-foreground mt-1">From: {last?.from_email}</div>
+            {last?.from_email && <div className="text-sm text-muted-foreground mt-1">From: {last.from_email}</div>}
             {c.ai_summary && <div className="text-xs text-muted-foreground italic mt-1">"{c.ai_summary}"</div>}
             {last?.body && <div className="text-sm mt-2 line-clamp-3 whitespace-pre-wrap">{last.body}</div>}
           </div>
@@ -120,8 +123,18 @@ function RepliesPanel({ convs }: { convs: any[] }) {
   );
 }
 
-function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; onMarkReplied: (id: string) => void; onUnmarkReplied: (id: string) => void }) {
+function ActivityPanel({ log, onMarkReplied, onUnmarkReplied, filter, onFilterChange }: {
+  log: any[];
+  onMarkReplied: (id: string) => Promise<void>;
+  onUnmarkReplied: (id: string) => Promise<void>;
+  filter: string;
+  onFilterChange: (v: string) => void;
+}) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const q = filter.trim().toLowerCase();
+  const visible = q
+    ? log.filter(l => (l.to_email ?? "").toLowerCase().includes(q) || (l.subject ?? "").toLowerCase().includes(q))
+    : log;
   if (log.length === 0) return (
     <div className="bg-card border rounded-xl p-12 text-center">
       <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -129,8 +142,19 @@ function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; on
     </div>
   );
   return (
-    <div className="bg-card border rounded-xl divide-y">
-      {log.map((l) => {
+    <div className="space-y-3">
+      <input
+        type="search"
+        placeholder="Filter by email or subject…"
+        value={filter}
+        onChange={(e) => onFilterChange(e.target.value)}
+        className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+      />
+      <div className="bg-card border rounded-xl divide-y">
+      {visible.length === 0 && (
+        <div className="p-8 text-center text-sm text-muted-foreground">No matching activity.</div>
+      )}
+      {visible.map((l) => {
         const isOpen = expanded === l.id;
         return (
         <div key={l.id} className="p-4 flex items-start gap-3">
@@ -165,6 +189,7 @@ function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; on
         </div>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -20,15 +20,13 @@ function ResetPasswordPage() {
   const [done, setDone] = useState(false);
   const [message, setMessage] = useState<null | { type: "error" | "success"; text: string }>(null);
 
-  // Supabase puts a recovery token in the URL hash. Listen for the
-  // PASSWORD_RECOVERY event so we know the user landed here from the email link.
+  // Supabase fires PASSWORD_RECOVERY after the user clicks the reset link.
+  // We only set ready on that specific event — not on generic SIGNED_IN —
+  // to prevent a normally logged-in user who navigates to /reset-password
+  // from seeing (and being able to submit) the new-password form.
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
-    });
-    // If they refreshed, also check for an existing session.
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
+      if (event === "PASSWORD_RECOVERY") setReady(true);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -38,6 +36,10 @@ function ResetPasswordPage() {
     if (loading) return;
     if (password.length < 6) {
       setMessage({ type: "error", text: "Password must be at least 6 characters." });
+      return;
+    }
+    if (password.length > 72) {
+      setMessage({ type: "error", text: "Password must be 72 characters or fewer." });
       return;
     }
     if (password !== confirm) {
@@ -53,7 +55,12 @@ function ResetPasswordPage() {
       toast.success("Password updated");
       setTimeout(() => navigate({ to: "/dashboard" }), 1200);
     } catch (err: any) {
-      const text = err?.message || "Could not update password";
+      const raw = err?.message || "";
+      const text = /same password|reuse/i.test(raw)
+        ? "New password must be different from your current password."
+        : /session|expired|token/i.test(raw)
+          ? "Your reset link has expired. Please request a new one."
+          : "Could not update password. Please try again.";
       setMessage({ type: "error", text });
       toast.error(text);
     } finally {

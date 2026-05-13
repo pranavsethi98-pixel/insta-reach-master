@@ -62,8 +62,10 @@ export function BulkImportMailboxes({ onImported }: { onImported: () => void }) 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setBusy(true);
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let ok = 0, fail = 0;
     for (const r of rows) {
+      if (!r.from_email || !emailRe.test(r.from_email)) { fail++; continue; }
       const { error } = await supabase.from("mailboxes").insert({
         user_id: user.id,
         label: r.label!, from_name: r.from_name!, from_email: r.from_email,

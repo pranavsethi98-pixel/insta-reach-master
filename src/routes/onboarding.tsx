@@ -64,6 +64,9 @@ function Wizard() {
 
   const saveMailbox = useCallback(async () => {
     const preset = SMTP_PRESETS[provider];
+    if (!preset.host) {
+      throw new Error("SMTP host is required for a custom provider. Please go back and select a provider or enter a host.");
+    }
     // Verify SMTP credentials BEFORE saving the mailbox.
     try {
       await testSmtp({ data: {
@@ -92,14 +95,19 @@ function Wizard() {
 
   const importLeads = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const rows = lines.map(line => {
-      const [email, first_name, company] = line.split(",").map(s => s?.trim());
-      return { user_id: u.user!.id, email, first_name: first_name || "", company: company || "" };
-    }).filter(r => /@/.test(r.email));
-    if (!rows.length) throw new Error("Add at least one email.");
+      // Split only on the first two commas to preserve commas inside the company name.
+      const match = line.match(/^([^,]+),([^,]*),?(.*)?$/);
+      const email = (match?.[1] ?? line).trim();
+      const first_name = (match?.[2] ?? "").trim();
+      const company = (match?.[3] ?? "").trim();
+      return { user_id: u.user!.id, email, first_name, company };
+    }).filter(r => emailRe.test(r.email));
+    if (!rows.length) throw new Error("Add at least one valid email address (format: email, first name, company).");
     const { error } = await supabase.from("leads").insert(rows as any);
-    if (error) throw error;
+    if (error) throw new Error("Could not import leads. Please try again.");
     toast.success(`Imported ${rows.length} leads`);
   }, [csv]);
 
