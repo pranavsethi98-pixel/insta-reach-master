@@ -9,8 +9,8 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("AI not configured");
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) throw new Error("AI not configured — add GROQ_API_KEY to your environment");
 
     const { data: leads, error } = await supabase
       .from("leads").select("*").in("id", data.leadIds).eq("user_id", context.userId);
@@ -36,12 +36,12 @@ export const generateIcebreakers = createServerFn({ method: "POST" })
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15_000);
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           signal: controller.signal,
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: "llama-3.3-70b-versatile",
             messages: [
               { role: "system", content: "You write one-sentence personalized cold-email openers. Output ONLY the sentence — no markdown, no asterisks, no bold, no bullet points, no quotes, no preamble, no placeholders like [Product Name] or {company}. If you have no real personalization signal, return an empty string. Max 20 words. No emojis." },
               { role: "user", content: `Write an icebreaker for:\n${ctx}` },

@@ -2,19 +2,19 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const GATEWAY = "https://api.groq.com/openai/v1/chat/completions";
+const AI_MODEL = "llama-3.3-70b-versatile";
 
 async function callAI(messages: any[], tools?: any[], tool_choice?: any) {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("AI not configured");
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("AI not configured — add GROQ_API_KEY to your environment");
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: "google/gemini-2.5-flash", messages, ...(tools ? { tools, tool_choice } : {}) }),
+    body: JSON.stringify({ model: AI_MODEL, messages, ...(tools ? { tools, tool_choice } : {}) }),
     signal: AbortSignal.timeout(30_000),
   });
   if (res.status === 429) throw new Error("Rate limited. Try again in a minute.");
-  if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Settings → Workspace → Usage.");
   if (!res.ok) throw new Error(`AI error ${res.status}`);
   return res.json();
 }
