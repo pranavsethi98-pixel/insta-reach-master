@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
+import { toast } from "sonner";
+import { Copy } from "lucide-react";
 
 export const Route = createFileRoute("/admin/rbac")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -26,6 +29,7 @@ function Page() {
   const [role, setRole] = useState<typeof ROLES[number]>("support_admin");
 
   const admins = (users ?? []).filter((u: any) => u.roles.length > 0);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   return (
     <div className="space-y-6">
@@ -34,17 +38,23 @@ function Page() {
       <div className="bg-card border rounded-xl p-5">
         <h2 className="font-semibold mb-3">Invite admin</h2>
         <div className="flex gap-2">
-          <Input placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
           <select className="bg-background border rounded px-3" value={role} onChange={(e) => setRole(e.target.value as any)}>
             {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
           <Button onClick={async () => {
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+              toast.error("Enter a valid email address");
+              return;
+            }
             try {
               const out: any = await inv({ data: { email, role } });
-              alert(`Invite link: ${window.location.origin}/admin/accept-invite?token=${out.token}`);
+              const inviteLink = `${window.location.origin}/admin/accept-invite?token=${out.token}`;
+              try { await navigator.clipboard.writeText(inviteLink); } catch {}
+              toast.success("Invite created — link copied to clipboard", { duration: 8000 });
               setEmail("");
               ri();
-            } catch (e: any) { alert(e.message); }
+            } catch (e: any) { toast.error(e?.message ?? "Failed to create invite"); }
           }}>Invite</Button>
         </div>
       </div>
@@ -57,8 +67,14 @@ function Page() {
               <div>
                 <div className="font-medium">{u.email}</div>
                 <div className="flex gap-1 mt-1">{u.roles.map((r: string) => (
-                  <Badge key={r} variant="outline" className="cursor-pointer" onClick={() => {
-                    if (confirm(`Revoke ${r} from ${u.email}?`)) m.mutate(() => rv({ data: { userId: u.id, role: r as any } }));
+                  <Badge key={r} variant="outline" className="cursor-pointer" onClick={async () => {
+                    const ok = await confirm({
+                      title: `Revoke "${r}" from ${u.email}?`,
+                      description: "The user will lose admin access for this role immediately.",
+                      confirmLabel: "Revoke",
+                      destructive: true,
+                    });
+                    if (ok) m.mutate(() => rv({ data: { userId: u.id, role: r as any } }));
                   }}>{r} ×</Badge>
                 ))}</div>
               </div>
@@ -69,6 +85,7 @@ function Page() {
               </select>
             </div>
           ))}
+          {admins.length === 0 && <div className="text-sm text-muted-foreground py-2">No admins yet. Invite one above.</div>}
         </div>
       </div>
 
@@ -76,13 +93,18 @@ function Page() {
         <h2 className="font-semibold mb-3">Pending invites</h2>
         <div className="space-y-1">
           {(invites ?? []).filter((i: any) => !i.accepted_at).map((i: any) => (
-            <div key={i.id} className="flex justify-between py-2 border-b text-sm">
+            <div key={i.id} className="flex justify-between items-center py-2 border-b text-sm">
               <div>{i.email} · <Badge variant="outline">{i.role}</Badge></div>
-              <code className="text-xs text-muted-foreground">{i.token.slice(0,16)}…</code>
+              <Button size="sm" variant="ghost" title="Copy invite link" onClick={async () => {
+                const link = `${window.location.origin}/admin/accept-invite?token=${i.token}`;
+                try { await navigator.clipboard.writeText(link); toast.success("Link copied"); } catch { toast.error("Could not copy"); }
+              }}><Copy className="w-3 h-3" /></Button>
             </div>
           ))}
+          {!(invites ?? []).filter((i: any) => !i.accepted_at).length && <div className="text-sm text-muted-foreground py-2">No pending invites.</div>}
         </div>
       </div>
+      {confirmDialog}
     </div>
   );
 }

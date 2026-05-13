@@ -34,11 +34,13 @@ function ReplyAgentPage() {
   const approveMut = useMutation({
     mutationFn: (v: { id: string; subject: string; body: string }) =>
       approve({ data: v }),
-    onSuccess: () => { toast.success("Approved"); qc.invalidateQueries({ queryKey: ["reply-queue"] }); },
+    onSuccess: () => { toast.success("Reply approved and queued to send"); qc.invalidateQueries({ queryKey: ["reply-queue"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to approve reply"),
   });
   const rejectMut = useMutation({
     mutationFn: (id: string) => reject({ data: { id } }),
     onSuccess: () => { toast.success("Rejected"); qc.invalidateQueries({ queryKey: ["reply-queue"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to reject reply"),
   });
 
   return (
@@ -48,7 +50,11 @@ function ReplyAgentPage() {
           <p className="text-muted-foreground">Approve, edit, or reject AI-drafted replies before they send. Switch to Autopilot in Settings to skip approval.</p>
         </div>
 
-        {isLoading && <p>Loading…</p>}
+        {isLoading && (
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => <div key={i} className="h-40 rounded-xl bg-muted/40 animate-pulse" />)}
+          </div>
+        )}
         {!isLoading && (data?.items?.length ?? 0) === 0 && (
           <Card className="p-8 text-center">
             <Sparkles className="w-10 h-10 mx-auto text-muted-foreground mb-2" />

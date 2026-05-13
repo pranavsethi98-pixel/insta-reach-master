@@ -121,13 +121,13 @@ function RepliesPanel({ convs }: { convs: any[] }) {
 }
 
 function ActivityPanel({ log, onMarkReplied, onUnmarkReplied }: { log: any[]; onMarkReplied: (id: string) => void; onUnmarkReplied: (id: string) => void }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
   if (log.length === 0) return (
     <div className="bg-card border rounded-xl p-12 text-center">
       <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
       <p className="text-muted-foreground">No activity yet.</p>
     </div>
   );
-  const [expanded, setExpanded] = useState<string | null>(null);
   return (
     <div className="bg-card border rounded-xl divide-y">
       {log.map((l) => {

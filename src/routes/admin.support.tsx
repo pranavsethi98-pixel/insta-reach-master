@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/support")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -19,7 +20,11 @@ function Page() {
   const fa = useServerFn(listAnnouncements); const ua = useServerFn(upsertAnnouncement);
   const { data: tickets, refetch: rti } = useQuery({ queryKey: ["tk"], queryFn: () => ft() });
   const { data: anns, refetch: ran } = useQuery({ queryKey: ["an"], queryFn: () => fa() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => { rti(); ran(); } });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { rti(); ran(); },
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
   const [title, setTitle] = useState(""); const [body, setBody] = useState("");
   const [reply, setReply] = useState<Record<string,string>>({});
@@ -32,7 +37,12 @@ function Page() {
         <h2 className="font-semibold">Broadcast announcement</h2>
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Textarea placeholder="Body" value={body} onChange={(e) => setBody(e.target.value)} />
-        <Button onClick={() => { m.mutate(() => ua({ data: { title, body, audience: "all", is_active: true } })); setTitle(""); setBody(""); }}>Publish</Button>
+        <Button disabled={m.isPending} onClick={() => {
+          if (!title.trim()) { toast.error("Title is required"); return; }
+          if (!body.trim()) { toast.error("Body is required"); return; }
+          m.mutate(() => ua({ data: { title, body, audience: "all", is_active: true } }));
+          setTitle(""); setBody("");
+        }}>Publish</Button>
         <div className="space-y-1 mt-3">
           {(anns ?? []).map((a: any) => (
             <div key={a.id} className="flex justify-between py-2 border-b text-sm">
@@ -57,8 +67,12 @@ function Page() {
               <div className="text-sm mt-2">{t.body}</div>
               <div className="flex gap-2 mt-2">
                 <Input placeholder="Reply…" value={reply[t.id] ?? ""} onChange={(e) => setReply({ ...reply, [t.id]: e.target.value })} />
-                <Button size="sm" onClick={() => { m.mutate(() => rt({ data: { ticketId: t.id, body: reply[t.id] ?? "", status: "answered" } })); setReply({ ...reply, [t.id]: "" }); }}>Reply</Button>
-                <Button size="sm" variant="ghost" onClick={() => m.mutate(() => rt({ data: { ticketId: t.id, body: "", status: "closed" } }))}>Close</Button>
+                <Button size="sm" disabled={m.isPending} onClick={() => {
+                  if (!(reply[t.id] ?? "").trim()) { toast.error("Enter a reply first"); return; }
+                  m.mutate(() => rt({ data: { ticketId: t.id, body: reply[t.id] ?? "", status: "answered" } }));
+                  setReply({ ...reply, [t.id]: "" });
+                }}>Reply</Button>
+                <Button size="sm" variant="ghost" disabled={m.isPending} onClick={() => m.mutate(() => rt({ data: { ticketId: t.id, body: "", status: "closed" } }))}>Close</Button>
               </div>
             </div>
           ))}

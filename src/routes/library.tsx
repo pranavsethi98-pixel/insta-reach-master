@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { BookOpen, Plus, Trash2, Star } from "lucide-react";
+import { BookOpen, Plus, Trash2, Star, Pencil } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/library")({
   component: () => (<RequireAuth><AppShell><LibraryPage /></AppShell></RequireAuth>),
@@ -27,8 +28,9 @@ function LibraryPage() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<"all" | "template" | "sop" | "snippet">("all");
   const [editing, setEditing] = useState<any>(null);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
-  const { data: items } = useQuery({
+  const { data: items, isLoading } = useQuery({
     queryKey: ["library"],
     queryFn: async () => (await supabase.from("resource_library").select("*").order("created_at", { ascending: false })).data ?? [],
   });
@@ -56,6 +58,20 @@ function LibraryPage() {
     if (error) return toast.error(error.message);
     toast.success(editing.id ? "Saved" : "Created");
     setEditing(null); refresh();
+  };
+
+  const deleteItem = async (i: any) => {
+    const ok = await confirm({
+      title: `Delete "${i.title}"?`,
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("resource_library").delete().eq("id", i.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deleted");
+    refresh();
   };
 
   const filtered = (items ?? []).filter(i => filter === "all" || i.kind === filter);
@@ -96,28 +112,35 @@ function LibraryPage() {
         </div>
       )}
 
+      {isLoading && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-2 gap-3">
         {filtered.map((i: any) => (
           <div key={i.id} className="bg-card border rounded-xl p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="text-xs uppercase text-muted-foreground">{i.kind} · {i.category}</div>
-                <div className="font-semibold">{i.title}</div>
+                <div className="font-semibold truncate">{i.title}</div>
               </div>
-              <div className="flex gap-1">
-                <Button size="icon" variant="ghost" onClick={() => supabase.from("resource_library").update({ is_favorite: !i.is_favorite }).eq("id", i.id).then(refresh)}>
+              <div className="flex gap-1 ml-2 flex-shrink-0">
+                <Button size="icon" variant="ghost" title={i.is_favorite ? "Unfavorite" : "Favorite"} onClick={() => supabase.from("resource_library").update({ is_favorite: !i.is_favorite }).eq("id", i.id).then(refresh)}>
                   <Star className={`w-4 h-4 ${i.is_favorite ? "fill-amber-400 text-amber-400" : ""}`} />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditing(i)}>Edit</Button>
-                <Button size="icon" variant="ghost" onClick={() => supabase.from("resource_library").delete().eq("id", i.id).then(refresh)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="icon" variant="ghost" title="Edit" onClick={() => setEditing(i)}><Pencil className="w-4 h-4" /></Button>
+                <Button size="icon" variant="ghost" title="Delete" onClick={() => deleteItem(i)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
             {i.subject && <div className="text-sm font-medium">{i.subject}</div>}
             <div className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{i.body}</div>
           </div>
         ))}
-        {!filtered.length && !editing && <div className="col-span-2 bg-card border rounded-xl p-8 text-center text-muted-foreground">Nothing here yet.</div>}
+        {!isLoading && !filtered.length && !editing && <div className="col-span-2 bg-card border rounded-xl p-8 text-center text-muted-foreground">Nothing here yet. Click "New" to add a template, SOP, or snippet.</div>}
       </div>
+      {confirmDialog}
     </div>
   );
 }

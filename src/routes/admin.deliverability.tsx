@@ -19,7 +19,7 @@ function Page() {
       <h1 className="text-3xl font-bold">Deliverability</h1>
       <div className="grid md:grid-cols-3 gap-4">
         <Stat label="Total mailboxes" value={mb?.length ?? 0} />
-        <Stat label="At-risk (health &lt; 70)" value={low.length} accent />
+        <Stat label="At-risk (health < 70)" value={low.length} accent />
         <Stat label="Warmup pools" value={pools?.length ?? 0} />
       </div>
       <div className="bg-card border rounded-xl p-5">
@@ -39,7 +39,7 @@ function Page() {
 }
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return <div className={`bg-card border rounded-xl p-4 ${accent && value > 0 ? "border-destructive/50" : ""}`}>
-    <div className="text-xs text-muted-foreground" dangerouslySetInnerHTML={{ __html: label }} />
+    <div className="text-xs text-muted-foreground">{label}</div>
     <div className="text-3xl font-bold mt-1">{value}</div>
   </div>;
 }

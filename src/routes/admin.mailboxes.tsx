@@ -7,6 +7,7 @@ import { listAllMailboxes, setMailboxAdminSuspended, listWarmupPools, moveMailbo
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/mailboxes")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -18,7 +19,11 @@ function Page() {
   const sus = useServerFn(setMailboxAdminSuspended); const mv = useServerFn(moveMailboxToPool);
   const { data: mbs, refetch } = useQuery({ queryKey: ["admin-mbs", low], queryFn: () => fm({ data: { lowHealthOnly: low } }) });
   const { data: pools } = useQuery({ queryKey: ["admin-pools"], queryFn: () => fp() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => refetch() });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { refetch(); toast.success("Updated"); },
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
   return (
     <div className="space-y-6">

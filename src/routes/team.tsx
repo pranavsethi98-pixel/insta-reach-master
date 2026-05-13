@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Users, Mail, Copy, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { inviteTeammate } from "@/lib/team.functions";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 export const Route = createFileRoute("/team")({
   component: () => (
@@ -28,6 +29,9 @@ function TeamPage() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "member">("member");
   const [open, setOpen] = useState(false);
+
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const [inviting, setInviting] = useState(false);
 
   const { data: workspaces } = useQuery({
     queryKey: ["my_workspaces"],
@@ -55,6 +59,7 @@ function TeamPage() {
 
   const sendInvite = async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email");
+    setInviting(true);
     try {
       const res = await inviteFn({ data: { workspaceId: ws?.id, email, role } });
       try { await navigator.clipboard?.writeText(res.inviteUrl); } catch {}
@@ -65,11 +70,22 @@ function TeamPage() {
       qc.invalidateQueries({ queryKey: ["invites", ws?.id] });
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to create invite");
+    } finally {
+      setInviting(false);
     }
   };
 
-  const revoke = async (id: string) => {
-    await supabase.from("workspace_invites").delete().eq("id", id);
+  const revoke = async (id: string, inviteEmail: string) => {
+    const ok = await confirm({
+      title: `Revoke invite for ${inviteEmail}?`,
+      description: "The invite link will no longer work.",
+      confirmLabel: "Revoke",
+      destructive: true,
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("workspace_invites").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Invite revoked");
     qc.invalidateQueries({ queryKey: ["invites", ws?.id] });
   };
 
@@ -103,7 +119,7 @@ function TeamPage() {
                 </Select>
               </div>
             </div>
-            <DialogFooter><Button onClick={sendInvite}>Generate invite link</Button></DialogFooter>
+            <DialogFooter><Button onClick={sendInvite} disabled={inviting}>{inviting ? "Creating…" : "Generate invite link"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -137,14 +153,15 @@ function TeamPage() {
                 <div className="text-xs text-muted-foreground">{i.role}</div>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => copyLink(i.token)}><Copy className="w-4 h-4" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => revoke(i.id)}><Trash2 className="w-4 h-4" /></Button>
+                <Button size="sm" variant="ghost" title="Copy invite link" onClick={() => copyLink(i.token)}><Copy className="w-4 h-4" /></Button>
+                <Button size="sm" variant="ghost" title="Revoke invite" onClick={() => revoke(i.id, i.email)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
           ))}
           {(!invites || invites.length === 0) && <p className="text-sm text-muted-foreground">No pending invites.</p>}
         </div>
       </Card>
+      {confirmDialog}
     </div>
   );
 }

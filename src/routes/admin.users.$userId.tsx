@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Eye, KeyRound, Ban, ShieldCheck, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/users/$userId")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -35,9 +37,18 @@ function Page() {
   const [creditDelta, setCreditDelta] = useState("100");
   const [creditReason, setCreditReason] = useState("Manual top-up");
 
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => refetch() });
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => refetch(),
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
-  if (!data) return <div className="text-muted-foreground">Loading…</div>;
+  if (!data) return (
+    <div className="space-y-4">
+      {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-xl bg-muted/40 animate-pulse" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -63,8 +74,14 @@ function Page() {
           <Button variant="outline" size="sm" onClick={() => m.mutate(() => flag({ data: { userId, suspend: !data.flag?.is_suspended } }))}>
             <Ban className="w-4 h-4 mr-1" /> {data.flag?.is_suspended ? "Unsuspend" : "Suspend"}
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => {
-            if (confirm("Permanently delete this user and all their data?")) m.mutate(() => del({ data: { userId } }));
+          <Button variant="destructive" size="sm" onClick={async () => {
+            const ok = await confirm({
+              title: "Permanently delete user?",
+              description: "This will delete the account and all their data. This cannot be undone.",
+              confirmLabel: "Delete permanently",
+              destructive: true,
+            });
+            if (ok) m.mutate(() => del({ data: { userId } }));
           }}><Trash2 className="w-4 h-4 mr-1" /> Delete</Button>
         </div>
       </div>
@@ -158,6 +175,7 @@ function Page() {
           </div>
         ))}
       </Section>
+      {confirmDialog}
     </div>
   );
 }

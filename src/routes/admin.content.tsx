@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/content")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -30,14 +32,23 @@ function Page() {
           <Input placeholder="Category" value={t.category} onChange={(e) => setT({...t, category: e.target.value})} />
           <Input placeholder="Plan codes (comma) or empty for all" value={t.planCodes} onChange={(e) => setT({...t, planCodes: e.target.value})} />
         </div>
-        <Button onClick={async () => {
-          const r: any = await m.mutateAsync(() => f({ data: {
-            title: t.title, subject: t.subject || undefined, body: t.body, category: t.category,
-            planCodes: t.planCodes ? t.planCodes.split(",").map(s => s.trim()).filter(Boolean) : undefined,
-          } }));
-          alert(`Pushed to ${r.recipients} users`);
-          setT({ title: "", subject: "", body: "", category: "Outbound", planCodes: "" });
-        }}>Push</Button>
+        <Button disabled={m.isPending} onClick={async () => {
+          if (!t.title.trim()) { toast.error("Title is required"); return; }
+          if (!t.body.trim()) { toast.error("Body is required"); return; }
+          try {
+            const r: any = await m.mutateAsync(() => f({ data: {
+              title: t.title, subject: t.subject || undefined, body: t.body, category: t.category,
+              planCodes: t.planCodes ? t.planCodes.split(",").map(s => s.trim()).filter(Boolean) : undefined,
+            } }));
+            toast.success(`Pushed to ${r.recipients} user${r.recipients !== 1 ? "s" : ""}`);
+            setT({ title: "", subject: "", body: "", category: "Outbound", planCodes: "" });
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to push template");
+          }
+        }}>
+          {m.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+          Push
+        </Button>
       </div>
     </div>
   );

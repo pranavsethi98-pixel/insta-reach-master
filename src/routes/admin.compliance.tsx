@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/compliance")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -20,7 +21,11 @@ function Page() {
   const { data: bl, refetch: rbl } = useQuery({ queryKey: ["bl"], queryFn: () => fb() });
   const { data: af } = useQuery({ queryKey: ["af"], queryFn: () => fa() });
   const { data: settings, refetch: rs } = useQuery({ queryKey: ["ps"], queryFn: () => fs() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => { rbl(); rs(); } });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { rbl(); rs(); },
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
   const [kind, setKind] = useState<"email"|"domain"|"ip">("domain");
   const [value, setValue] = useState("");
@@ -49,7 +54,12 @@ function Page() {
             <option value="domain">domain</option><option value="email">email</option><option value="ip">ip</option>
           </select>
           <Input placeholder="value" value={value} onChange={(e) => setValue(e.target.value)} />
-          <Button onClick={() => { if (value) { m.mutate(() => ab({ data: { kind, value } })); setValue(""); } }}>Block</Button>
+          <Button onClick={() => {
+            const v = value.trim();
+            if (!v) { toast.error("Enter a value to block"); return; }
+            m.mutate(() => ab({ data: { kind, value: v } }));
+            setValue("");
+          }}>Block</Button>
         </div>
         <div className="space-y-1">
           {(bl ?? []).map((b: any) => (

@@ -7,6 +7,7 @@ import { listCreditCosts, setCreditCost } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/credits")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -15,7 +16,11 @@ export const Route = createFileRoute("/admin/credits")({
 function Page() {
   const f = useServerFn(listCreditCosts); const s = useServerFn(setCreditCost);
   const { data, refetch } = useQuery({ queryKey: ["credit-costs"], queryFn: () => f() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => refetch() });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { refetch(); toast.success("Saved"); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to save"),
+  });
   const [action, setAction] = useState(""); const [cost, setCost] = useState("1");
 
   return (
@@ -25,7 +30,12 @@ function Page() {
         <div className="flex gap-2 mb-4">
           <Input placeholder="action_name" value={action} onChange={(e) => setAction(e.target.value)} />
           <Input type="number" step="0.01" value={cost} onChange={(e) => setCost(e.target.value)} className="w-32" />
-          <Button onClick={() => m.mutate(() => s({ data: { action, cost: parseFloat(cost) } }))}>Save</Button>
+          <Button onClick={() => {
+            if (!action.trim()) { toast.error("Enter an action name"); return; }
+            const parsed = parseFloat(cost);
+            if (!Number.isFinite(parsed) || parsed < 0) { toast.error("Cost must be 0 or greater"); return; }
+            m.mutate(() => s({ data: { action: action.trim(), cost: parsed } }));
+          }}>Save</Button>
         </div>
         <div className="space-y-1">
           {(data ?? []).map((c: any) => (

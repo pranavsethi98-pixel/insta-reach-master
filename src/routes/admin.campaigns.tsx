@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { listAllCampaigns, setCampaignStatus } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/campaigns")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -14,7 +15,11 @@ export const Route = createFileRoute("/admin/campaigns")({
 function Page() {
   const f = useServerFn(listAllCampaigns); const s = useServerFn(setCampaignStatus);
   const { data, refetch } = useQuery({ queryKey: ["admin-campaigns"], queryFn: () => f() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => refetch() });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { refetch(); toast.success("Campaign updated"); },
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
   return (
     <div className="space-y-4">

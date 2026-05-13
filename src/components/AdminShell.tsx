@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { claimFirstSuperAdmin } from "@/lib/admin.functions";
 import { getMyAdminRoles } from "@/lib/admin-session.functions";
+import { toast } from "sonner";
 
 const sections = [
   { to: "/admin", label: "Overview", icon: ShieldCheck, exact: true },
@@ -80,7 +81,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     await claim();
                     await refetch();
                   } catch (e: any) {
-                    alert(e.message ?? "Failed");
+                    toast.error(e?.message ?? "Failed to claim super admin");
                   } finally { setBootBusy(false); }
                 }}
               >

@@ -7,6 +7,7 @@ import { listLlmProviders, upsertLlmProvider } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/ai")({
   component: () => <RequireAuth><AdminShell><Page /></AdminShell></RequireAuth>,
@@ -15,13 +16,17 @@ export const Route = createFileRoute("/admin/ai")({
 function Page() {
   const f = useServerFn(listLlmProviders); const u = useServerFn(upsertLlmProvider);
   const { data, refetch } = useQuery({ queryKey: ["llm"], queryFn: () => f() });
-  const m = useMutation({ mutationFn: async (fn: () => Promise<any>) => fn(), onSuccess: () => refetch() });
+  const m = useMutation({
+    mutationFn: async (fn: () => Promise<any>) => fn(),
+    onSuccess: () => { refetch(); toast.success("Saved"); },
+    onError: (e: any) => toast.error(e?.message ?? "Action failed"),
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold">AI controls</h1>
-        <Button onClick={() => m.mutate(() => u({ data: { name: "openai", default_model: "gpt-5-mini", is_enabled: true, byok_allowed: false } }))}>+ Provider</Button>
+        <Button onClick={() => m.mutate(() => u({ data: { name: "openai", default_model: "gpt-4o-mini", is_enabled: true, byok_allowed: false } }))}>+ Provider</Button>
       </div>
       <div className="bg-card border rounded-xl p-5">
         <p className="text-sm text-muted-foreground mb-3">Providers configured. Lovable AI Gateway is used by default — no API keys needed.</p>
