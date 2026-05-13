@@ -12,8 +12,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Webhook, Copy, Activity } from "lucide-react";
+import { Plus, Trash2, Webhook, Copy, Activity, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 const ALL_EVENTS = ["sent", "open", "click", "reply", "bounce"] as const;
 
