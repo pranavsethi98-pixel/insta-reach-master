@@ -32,6 +32,7 @@ function LeadsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [detail, setDetail] = useState<any>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const genFn = useServerFn(generateIcebreakers);
   const verifyFn = useServerFn(verifyLeads);
