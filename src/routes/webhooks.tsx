@@ -86,11 +86,15 @@ function WebhooksPage() {
               )}
               <Switch checked={h.is_active} onCheckedChange={(v) => toggle(h.id, v)} />
               <Button size="icon" variant="ghost" onClick={() => copy(h.secret)} title="Copy signing secret"><Copy className="w-4 h-4" /></Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(h.id)}><Trash2 className="w-4 h-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(h.id, h.url)}><Trash2 className="w-4 h-4" /></Button>
             </div>
-            <div className="text-xs text-muted-foreground mt-3">
-              Signing secret: <code className="bg-muted px-1.5 py-0.5 rounded">{h.secret}</code>
-              {" · "}Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-EmailSend-Signature: sha256=&lt;hex&gt;</code>
+            <div className="text-xs text-muted-foreground mt-3 flex items-center gap-2 flex-wrap">
+              <span>Signing secret:</span>
+              <code className="bg-muted px-1.5 py-0.5 rounded font-mono">{revealed.has(h.id) ? h.secret : mask(h.secret)}</code>
+              <button type="button" onClick={() => toggleReveal(h.id)} className="text-muted-foreground hover:text-foreground" title={revealed.has(h.id) ? "Hide" : "Reveal"}>
+                {revealed.has(h.id) ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+              <span>· Verify with HMAC-SHA256 of body, header <code className="bg-muted px-1 rounded">X-EmailSend-Signature: sha256=&lt;hex&gt;</code></span>
             </div>
           </Card>
         ))}
