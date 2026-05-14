@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
@@ -151,8 +151,11 @@ function LoginPage() {
     if (loading) return;
     setMessage(null);
     setLoading("google");
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/dashboard" },
+    });
+    if (error) {
       setMessage({ type: "error", text: "Google sign-in failed. Try email/password instead." });
       toast.error("Google sign-in failed");
       setLoading(null);
