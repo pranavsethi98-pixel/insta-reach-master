@@ -38,7 +38,7 @@ export function MarketingHeader() {
           <span className="font-extrabold text-[17px] tracking-tight">EmailSend<span className="text-muted-foreground font-normal">.ai</span></span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 px-1.5 py-1.5 rounded-full surface-1 backdrop-blur">
+        <nav className="hidden md:flex items-center gap-1 px-1.5 py-1.5 rounded-full bg-card border border-border backdrop-blur">
           {nav.map((n) => (
             <Link
               key={n.to}
@@ -85,8 +85,8 @@ export function MarketingHeader() {
 
 export function MarketingFooter() {
   return (
-    <footer className="relative border-t border-border/60 mt-24 overflow-hidden">
-      <div className="absolute inset-0 bg-mesh opacity-50 pointer-events-none" />
+    <footer className="relative border-t border-border/60 mt-16 overflow-hidden">
+      <div className="absolute inset-0 bg-mesh opacity-40 pointer-events-none" />
       <div className="relative max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-5 gap-10">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 mb-3">
