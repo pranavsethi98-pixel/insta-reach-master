@@ -84,7 +84,7 @@ function AboutPage() {
         <p className="mt-4 text-muted-foreground">Free to start. First send in five minutes.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link to="/login"><Button size="lg" className="rounded-full h-12 px-7 shadow-glow group">Start free <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} /></Button></Link>
-          <Link to="/contact"><Button size="lg" variant="outline" className="rounded-full h-12 px-7 surface-1">Say hi</Button></Link>
+          <Link to="/contact"><Button size="lg" variant="outline" className="rounded-full h-12 px-7 border-2">Say hi</Button></Link>
         </div>
       </section>
     </MarketingLayout>
