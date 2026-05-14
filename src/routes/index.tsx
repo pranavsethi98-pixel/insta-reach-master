@@ -62,7 +62,7 @@ function Landing() {
               <Button size="lg" className="rounded-full text-base h-12 px-7 shadow-glow group" onClick={() => navigate({ to: "/login" })}>
                 Start free <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-7 surface-1" asChild>
+              <Button size="lg" variant="outline" className="rounded-full text-base h-12 px-7 surface-1 text-white" asChild>
                 <a href="#playbook"><Download className="w-4 h-4 mr-1.5" /> Free playbook</a>
               </Button>
             </div>
