@@ -76,7 +76,7 @@ function FeaturesPage() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-[11px] font-mono uppercase tracking-widest mb-6">
             <Zap className="w-3 h-3 text-primary" />
-            <span className="text-primary/80">Replace 6 tools with one stack</span>
+            <span className="text-primary/90">Replace 6 tools with one stack</span>
           </div>
           <h1 className="text-display">
             One platform.<br />
@@ -154,15 +154,15 @@ function FeaturesPage() {
 
       {/* Stats band */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="rounded-3xl surface-1 p-1">
-          <div className="grid md:grid-cols-3 gap-px bg-border/60 rounded-[22px] overflow-hidden">
+        <div className="rounded-3xl border border-border bg-card overflow-hidden">
+          <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
             {[
               { n: "30+", l: "Built-in features" },
               { n: "0", l: "Bolted-on tools needed" },
               { n: "1", l: "Bill, every month" },
             ].map((s) => (
-              <div key={s.l} className="bg-card/90 p-9 text-center">
-                <div className="text-5xl font-extrabold tracking-tight text-gradient">{s.n}</div>
+              <div key={s.l} className="p-9 text-center">
+                <div className="text-5xl font-extrabold tracking-tight text-primary">{s.n}</div>
                 <div className="mt-3 text-xs uppercase tracking-widest text-muted-foreground font-mono">{s.l}</div>
               </div>
             ))}

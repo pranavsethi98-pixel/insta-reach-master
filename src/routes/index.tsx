@@ -170,17 +170,16 @@ function Landing() {
 
       {/* ─── PLATFORM STATS ─── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="relative rounded-3xl surface-1 p-1 shadow-soft overflow-hidden">
-          <div className="absolute inset-0 bg-dots opacity-20 pointer-events-none" />
-          <div className="relative grid md:grid-cols-4 gap-px bg-border/60 rounded-[22px] overflow-hidden">
+        <div className="rounded-3xl border border-border bg-card overflow-hidden">
+          <div className="grid md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
             {[
               { n: "30+", l: "Built-in features" },
               { n: "$0", l: "Per-mailbox fee" },
               { n: "Free", l: "Warmup network" },
               { n: "14 days", l: "Free trial" },
             ].map((s) => (
-              <div key={s.l} className="bg-card/90 backdrop-blur p-9 text-center">
-                <div className="text-5xl md:text-6xl font-extrabold tracking-tight text-gradient">{s.n}</div>
+              <div key={s.l} className="p-9 text-center">
+                <div className="text-5xl md:text-6xl font-extrabold tracking-tight text-primary">{s.n}</div>
                 <div className="mt-3 text-xs uppercase tracking-widest text-muted-foreground font-mono">{s.l}</div>
               </div>
             ))}

@@ -93,16 +93,16 @@ function AboutPage() {
 
       {/* Numbers */}
       <section className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="rounded-3xl surface-1 p-1">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/60 rounded-[22px] overflow-hidden">
+        <div className="rounded-3xl border border-border bg-card overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border">
             {[
               { n: "2024", l: "Founded" },
               { n: "12M+", l: "Sends / mo" },
               { n: "1,000+", l: "Teams using" },
               { n: "1 stack", l: "No bolt-ons" },
             ].map((s) => (
-              <div key={s.l} className="bg-card/90 p-7 text-center">
-                <div className="text-3xl md:text-4xl font-extrabold tracking-tight text-gradient">{s.n}</div>
+              <div key={s.l} className="p-7 text-center">
+                <div className="text-3xl md:text-4xl font-extrabold tracking-tight text-primary">{s.n}</div>
                 <div className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{s.l}</div>
               </div>
             ))}

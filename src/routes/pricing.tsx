@@ -126,7 +126,7 @@ function PricingPage() {
               className={`relative rounded-3xl p-8 flex flex-col transition-all ${
                 p.highlight
                   ? "bg-card border-2 border-primary ring-glow md:-translate-y-2"
-                  : "surface-1 hover:border-primary/30"
+                  : "bg-card border border-border hover:border-primary/30"
               }`}
             >
               {p.highlight && (
@@ -187,7 +187,7 @@ function PricingPage() {
 
       {/* What's included strip */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="rounded-3xl surface-1 p-8 md:p-12 grid md:grid-cols-3 gap-8 text-center md:text-left">
+        <div className="rounded-3xl border border-border bg-card p-8 md:p-12 grid md:grid-cols-3 gap-8 text-center md:text-left">
           {[
             { k: "Unlimited mailboxes", v: "Connect as many Google, Microsoft, or SMTP accounts as you need. No per-mailbox tax. Ever." },
             { k: "Free warmup, always", v: "Conversation-style warmup network included on every paid plan. Not a credit pack." },
