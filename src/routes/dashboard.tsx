@@ -140,12 +140,18 @@ function Dashboard() {
       )}
 
       {/* KPIs — focused on outcomes */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link to="/mailboxes"><StatCard label="Mailboxes" value={data?.mailboxes ?? 0} sub={`${data?.warming ?? 0} warming`} icon={Mail} /></Link>
-        <Link to="/leads"><StatCard label="Leads" value={data?.leads ?? 0} sub="In your CRM" icon={Users} /></Link>
-        <Link to="/inbox"><StatCard label="Replies" value={data?.replies ?? 0} sub="Last 14 days" icon={Reply} accent /></Link>
-        <Link to="/analytics"><StatCard label="Reply rate" value={`${data?.replyRate ?? 0}%`} sub={`${data?.sent ?? 0} sent · all-time`} icon={TrendingUp} /></Link>
-      </div>
+      {statsLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-24 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Link to="/mailboxes"><StatCard label="Mailboxes" value={data?.mailboxes ?? 0} sub={`${data?.warming ?? 0} warming`} icon={Mail} /></Link>
+          <Link to="/leads"><StatCard label="Leads" value={data?.leads ?? 0} sub="In your CRM" icon={Users} /></Link>
+          <Link to="/inbox"><StatCard label="Replies" value={data?.replies ?? 0} sub="Last 14 days" icon={Reply} accent /></Link>
+          <Link to="/analytics"><StatCard label="Reply rate" value={`${data?.replyRate ?? 0}%`} sub={`${data?.sent ?? 0} sent · all-time`} icon={TrendingUp} /></Link>
+        </div>
+      )}
 
       {/* Chart */}
       <Panel
@@ -153,7 +159,9 @@ function Dashboard() {
         desc="Daily sends and replies"
         actions={<StatusPill tone="primary">Live</StatusPill>}
       >
-        {days.length > 0 && days.some(d => d.sent > 0) ? (
+        {statsLoading ? (
+          <div className="h-44 rounded-lg bg-muted/40 animate-pulse" />
+        ) : days.length > 0 && days.some(d => d.sent > 0) ? (
           <div>
             <div className="space-y-1">
               {/* Bar chart — fixed-height parent, absolute-positioned bars grow from bottom */}
